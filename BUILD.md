@@ -42,6 +42,20 @@ GEMINI_API_KEY=...
 Without it the app still ingests and displays a history; **Analyse my decisions** returns a
 clear error instead of a report.
 
+### Free-tier quota (measured, not documented)
+
+The request quota is a per-minute bucket held **separately per model**:
+
+| Model | Requests/min |
+|---|---|
+| `gemini-3.1-flash-lite` | > 60 |
+| `gemini-3.8-flash` | 20 |
+| `gemini-2.5-flash` | 5 |
+
+Older models are not more generous — the headroom is in the current-generation *lite*
+model. `/api/analyse` therefore tries a different model on each attempt (best quality
+first, most headroom last), so one exhausted bucket does not end the request.
+
 ## Deploy
 
 Vercel, zero config: import the repo, framework auto-detects as Next.js, set the same env
