@@ -50,14 +50,13 @@ for (let i = 0; i < 26; i++) {
   const wins = rnd() < (tech ? 0.3 : 0.6);
 
   const entry = BASE[symbol] * between(0.9, 1.1);
-  let notional = between(300, 900);
-  if (revengePending) {
-    notional = lastLoss * between(2, 3);
-    revengePending = false;
-  }
+  const isRevenge = revengePending;
+  revengePending = false;
+  const notional = isRevenge ? lastLoss * between(2, 3) : between(300, 900);
   const qty = notional / entry;
 
-  step(between(6, 60));
+  // straight back in after a loss, or a normal gap between positions
+  step(isRevenge ? between(0.3, 2) : between(6, 60));
   const opened = new Date(clock);
   push(opened, symbol, "buy", qty, entry);
 
@@ -85,9 +84,8 @@ for (let i = 0; i < 26; i++) {
 
   const pnl = totalQty * (exit - avg);
   if (pnl < -60 && rnd() < 0.6) {
-    lastLoss = Math.abs(pnl) * 6;
+    lastLoss = Math.abs(pnl) * 4;
     revengePending = true;
-    step(between(0.2, 0.9)); // straight back in, within the hour
   }
 }
 

@@ -115,3 +115,97 @@ export function summarise(trades: Trade[]) {
     fees: trades.reduce((s, t) => s + t.fee, 0),
   };
 }
+
+export type Position = {
+  id: string;
+  symbol: string;
+  tradeIds: string[];
+  openedAt: string;
+  closedAt: string | null;
+  qty: number;
+  avgEntry: number;
+  exitPrice: number | null;
+  /** Realised PnL in quote currency, fees included. Null while the position is still open. */
+  pnl: number | null;
+  pnlPct: number | null;
+  /** Entries added after the first one at a worse price — averaging down. */
+  addsDown: number;
+  holdHours: number | null;
+  fees: number;
+};
+
+/**
+ * Group fills into round-trip positions, one per symbol at a time: buys accumulate,
+ * sells reduce, and the position closes when the symbol goes flat.
+ * ponytail: long-only net position per symbol. Shorts and simultaneous opposite
+ * positions are not modelled — the target user is spot-long retail.
+ */
+export function buildPositions(trades: Trade[]): Position[] {
+  const open = new Map<string, { fills: Trade[]; qty: number; cost: number; proceeds: number; soldQty: number; fees: number }>();
+  const closed: Position[] = [];
+
+  for (const t of trades) {
+    let p = open.get(t.symbol);
+    if (!p) {
+      if (t.side === "sell") continue; // a sell with nothing open — nothing to attribute it to
+      p = { fills: [], qty: 0, cost: 0, proceeds: 0, soldQty: 0, fees: 0 };
+      open.set(t.symbol, p);
+    }
+    p.fills.push(t);
+    p.fees += t.fee;
+
+    if (t.side === "buy") {
+      p.qty += t.qty;
+      p.cost += t.qty * t.price;
+    } else {
+      p.qty -= t.qty;
+      p.soldQty += t.qty;
+      p.proceeds += t.qty * t.price;
+    }
+
+    if (p.qty <= 1e-8) {
+      closed.push(finish(p, closed.length + 1));
+      open.set(t.symbol, undefined!);
+      open.delete(t.symbol);
+    }
+  }
+
+  for (const p of open.values()) if (p) closed.push(finish(p, closed.length + 1));
+
+  return closed.sort((a, b) => a.openedAt.localeCompare(b.openedAt));
+}
+
+function finish(
+  p: { fills: Trade[]; cost: number; proceeds: number; soldQty: number; fees: number },
+  n: number,
+): Position {
+  const buys = p.fills.filter((f) => f.side === "buy");
+  const sells = p.fills.filter((f) => f.side === "sell");
+  const boughtQty = buys.reduce((s, f) => s + f.qty, 0);
+  const avgEntry = p.cost / boughtQty;
+  const first = buys[0];
+  const last = p.fills.at(-1)!;
+  const isClosed = sells.length > 0 && p.soldQty >= boughtQty - 1e-8;
+  const exitPrice = sells.length ? p.proceeds / p.soldQty : null;
+  const pnl = isClosed ? p.proceeds - p.cost - p.fees : null;
+
+  return {
+    id: `P${String(n).padStart(2, "0")}`,
+    symbol: first.symbol,
+    tradeIds: p.fills.map((f) => f.id),
+    openedAt: first.timestamp,
+    closedAt: isClosed ? last.timestamp : null,
+    qty: round(boughtQty, 6),
+    avgEntry: round(avgEntry, 4),
+    exitPrice: exitPrice === null ? null : round(exitPrice, 4),
+    pnl: pnl === null ? null : round(pnl, 2),
+    pnlPct: pnl === null ? null : round((pnl / p.cost) * 100, 2),
+    addsDown: buys.filter((f, i) => i > 0 && f.price < buys[i - 1].price).length,
+    holdHours: isClosed
+      ? round((Date.parse(last.timestamp) - Date.parse(first.timestamp)) / 3600_000, 1)
+      : null,
+    fees: round(p.fees, 2),
+  };
+}
+
+const round = (n: number, dp: number) => Number(n.toFixed(dp));

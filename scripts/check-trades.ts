@@ -33,3 +33,49 @@ assert.equal(unsorted.trades[0].symbol, "ETH");
 assert.equal(summarise(unsorted.trades).count, 2);
 
 console.log("ok — parser checks pass");
+
+// --- positions, facts, citation guard ---
+import { buildPositions } from "../src/lib/trades";
+import { computeFacts } from "../src/lib/analysis";
+import { enforceCitations, type Report } from "../src/lib/report";
+
+const positions = buildPositions(sample.trades);
+assert.ok(positions.length >= 20, `expected round trips, got ${positions.length}`);
+assert.ok(positions.every((p) => p.tradeIds.length >= 2), "every closed position needs an entry and an exit");
+
+// a two-buy, one-sell position averages down and nets out
+const p = buildPositions(
+  parseTrades(
+    `id,timestamp,symbol,side,qty,price,fee\nA,2026-06-01T00:00:00Z,BTC,buy,1,100,1\nB,2026-06-02T00:00:00Z,BTC,buy,1,80,1\nC,2026-06-03T00:00:00Z,BTC,sell,2,90,1`,
+  ).trades,
+)[0];
+assert.equal(p.avgEntry, 90);
+assert.equal(p.addsDown, 1);
+assert.equal(p.pnl, -3); // flat on price, down on the three fees
+assert.equal(p.holdHours, 48);
+assert.deepEqual(p.tradeIds, ["A", "B", "C"]);
+
+const facts = computeFacts(positions);
+assert.equal(facts.positions, positions.filter((x) => x.pnl !== null).length);
+assert.ok(facts.wins.avgPnlPct > 0 && facts.losses.avgPnlPct < 0, "sample should show wins up, losses down");
+assert.ok(
+  Math.abs(facts.losses.avgPnlPct) > facts.wins.avgPnlPct,
+  "sample is built so losses run further than winners",
+);
+assert.ok(facts.averagedDown.count > 0, "sample should contain averaging down");
+
+// fabricated citations are stripped, and a pattern left with none is dropped entirely
+const fabricated: Report = {
+  headline: "You cut winners early and hold losers.",
+  patterns: [
+    { title: "Real pattern cited", finding: "x".repeat(50), cost: "y".repeat(30), evidence: ["P01", "T9999"], confidence: "high" },
+    { title: "Entirely made up claim", finding: "x".repeat(50), cost: "y".repeat(30), evidence: ["P99", "NOPE"], confidence: "low" },
+  ],
+  checklist: ["a".repeat(20), "b".repeat(20), "c".repeat(20)],
+};
+const guarded = enforceCitations(fabricated, new Set([...positions.map((x) => x.id), ...sample.trades.map((t) => t.id)]));
+assert.equal(guarded.report.patterns.length, 1, "pattern with no real evidence must be dropped");
+assert.deepEqual(guarded.report.patterns[0].evidence, ["P01"]);
+assert.deepEqual(guarded.dropped.sort(), ["NOPE", "P99", "T9999"]);
+
+console.log(`ok — positions (${positions.length}), facts and citation guard pass`);
