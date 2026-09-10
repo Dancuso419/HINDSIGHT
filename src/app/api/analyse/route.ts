@@ -11,7 +11,8 @@ const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions"
 /**
  * The free tier throws intermittent "high demand" 500s, and its request quota is a
  * per-minute bucket held separately per model — measured: 3.8-flash 20/min,
- * 3.1-flash-lite >60/min, 2.5-flash only 5/min (older is not more generous).
+ * 3.7/3.5-flash 20/min, 3.1-flash-lite >60/min, 2.5-flash only 5/min (older is not
+ * more generous).
  * So every attempt uses a different model: best quality first, most headroom last.
  */
 const MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite"];

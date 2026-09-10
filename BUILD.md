@@ -50,6 +50,7 @@ The request quota is a per-minute bucket held **separately per model**:
 |---|---|
 | `gemini-3.1-flash-lite` | > 60 |
 | `gemini-3.8-flash` | 20 |
+| `gemini-3.5-flash` | 20 |
 | `gemini-2.5-flash` | 5 |
 
 Older models are not more generous — the headroom is in the current-generation *lite*
