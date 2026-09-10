@@ -24,14 +24,23 @@ npm run dev          # http://localhost:3000
 | `npm run dev` | Dev server |
 | `npm run build` / `npm start` | Production build / serve |
 | `npm run gen:trades` | Regenerate the synthetic demo history |
+| `npm run facts` | Print the computed facts for a CSV (default: the sample) |
 | `npm run check` | Parser self-check (asserts, no framework) |
 | `npm run lint` | ESLint |
 
 ## Environment variables
 
-None yet. The LLM analysis pass (day 2) adds `ANTHROPIC_API_KEY`, read **server-side only**
-inside a Next.js API route. Put it in `.env.local`, which is gitignored — never in client
-code, never committed.
+`GEMINI_API_KEY` — required for the analysis pass. Read **server-side only**, inside the
+`/api/analyse` route; it is never sent to the browser. Get a free key at
+[aistudio.google.com](https://aistudio.google.com/apikey) and put it in `.env.local`
+(gitignored):
+
+```
+GEMINI_API_KEY=...
+```
+
+Without it the app still ingests and displays a history; **Analyse my decisions** returns a
+clear error instead of a report.
 
 ## Deploy
 
@@ -49,5 +58,6 @@ demo needs no upload and no login.
 
 ## Status
 
-Day 1 complete: ingest (CSV parse + normalise + sample generator) renders. Analyse and
-report are not built yet — see `PROGRESS.md`.
+Days 1-2 complete: ingest renders, and `/api/analyse` returns a Zod-validated report whose
+every claim is checked against real trade ids. The report view is functional, not yet
+designed. Not deployed. See `PROGRESS.md`.

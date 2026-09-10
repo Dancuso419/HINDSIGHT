@@ -1,13 +1,14 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { TradeSchema, buildPositions } from "@/lib/trades";
 import { computeFacts } from "@/lib/analysis";
 import { ReportSchema, enforceCitations } from "@/lib/report";
-import { z } from "zod";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+
+const MODEL = "gemini-3.8-flash";
+const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 
 const RequestSchema = z.object({
   trades: z.array(TradeSchema).min(4).max(2000),
@@ -21,7 +22,7 @@ numbers that exist. Never compute, estimate, round differently, or invent a figu
 never describe a pattern the FACTS do not show.
 
 Every pattern you report must cite the position ids (P01) or trade ids (T0001) it rests
-on, taken verbatim from the FACTS. A claim you cannot cite must be left out.
+on, taken verbatim from the data. A claim you cannot cite must be left out.
 
 Report at most three patterns — the ones that cost this trader the most money. Write about
 their decisions, not about the market: they control entries, size, adds and exits, not
@@ -31,6 +32,28 @@ The checklist is 3-6 rules this specific trader could have applied to the cited 
 Each rule must be checkable before or during a trade, and must be specific enough that
 someone reading it alone could tell which mistake it prevents.`;
 
+// Gemini takes plain JSON Schema; Zod generates it, and Zod validates what comes back.
+const REPORT_JSON_SCHEMA = (() => {
+  const schema = z.toJSONSchema(ReportSchema, { io: "output", reused: "inline" }) as Record<string, unknown>;
+  delete schema.$schema;
+  return schema;
+})();
+
+/** The generated text lives in steps[].content[].text on a model_output step. */
+function extractText(body: unknown): string {
+  const b = body as {
+    output_text?: string;
+    steps?: { type?: string; content?: { type?: string; text?: string }[] }[];
+  };
+  if (typeof b?.output_text === "string") return b.output_text;
+  return (b?.steps ?? [])
+    .filter((s) => s.type === "model_output")
+    .flatMap((s) => s.content ?? [])
+    .filter((c) => c.type === "text" && typeof c.text === "string")
+    .map((c) => c.text!)
+    .join("");
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = RequestSchema.safeParse(body);
@@ -38,8 +61,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request", issues: parsed.error.issues }, { status: 400 });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY is not set on the server." }, { status: 500 });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: "GEMINI_API_KEY is not set on the server." }, { status: 500 });
   }
 
   const positions = buildPositions(parsed.data.trades);
@@ -52,19 +76,7 @@ export async function POST(req: Request) {
   }
 
   const question = parsed.data.question?.trim() || "What do I keep getting wrong?";
-
-  const client = new Anthropic();
-
-  try {
-    const response = await client.messages.parse({
-      model: "claude-opus-5",
-      max_tokens: 16000,
-      thinking: { type: "adaptive" },
-      system: SYSTEM,
-      messages: [
-        {
-          role: "user",
-          content: `The trader asks: "${question}"
+  const input = `The trader asks: "${question}"
 
 FACTS (computed from their fills — the only numbers you may use):
 ${JSON.stringify(facts, null, 2)}
@@ -78,38 +90,65 @@ ${JSON.stringify(
   })),
   null,
   2,
-)}`,
+)}`;
+
+  let raw: string;
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: MODEL,
+        system_instruction: SYSTEM,
+        input,
+        response_format: {
+          type: "text",
+          mime_type: "application/json",
+          schema: REPORT_JSON_SCHEMA,
         },
-      ],
-      output_config: { format: zodOutputFormat(ReportSchema) },
+      }),
     });
 
-    if (!response.parsed_output) {
-      return NextResponse.json({ error: "The model did not return a valid report." }, { status: 502 });
+    if (!res.ok) {
+      const detail = await res.text();
+      const message =
+        res.status === 429
+          ? "Rate limited by the Gemini free tier. Wait a moment and try again."
+          : `The model API returned ${res.status}.`;
+      console.error("gemini error", res.status, detail.slice(0, 500));
+      return NextResponse.json({ error: message }, { status: res.status === 429 ? 429 : 502 });
     }
 
-    const validIds = new Set([
-      ...positions.map((p) => p.id),
-      ...parsed.data.trades.map((t) => t.id),
-    ]);
-    const { report, dropped } = enforceCitations(response.parsed_output, validIds);
-
-    if (report.patterns.length === 0) {
-      return NextResponse.json(
-        { error: "Every pattern the model produced cited trades that do not exist. Nothing to show.", dropped },
-        { status: 502 },
-      );
-    }
-
-    return NextResponse.json({ report, facts, positions, dropped });
-  } catch (error) {
-    if (error instanceof Anthropic.AuthenticationError) {
-      return NextResponse.json({ error: "The server's Anthropic API key was rejected." }, { status: 500 });
-    }
-    if (error instanceof Anthropic.RateLimitError) {
-      return NextResponse.json({ error: "Rate limited by the model API. Try again in a moment." }, { status: 429 });
-    }
-    const message = error instanceof Anthropic.APIError ? error.message : "Analysis failed.";
-    return NextResponse.json({ error: message }, { status: 502 });
+    raw = extractText(await res.json());
+  } catch {
+    return NextResponse.json({ error: "Could not reach the model API." }, { status: 502 });
   }
+
+  // Malformed output fails loudly rather than rendering garbage.
+  let candidate: unknown;
+  try {
+    candidate = JSON.parse(raw);
+  } catch {
+    return NextResponse.json({ error: "The model did not return valid JSON." }, { status: 502 });
+  }
+
+  const report = ReportSchema.safeParse(candidate);
+  if (!report.success) {
+    return NextResponse.json(
+      { error: "The model's report did not match the required shape.", issues: report.error.issues },
+      { status: 502 },
+    );
+  }
+
+  const validIds = new Set([...positions.map((p) => p.id), ...parsed.data.trades.map((t) => t.id)]);
+  const { report: checked, dropped } = enforceCitations(report.data, validIds);
+
+  if (checked.patterns.length === 0) {
+    return NextResponse.json(
+      { error: "Every pattern the model produced cited trades that do not exist. Nothing to show.", dropped },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({ report: checked, facts, positions, dropped });
 }
