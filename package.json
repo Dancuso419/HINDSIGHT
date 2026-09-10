@@ -9,7 +9,8 @@
     "lint": "eslint",
     "gen:trades": "tsx scripts/gen-trades.ts",
     "check": "tsx scripts/check-trades.ts",
-    "facts": "tsx scripts/facts-preview.ts"
+    "facts": "tsx scripts/facts-preview.ts",
+    "e2e": "tsx scripts/e2e-analyse.ts"
   },
   "dependencies": {
     "next": "16.3.4",
