@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "northStar": "The Verdict Sheet — a lamp-lit page that states a finding at poster scale, then lets you audit it line by line.",
+  "colorMeta": {
+    "gold": { "displayName": "Struck Brass", "role": "authority and proof only; never decorative" },
+    "gold-deep": { "displayName": "Tarnished Brass", "role": "rules, strokes, scrollbar, fill identifiers" },
+    "ink": { "displayName": "Lamp-Off Black", "role": "the only ground; no light variant exists" },
+    "bone": { "displayName": "Warm Paper", "role": "primary text" },
+    "bone-dim": { "displayName": "Ash", "role": "secondary text and labels" },
+    "clay": { "displayName": "Fired Clay", "role": "negative P&L, sells, parse errors" },
+    "sage": { "displayName": "Dry Sage", "role": "positive P&L, buys" }
+  },
+  "extensions": {
+    "motion": {
+      "strike": {
+        "keyframes": "from { clip-path: inset(0 100% 0 0) } to { clip-path: inset(0 0 0 0) }",
+        "duration": "900ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "usage": "The single authored moment: the generated verdict prints into the hero slot. Reused as a 1.4s travelling hairline for the analysing state. Disabled under prefers-reduced-motion."
+      },
+      "colorTransition": { "duration": "150-200ms", "usage": "hover and proof-selection only" }
+    },
+    "elevation": { "strategy": "flat", "shadows": "none", "notes": "Depth comes from tonal separation, hairline rules and type weight. A shadow anywhere breaks the system." },
+    "breakpoints": { "sm": "640px", "container": "1180px" },
+    "browserSurfaces": {
+      "selection": "background: gold; color: ink",
+      "caret": "gold",
+      "focusRing": "2px solid gold at 2px offset",
+      "scrollbar": "10px, gold-deep thumb with a 3px ink border, gold on hover"
+    },
+    "rules": [
+      "Colour is never the only channel: a cited row carries a gold bar, a heavier gold ID, and a gold wash.",
+      "Mono means measurement or identifier; prose is never mono.",
+      "More space above a heading than below it.",
+      "Tables use horizontal hairlines only — no vertical grid, no zebra, no container."
+    ],
+    "donts": [
+      "No cards, tiles, or stat-tile rows",
+      "No second accent, no gradients, no gradient text",
+      "No border radius",
+      "No shadows",
+      "No kickers or eyebrows above headings",
+      "No light theme"
+    ]
+  }
+}
