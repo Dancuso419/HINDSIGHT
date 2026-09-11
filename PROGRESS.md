@@ -5,7 +5,7 @@ its only job is letting the next session resume without re-reading the codebase.
 
 ## Status
 
-**Day:** 2 / 12 (Sept 10 2026)
+**Day:** 4 / 12 (Sept 11 2026)
 **Deployed:** no
 **Demo URL:** —
 **Day-7 gate:** on track — day 7 falls Sept 16, ingest done on day 1
@@ -13,8 +13,8 @@ its only job is letting the next session resume without re-reading the codebase.
 ## Built
 
 - [x] Ingest — CSV → normalised, validated trade list; sample generator; renders
-- [x] Analyse — positions + computed facts + Gemini pass, Zod-validated (untested live: no key yet)
-- [~] Report — renders patterns, evidence ids and checklist; not designed yet
+- [x] Analyse — positions + computed facts + Gemini pass, Zod-validated, verified live
+- [x] Report — patterns, clickable evidence, expandable fills, checklist
 - [ ] Deployed, link verified in a private window
 
 Day 1 detail:
@@ -42,18 +42,33 @@ Day 2 detail:
   5.9h vs losers -14.4% held 100h; 5 averaged-down positions, all losers, -$1,382 between
   them; 3 revenge trades; losses concentrated in MSTR/NVDA.
 
+Day 3-4 detail:
+
+- `src/components/report-view.tsx` — headline, four fact tiles, the patterns, and the
+  checklist. Each citation is a button.
+- `src/components/positions-table.tsx` — positions with adds-down, hold time, entry→exit
+  and P&L; a row expands to the fills behind it. Clicking a citation highlights the
+  positions a claim rests on and scrolls to the one clicked.
+- `resolveEvidence` in `src/lib/report.ts` — maps a citation (position id *or* fill id) to
+  the position row to light up. Covered by `npm run check`.
+- Added the research-question input, pre-filled with the graded demo question.
+
 ## Not built / known broken
 
-- **The live model call has never run.** No `GEMINI_API_KEY` on the machine yet, so the
-  request/response shape against `/v1beta/interactions` is written from the docs and is
-  unverified. Everything either side of it (positions, facts, Zod validation, citation
-  guard) is covered by `npm run check`.
-- Report view is functional, not designed. Evidence ids are shown but not yet linked to
-  rows in the trade table. Day 3-4.
-- No shadcn/ui yet — plain Tailwind. Add on the polish day if it earns its place.
+- **The UI has never been seen in a browser by Claude.** Chrome automation could not attach
+  ("Frame with ID 0 is showing error page") on three attempts across localhost and
+  127.0.0.1, while curl got 200 throughout. Build, typecheck, lint and `npm run check`
+  all pass, and evidence resolution is unit-checked, but the visual result and the
+  click-to-highlight interaction are unverified by eye. **Verify manually before deploy.**
+- Not deployed. Day 5-6.
+- Styling is restrained but undesigned — no shadcn/ui. Day 6 polish.
 
 ## Problems hit and how they were fixed
 
+- Gemini's free tier throws intermittent "high demand" 500s and enforces a per-minute
+  request quota held **separately per model** (measured: 3.8-flash 20/min, 3.7/3.5-flash
+  20/min, 3.1-flash-lite >60/min, 2.5-flash only 5/min — older is *not* more generous).
+  Fixed by making every retry attempt use a different model, best quality first.
 - Started on Claude, switched to Gemini's free tier at the user's request — the provider
   lives in one file, so the swap touched only `route.ts` and removed `@anthropic-ai/sdk`.
 - The synthetic generator claimed a revenge-trade pattern the detector could never see:
@@ -86,5 +101,6 @@ Day 2 detail:
 
 ## Next session starts with
 
-Add `GEMINI_API_KEY` to `.env.local`, run the analyse call end to end against the sample
-history, and fix whatever the real response shape breaks. Then the day 3-4 report view.
+Open http://localhost:3000 by hand, click through upload → question → Analyse → click an
+evidence id, and fix what looks wrong. Then deploy to Vercel (day 5-6) and verify the link
+in a private window.
