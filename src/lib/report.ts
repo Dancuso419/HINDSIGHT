@@ -50,6 +50,24 @@ export type Report = z.infer<typeof ReportSchema>;
 export type Pattern = z.infer<typeof PatternSchema>;
 
 /**
+ * Resolve a pattern's citations to the position rows that should light up, and the one
+ * row to scroll to. Evidence may name a position (P08) or a single fill (T0012); both
+ * have to land on the position row that holds the fills.
+ */
+export function resolveEvidence(
+  positions: { id: string; tradeIds: string[] }[],
+  evidence: string[],
+  focus: string,
+) {
+  const toPosition = (id: string) =>
+    positions.find((p) => p.id === id || p.tradeIds.includes(id))?.id;
+  return {
+    selected: new Set(evidence.flatMap((id) => [id, toPosition(id)].filter(Boolean) as string[])),
+    focused: toPosition(focus) ?? null,
+  };
+}
+
+/**
  * Drop every citation that is not a real id from this user's data, and drop any pattern
  * left with nothing behind it. A claim the data cannot support does not reach the screen.
  */

@@ -79,3 +79,23 @@ assert.deepEqual(guarded.report.patterns[0].evidence, ["P01"]);
 assert.deepEqual(guarded.dropped.sort(), ["NOPE", "P99", "T9999"]);
 
 console.log(`ok — positions (${positions.length}), facts and citation guard pass`);
+
+// --- evidence ids resolve to the position rows the report points at ---
+import { resolveEvidence } from "../src/lib/report";
+
+const withFills = positions.find((x) => x.tradeIds.length >= 3)!;
+const byPosition = resolveEvidence(positions, [withFills.id], withFills.id);
+assert.equal(byPosition.focused, withFills.id);
+assert.ok(byPosition.selected.has(withFills.id));
+
+// a citation naming a single fill must light up the position that contains it
+const byTrade = resolveEvidence(positions, [withFills.tradeIds[1]], withFills.tradeIds[1]);
+assert.equal(byTrade.focused, withFills.id, "a trade id must resolve to its position row");
+assert.ok(byTrade.selected.has(withFills.id));
+
+// an id belonging to neither highlights nothing and scrolls nowhere
+const unknown = resolveEvidence(positions, ["NOPE"], "NOPE");
+assert.equal(unknown.focused, null);
+assert.deepEqual([...unknown.selected], ["NOPE"]);
+
+console.log("ok — evidence resolves to position rows");
