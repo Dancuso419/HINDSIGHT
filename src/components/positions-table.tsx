@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Position, Trade } from "@/lib/trades";
+import { Chevron } from "./icons";
 
 const money = (n: number | null) =>
-  n === null ? "—" : n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-const pct = (n: number | null) => (n === null ? "—" : `${n > 0 ? "+" : ""}${n.toFixed(1)}%`);
-const day = (iso: string | null) => (iso ? iso.slice(0, 10) : "open");
-const hold = (h: number | null) => (h === null ? "—" : h < 24 ? `${h.toFixed(0)}h` : `${(h / 24).toFixed(1)}d`);
+  n === null ? "—" : `${n < 0 ? "−" : ""}$${Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+const pct = (n: number | null) => (n === null ? "" : `${n > 0 ? "+" : ""}${n.toFixed(1)}%`);
+const held = (h: number | null) => (h === null ? "—" : h < 24 ? `${h.toFixed(0)}h` : `${(h / 24).toFixed(1)}d`);
 
 export function PositionsTable({
   positions,
@@ -24,25 +24,27 @@ export function PositionsTable({
   const [lastFocused, setLastFocused] = useState<string | null>(null);
   const rows = useRef(new Map<string, HTMLTableRowElement>());
 
-  // Clicking a claim's evidence opens the position it rests on — adjusted during render,
-  // so a later manual toggle still wins.
+  // Clicking a claim's proof opens the position it rests on — adjusted during render so a
+  // later manual toggle still wins.
   if (focused !== lastFocused) {
     setLastFocused(focused);
     setExpanded(focused);
   }
 
-  // ...and brings it into view.
   useEffect(() => {
     if (focused) rows.current.get(focused)?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [focused]);
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-black/10 dark:border-white/15">
-      <table className="w-full text-sm">
-        <thead className="border-b border-black/10 text-left text-xs uppercase tracking-wide text-black/50 dark:border-white/15 dark:text-white/50">
-          <tr>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-y border-rule">
             {["", "Position", "Symbol", "Opened", "Held", "Adds", "Entry → Exit", "P&L"].map((h, i) => (
-              <th key={i} className="px-3 py-2 font-medium whitespace-nowrap">
+              <th
+                key={i}
+                className={`label py-3 font-normal ${i === 0 ? "w-8 pl-0" : "px-4"} ${i >= 4 ? "text-right" : "text-left"}`}
+              >
                 {h}
               </th>
             ))}
@@ -50,7 +52,7 @@ export function PositionsTable({
         </thead>
         <tbody>
           {positions.map((p) => {
-            const isEvidence = selected.has(p.id);
+            const isProof = selected.has(p.id);
             const isOpen = expanded === p.id;
             const fills = trades.filter((t) => p.tradeIds.includes(t.id));
             return (
@@ -59,54 +61,74 @@ export function PositionsTable({
                 ref={(el) => {
                   if (el) rows.current.set(p.id, el);
                 }}
-                className={`border-b border-black/5 align-top last:border-0 dark:border-white/10 ${
-                  isEvidence ? "bg-amber-400/10" : ""
+                className={`border-b border-rule align-top transition-colors duration-200 ${
+                  isProof ? "bg-gold/[0.07]" : ""
                 }`}
               >
-                <td className="px-3 py-2">
+                <td className="py-3 pl-0">
                   <button
                     onClick={() => setExpanded(isOpen ? null : p.id)}
                     aria-expanded={isOpen}
                     aria-label={`${isOpen ? "Hide" : "Show"} the fills behind ${p.id}`}
-                    className="text-black/40 hover:text-foreground dark:text-white/40"
+                    className="text-bone-dim transition-colors hover:text-gold"
                   >
-                    {isOpen ? "▾" : "▸"}
+                    <Chevron open={isOpen} />
                   </button>
                 </td>
-                <td className="px-3 py-2">
-                  <span
-                    className={`font-mono text-xs ${isEvidence ? "font-semibold text-amber-700 dark:text-amber-400" : "text-black/50 dark:text-white/50"}`}
-                  >
-                    {p.id}
+
+                <td className="px-4 py-3">
+                  <span className="flex items-center gap-2">
+                    {/* Proof is marked three ways: a rule, a weight, and a colour. */}
+                    <span
+                      aria-hidden
+                      className={`block h-3.5 w-0.5 ${isProof ? "bg-gold" : "bg-transparent"}`}
+                    />
+                    <span className={`font-mono text-xs ${isProof ? "font-semibold text-gold" : "text-bone-dim"}`}>
+                      {p.id}
+                    </span>
+                    {isProof && <span className="sr-only">cited as proof</span>}
                   </span>
+
                   {isOpen && (
-                    <ul className="mt-2 space-y-1 font-mono text-xs text-black/60 dark:text-white/60">
+                    <ul className="mt-3 space-y-1.5 border-l border-rule-gold pl-3 font-mono text-xs text-bone-dim">
                       {fills.map((f) => (
-                        <li key={f.id} className="whitespace-nowrap">
-                          <span className="text-black/40 dark:text-white/40">{f.id}</span>{" "}
+                        <li key={f.id} className="tnum whitespace-nowrap">
+                          <span className="text-gold-deep">{f.id}</span>{" "}
                           {f.timestamp.slice(0, 16).replace("T", " ")}{" "}
-                          <span className={f.side === "buy" ? "text-emerald-600" : "text-red-600"}>{f.side}</span>{" "}
+                          <span className={f.side === "buy" ? "text-sage" : "text-clay"}>
+                            {f.side.padEnd(4, " ")}
+                          </span>{" "}
                           {f.qty} @ {f.price}
                         </li>
                       ))}
                     </ul>
                   )}
                 </td>
-                <td className="px-3 py-2 font-medium">{p.symbol}</td>
-                <td className="px-3 py-2 whitespace-nowrap">{day(p.openedAt)}</td>
-                <td className="px-3 py-2 whitespace-nowrap tabular-nums">{hold(p.holdHours)}</td>
-                <td className={`px-3 py-2 tabular-nums ${p.addsDown > 0 ? "font-medium text-amber-700 dark:text-amber-400" : "text-black/40 dark:text-white/40"}`}>
-                  {p.addsDown || "—"}
+
+                <td className="px-4 py-3 font-medium text-bone">{p.symbol}</td>
+                <td className="tnum px-4 py-3 font-mono text-xs whitespace-nowrap text-bone-dim">
+                  {p.openedAt.slice(0, 10)}
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap tabular-nums text-black/60 dark:text-white/60">
-                  {p.avgEntry} → {p.exitPrice ?? "—"}
+                <td className="tnum px-4 py-3 text-right font-mono text-xs whitespace-nowrap text-bone-dim">
+                  {held(p.holdHours)}
                 </td>
                 <td
-                  className={`px-3 py-2 whitespace-nowrap tabular-nums ${
-                    p.pnl === null ? "" : p.pnl > 0 ? "text-emerald-600" : "text-red-600"
+                  className={`tnum px-4 py-3 text-right font-mono text-xs ${
+                    p.addsDown > 0 ? "text-gold" : "text-bone-dim/50"
                   }`}
                 >
-                  {money(p.pnl)} <span className="text-xs opacity-70">{pct(p.pnlPct)}</span>
+                  {p.addsDown || "—"}
+                </td>
+                <td className="tnum px-4 py-3 text-right font-mono text-xs whitespace-nowrap text-bone-dim">
+                  {p.avgEntry} <span className="text-gold-deep">→</span> {p.exitPrice ?? "—"}
+                </td>
+                <td
+                  className={`tnum px-4 py-3 text-right font-mono whitespace-nowrap ${
+                    p.pnl === null ? "text-bone-dim" : p.pnl > 0 ? "text-sage" : "text-clay"
+                  }`}
+                >
+                  {money(p.pnl)}
+                  <span className="ml-2 text-xs opacity-60">{pct(p.pnlPct)}</span>
                 </td>
               </tr>
             );

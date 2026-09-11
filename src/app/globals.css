@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Ground: a warm near-black, the colour of a desk lamp turned off. */
+  --ink: #121110;
+  --ink-raised: #1a1815;
+  --rule: rgba(243, 239, 230, 0.09);
+  --rule-gold: rgba(232, 180, 76, 0.28);
+
+  --bone: #f3efe6;
+  --bone-dim: #a9a197;
+  --gold: #e8b44c;
+  --gold-deep: #8a6a25;
+  --clay: #ee7a5c;
+  --sage: #a9be8c;
+
+  --background: var(--ink);
+  --foreground: var(--bone);
 }
 
 @theme inline {
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-rule: var(--rule);
+  --color-rule-gold: var(--rule-gold);
+  --color-bone: var(--bone);
+  --color-bone-dim: var(--bone-dim);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-clay: var(--clay);
+  --color-sage: var(--sage);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-archivo-black);
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-azeret);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* The world is lit one way: a dark room, one lamp. There is no light mode. */
+html {
+  color-scheme: dark;
+  background: var(--ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Surfaces the browser draws for us still belong to the design. */
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+input {
+  caret-color: var(--gold);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-deep) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-deep);
+  border: 3px solid var(--ink);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Every figure in this product is a measurement: one column, one width. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.display {
+  font-family: var(--font-archivo-black), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.label {
+  font-family: var(--font-azeret), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+/* The one authored moment: the verdict arrives as if printed, not faded in. */
+@keyframes strike {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.verdict {
+  animation: strike 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verdict {
+    animation: none;
+  }
 }
