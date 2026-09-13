@@ -9,7 +9,9 @@ web
 ## Users
 
 Retail traders under roughly $10k account size, 5-20 trades a month, discretionary,
-primarily crypto with some tokenized equity exposure. **They have no journalling habit and
+trading **tokenized US stocks** — the hackathon's stated focus ("AI × US stock trading,
+including tokenized US stocks / related contract scenarios"), confirmed by the user on
+2026-09-14 — with tech-adjacent names as the typical concentration. **They have no journalling habit and
 will not acquire one** — that is the defining trait, not an incidental one. They arrive
 with a CSV exported from an exchange and a nagging suspicion that they keep making the
 same mistake, but nothing that would tell them what it is.
@@ -59,7 +61,7 @@ a public link.
   CSV, Zod validating all structured model output.
 - Analysis runs server-side against Gemini's free tier, whose request quota is a
   per-minute bucket held separately per model; the route falls through several models.
-  One analysis takes 15-25 seconds — the waiting state is a real design surface, not an
+  One analysis takes 25-60 seconds — the waiting state is a real design surface, not an
   edge case.
 - Desktop-first is acceptable. Mobile should degrade gracefully but need not be a
   designed experience.
@@ -81,11 +83,16 @@ a public link.
 
 ## Evidence on Hand
 
-- `public/sample-trades.csv` — 61 seeded synthetic fills across 7 symbols, deterministic,
-  containing real instances of every pattern the report claims to find.
-- Real computed output from that sample: 24 closed positions, 70.8% win rate, net -$893,
-  winners +4.1% held 5.9h vs losers -14.35% held 100h, 5 averaged-down positions all
-  losers costing -$1,382, 3 revenge trades.
+- `public/sample-trades.csv` — 116 fills from a **synthetic trader on real US stock prices**
+  (`data/prices.json`, daily candles from Yahoo Finance). Every fill is on a real trading day
+  inside that day's real high-low range. The trader's habits are fixed rules applied to
+  every stock (`scripts/gen-trades.ts`); outcomes emerge from the real price path.
+- Real computed output from that sample: 41 closed positions, 78% win rate, net −$1,216.51;
+  tech-adjacent names −$1,408.89 vs everything else +$192.38; winners +3.9% held 308h vs
+  losers −9.43% held 699h; 2 revenge trades (27 and 116 minutes after a loss, ~4× median
+  size) lost $1,497.36.
+- Replays on that sample: never averaging down +$307.96; waiting 3h after a loss
+  +$1,445.52; a −5% stop-loss −$87.64 (would have cost money).
 - **No real user data and no testers yet.** Validation is planned (6-8 campus testers),
   not performed. Nothing may present estimated or target figures as observed.
 

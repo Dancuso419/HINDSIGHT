@@ -2,6 +2,10 @@ import { callSkill } from "./signal";
 import type { Candle } from "./replay";
 import type { Position } from "./trades";
 import snapshot from "../../data/fng-snapshot.json";
+import savedPricesFile from "../../data/prices.json";
+import { yahooDaily } from "./yahoo";
+
+const savedPrices = savedPricesFile as { source: string; symbols: Record<string, Candle[]> };
 
 /**
  * Market context for each decision, from the bitget-signal Skills when they answer and
@@ -189,26 +193,59 @@ export function parseCandles(raw: unknown): Candle[] {
   return [...byDay.values()];
 }
 
-/** Daily candles for each symbol in the history, from the bitget-signal Skills. */
-export async function getCandles(positions: Position[], budgetMs = 7_000): Promise<Map<string, Candle[]>> {
+export type PriceSource = "bitget-signal" | "Yahoo Finance" | "saved prices";
+
+/**
+ * Daily candles for each symbol, per symbol from the first source that answers:
+ * bitget-signal → Yahoo Finance → the committed price file. While the Skills are cooling
+ * down after a failure they are skipped instantly, so a symbol falls through fast; once they
+ * recover, they are used first again.
+ */
+export async function getCandles(
+  positions: Position[],
+  budgetMs = 9_000,
+): Promise<{ candles: Map<string, Candle[]>; sources: PriceSource[] }> {
   const closed = positions.filter((p) => p.closedAt);
-  if (!closed.length) return new Map();
+  if (!closed.length) return { candles: new Map(), sources: [] };
   const earliest = Math.min(...closed.map((p) => Date.parse(p.openedAt)));
   const days = Math.min(365, Math.ceil((Date.now() - earliest) / DAY) + 2);
+  const covers = (c: Candle[]) => c.length > 0 && c[0].t <= earliest;
 
-  const symbols = [...new Set(closed.map((p) => p.symbol))];
-  const fetchOne = async (symbol: string): Promise<[string, Candle[]]> => {
+  const fromSkill = async (symbol: string) => {
     const coin = CRYPTO_IDS[symbol];
     const raw = coin
       ? await callSkill("crypto_market", { action: "ohlcv", coin_id: coin, vs_currency: "usd", days })
       : await callSkill("global_assets", { action: "ohlcv", symbol, period: days > 180 ? "1y" : "6mo", interval: "1d" });
-    return [symbol, parseCandles(raw)];
+    return parseCandles(raw);
   };
 
-  const settled = await withTimeout(Promise.allSettled(symbols.map(fetchOne)), budgetMs).catch(() => []);
-  const out = new Map<string, Candle[]>();
-  for (const s of settled) if (s.status === "fulfilled" && s.value[1].length) out.set(...s.value);
-  return out;
+  const fetchOne = async (symbol: string): Promise<[string, Candle[], PriceSource] | null> => {
+    const tries: [PriceSource, () => Promise<Candle[]>][] = [
+      ["bitget-signal", () => withTimeout(fromSkill(symbol), 4_000)],
+      ["Yahoo Finance", () => yahooDaily(symbol, days > 180 ? "1y" : "6mo", 4_000)],
+      ["saved prices", async () => savedPrices.symbols[symbol] ?? []],
+    ];
+    for (const [source, get] of tries) {
+      try {
+        const candles = await get();
+        if (covers(candles)) return [symbol, candles, source];
+      } catch {
+        // next source
+      }
+    }
+    return null;
+  };
+
+  const symbols = [...new Set(closed.map((p) => p.symbol))];
+  const settled = await withTimeout(Promise.all(symbols.map(fetchOne)), budgetMs).catch(() => [] as null[]);
+  const candles = new Map<string, Candle[]>();
+  const sources = new Set<PriceSource>();
+  for (const hit of settled) {
+    if (!hit) continue;
+    candles.set(hit[0], hit[1]);
+    sources.add(hit[2]);
+  }
+  return { candles, sources: [...sources] };
 }
 
 export { DAY };

@@ -5,7 +5,7 @@ its only job is letting the next session resume without re-reading the codebase.
 
 ## Status
 
-**Day:** 6 / 12 (Sept 13 2026)
+**Day:** 7 / 12 (Sept 14 2026)
 **Deployed:** no
 **Demo URL:** —
 **Day-7 gate:** on track — day 7 falls Sept 16, ingest done on day 1
@@ -83,6 +83,26 @@ Day 6 detail — replay and market context (Bitget Skills):
   $1,382"; the replay showed the true cost is $628.96. Landing copy corrected.
 - `src/components/replay-view.tsx` — replay cards and the Fear & Greed band chart.
 
+Day 7 detail — sample rebuilt on real US stock prices:
+
+- The hackathon's stated focus is "AI × US stock trading (including tokenized US stocks)";
+  not required by our track, but the sample and target user were crypto-first. Now US stocks.
+- `data/prices.json` — real daily candles (Yahoo Finance) for 7 tech-adjacent and 4 other
+  US stocks, Sep 2025 → Sep 2026. `scripts/gen-trades.ts` runs a synthetic trader with fixed
+  habits over those real prices; every fill sits inside that day's real range.
+- First attempt gave 6 positions, all winners — the trader traded far too rarely. Rewritten
+  to hold up to 3 positions. Two generator bugs then found (same-day re-buy interleaving with
+  a sale; revenge sizing not matching its documented rule); fixing them moved the result from
+  +$801 to −$1,217. No habit parameters were tuned toward an outcome.
+- **App bug found and fixed:** `buildPositions` only treated a position as flat at exactly
+  zero, so rounding dust (6.3167 + 7.3284 bought, 13.645 sold) kept it open and swallowed later
+  trades in the symbol. Real exchange exports have this dust. Now flat within 0.1%; tested.
+- Stop-loss replay now falls back to Yahoo Finance, then the saved prices — it runs today.
+- Re-entry gaps after a loss are computed facts; the model had been subtracting timestamps.
+- Sample story: tech-adjacent −$1,409 vs other +$192; 78% win rate, −$1,217 net; two
+  trades opened 27 and 116 minutes after a loss at ~4× size lost $1,497; replays +$308,
+  +$1,446, and the −5% stop −$88 (the report correctly advises against it).
+
 ## Not built / known broken
 
 - **The UI has never been seen in a browser by Claude.** Chrome automation fails on every
@@ -135,9 +155,10 @@ Day 6 detail — replay and market context (Bitget Skills):
   Fear & Greed runs on alternative.me; stop-loss replay waits. Re-run `npm run probe:signal`.
 - The candle parser has never seen a real bitget-signal OHLCV response. Verify it the first
   time the Skills answer.
-- Sample prices are synthetic, so the stop-loss replay will never show on the demo until the
-  sample is rebuilt from real historical prices.
-- An analysis took 55s with the Skills down (before cutting the candle budget to 7s).
+- **Market context uses the crypto Fear & Greed index on a US stock history.** It is the only
+  sentiment series the Skills expose historically, but it is the wrong market for this sample.
+  An equity measure (e.g. VIX daily via `global_assets`, Yahoo fallback) would fit.
+- A full analysis takes ~25s with Yahoo answering; up to ~60s in the worst case.
 - Not deployed. Vercel CLI is installed but logged out.
 
 ## Next session starts with

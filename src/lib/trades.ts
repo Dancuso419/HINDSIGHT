@@ -163,7 +163,7 @@ export function buildPositions(trades: Trade[]): Position[] {
       p.proceeds += t.qty * t.price;
     }
 
-    if (p.qty <= 1e-8) {
+    if (isFlat(p.qty, p.soldQty + Math.max(p.qty, 0))) {
       closed.push(finish(p, closed.length + 1));
       open.set(t.symbol, undefined!);
       open.delete(t.symbol);
@@ -185,7 +185,7 @@ function finish(
   const avgEntry = p.cost / boughtQty;
   const first = buys[0];
   const last = p.fills.at(-1)!;
-  const isClosed = sells.length > 0 && p.soldQty >= boughtQty - 1e-8;
+  const isClosed = sells.length > 0 && isFlat(boughtQty - p.soldQty, boughtQty);
   const exitPrice = sells.length ? p.proceeds / p.soldQty : null;
   const pnl = isClosed ? p.proceeds - p.cost - p.fees : null;
 
@@ -209,3 +209,13 @@ function finish(
 }
 
 const round = (n: number, dp: number) => Number(n.toFixed(dp));
+
+/**
+ * A position counts as flat when what is left is dust: exchanges round each fill's quantity,
+ * so buys of 6.3167 + 7.3284 closed by a sell of 13.645 leave 0.0001 behind. Treating that as
+ * still open would silently merge every later trade in the symbol into one position.
+ * ponytail: 0.1% of the size bought; dust above that is treated as a real remaining position.
+ */
+function isFlat(remaining: number, bought: number) {
+  return remaining <= Math.max(1e-8, bought * 1e-3);
+}

@@ -76,6 +76,20 @@ export function computeFacts(positions: Position[]) {
         : 0,
     },
     revengeTrades: group(revenge),
+    // Computed here so the model never has to subtract timestamps itself.
+    reentriesAfterLoss: reentriesAfterLoss(closed).map((p) => {
+      const opened = Date.parse(p.openedAt);
+      const prior = losses
+        .filter((l) => Date.parse(l.closedAt!) < opened)
+        .sort((a, b) => Date.parse(b.closedAt!) - Date.parse(a.closedAt!))[0];
+      return {
+        id: p.id,
+        afterLoss: prior.id,
+        minutesAfterLoss: Math.round((opened - Date.parse(prior.closedAt!)) / 60_000),
+        sizeVsMedian: round(notional(p) / medianNotional, 2),
+        pnl: p.pnl,
+      };
+    }),
     medianNotional: round(medianNotional),
     bySymbol: symbols,
     worstPositions: [...closed]

@@ -11,7 +11,8 @@
     "check": "tsx scripts/check-trades.ts",
     "facts": "tsx scripts/facts-preview.ts",
     "e2e": "tsx scripts/e2e-analyse.ts",
-    "probe:signal": "tsx scripts/probe-signal.ts"
+    "probe:signal": "tsx scripts/probe-signal.ts",
+    "fetch:prices": "tsx scripts/fetch-prices.ts"
   },
   "dependencies": {
     "lenis": "^1.3.26",

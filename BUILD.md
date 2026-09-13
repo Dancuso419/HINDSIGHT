@@ -13,7 +13,7 @@ machine.
 
 ```bash
 npm install
-npm run gen:trades   # writes public/sample-trades.csv (deterministic synthetic history)
+npm run gen:trades   # rebuilds public/sample-trades.csv from data/prices.json (deterministic)
 npm run dev          # http://localhost:3000
 ```
 
@@ -23,7 +23,8 @@ npm run dev          # http://localhost:3000
 |---|---|
 | `npm run dev` | Dev server |
 | `npm run build` / `npm start` | Production build / serve |
-| `npm run gen:trades` | Regenerate the synthetic demo history |
+| `npm run fetch:prices` | Re-download the sample symbols' real daily prices into `data/prices.json` (Yahoo Finance) |
+| `npm run gen:trades` | Rebuild the sample history: a synthetic trader on those real prices |
 | `npm run facts` | Print the computed facts for a CSV (default: the sample) |
 | `npm run check` | Parser self-check (asserts, no framework) |
 | `npm run lint` | ESLint |
@@ -69,18 +70,17 @@ Every analysis asks the Skills first and falls back without intervention:
 | Feature | First choice | If it fails |
 |---|---|---|
 | Fear & Greed at each entry | bitget-signal `sentiment_index` | alternative.me directly → `data/fng-snapshot.json` |
-| Stop-loss replay (daily prices) | bitget-signal `crypto_market` / `global_assets` | shown as waiting, with the reason |
+| Stop-loss replay (daily prices) | bitget-signal `global_assets` (stocks) / `crypto_market` | Yahoo Finance → `data/prices.json`, per symbol |
 | Averaging-down and re-entry replays | computed from the fills | — no external data needed |
 
 After a Skill failure the server skips the Skills for 3 minutes, then tries again, so an
 outage never slows every analysis and recovery is picked up automatically. Each panel names
 the source that answered.
 
-**Known state (2026-09-13):** the Skills server completes the MCP handshake but every data
-tool fails upstream (ConnectTimeout). Fear & Greed is served from alternative.me; the
-stop-loss replay is waiting. The sample history's prices are synthetic, so the stop-loss
-replay will refuse it (prices must match the market) until the sample is rebuilt on real
-prices.
+**Known state (2026-09-14):** the Skills server completes the MCP handshake but every data
+tool fails upstream (ConnectTimeout). Fear & Greed is served from alternative.me and prices
+from Yahoo Finance; each panel names its source, and bitget-signal is used again
+automatically once it answers.
 
 ## Deploy
 

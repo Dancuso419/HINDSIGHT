@@ -24,19 +24,18 @@ type Analysis = {
 
 const DEMO_QUESTION = "Why do I keep losing money on tech-adjacent positions?";
 
-/** Real figures computed from public/sample-trades.csv by the shipped pipeline. */
+/** Real figures computed from public/sample-trades.csv — a synthetic trader on real US stock prices. */
 const TICKER = [
-  "61 fills",
-  "24 round trips",
-  "70.8% win rate",
-  "−$893 net",
-  "winners held 5.9h",
-  "losers held 100h",
-  "5 positions averaged down",
-  "all 5 lost",
-  "3 revenge entries",
-  "−$1,382 lost on averaged-down positions",
-  "+$629 kept by never adding below entry",
+  "116 fills",
+  "41 round trips",
+  "78% win rate",
+  "−$1,217 net",
+  "tech-adjacent −$1,409",
+  "everything else +$192",
+  "losers held 2.3× longer",
+  "2 trades straight after a loss lost $1,497",
+  "+$1,446 kept by waiting 3h after a loss",
+  "a 5% stop would have cost $88",
 ];
 
 const PROMISES = [
@@ -186,7 +185,7 @@ export default function Home() {
           <div className="marquee">
             {[...TICKER, ...TICKER].map((item, i) => (
               <span key={i} className="flex items-center gap-8 pr-8 text-sm whitespace-nowrap text-grey">
-                <span className={item.startsWith("−") || item.includes("lost") ? "text-loss" : ""}>{item}</span>
+                <span className={/−|lost|cost/.test(item) ? "text-loss" : ""}>{item}</span>
                 <span aria-hidden className="h-1 w-1 rounded-full bg-grey-deep" />
               </span>
             ))}
@@ -239,22 +238,22 @@ export default function Home() {
         <section className="pt-32 sm:pt-40">
           <div className="text-center">
             <h2 className="headline reveal text-[clamp(2rem,4.2vw,3.25rem)] text-white">What it tells you</h2>
-            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">A finding from the sample history, checked against the replay.</p>
+            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">A finding from the sample history — every figure computed, every trade cited.</p>
           </div>
 
           <figure className="panel reveal relative mt-14 overflow-hidden px-7 py-14 text-center sm:px-16 sm:py-20">
             <div className="dust" />
             <div aria-hidden className="beam -top-10 h-80 opacity-70" />
-            <blockquote className="headline relative mx-auto max-w-[20ch] text-[clamp(1.75rem,3.6vw,2.75rem)] text-white">
-              You average down into losing positions with a 100% loss rate.
+            <blockquote className="headline relative mx-auto max-w-[22ch] text-[clamp(1.75rem,3.6vw,2.75rem)] text-white">
+              Twice, you opened a position at four times your usual size within two hours of a loss.
             </blockquote>
-            <p className="relative mx-auto mt-6 max-w-[58ch] text-[0.9375rem] leading-relaxed text-grey">
-              Across 5 positions where you added to a falling trade, every one lost — averaging −12.97% over 112.6
-              hours. Those 5 positions lost $1,382.50 between them —{" "}
-              <span className="text-white">and replaying them without the adds keeps $628.96 of it.</span>
+            <p className="relative mx-auto mt-6 max-w-[60ch] text-[0.9375rem] leading-relaxed text-grey">
+              P10 came 116 minutes after P04 closed at a loss; P06 came 27 minutes after P05. Both were added to as they
+              fell, and together they lost $1,497 — more than your whole net result.{" "}
+              <span className="text-white">Waiting three hours after any loss would have kept $1,445.52.</span>
             </p>
             <figcaption className="relative mt-8 flex flex-wrap items-center justify-center gap-2">
-              {["P03", "P06", "P08", "P16", "P17"].map((id) => (
+              {["P04", "P10", "P05", "P06"].map((id) => (
                 <span key={id} className="rounded-full border border-line-strong bg-black/40 px-3 py-1.5 font-mono text-xs text-white">
                   {id}
                 </span>
@@ -344,8 +343,8 @@ export default function Home() {
               </div>
             ) : (
               <p className="relative mt-8 max-w-[52ch] text-sm leading-relaxed text-grey">
-                No file handy? The sample history is 61 synthetic fills built to contain real, detectable habits —
-                it runs the full analysis exactly as your own file would.
+                No file handy? The sample is 116 fills from a synthetic trader on real US stock prices — every fill sits
+                inside that day&apos;s actual trading range — and it runs the full analysis exactly as your own file would.
               </p>
             )}
           </div>

@@ -205,8 +205,8 @@ icon tiles; `6px` for the small chips inside diagrams. Borders are 1px at low wh
   real cumulative P&L, slow drift, faint pointer parallax. Pauses off-screen; draws a single
   still frame under reduced motion.
 - **How-it-works diagrams** (`src/components/how-it-works.tsx`) — each panel runs a working
-  diagram built from real sample data: a scrolling fills feed, T0005–T0008 gathering into
-  P03, figures counting in with a winner/loser bar comparison, and citations lighting in
+  diagram built from real sample data: a scrolling fills feed, T0014–T0021 gathering into
+  P05, figures counting in with a winner/loser bar comparison, and citations lighting in
   sequence while a nonexistent `P99` is struck.
 - **Replay** (`src/components/replay-view.tsx`) — one card per rule, set as a headline dollar
   figure rather than a chart: what the rule would have saved (white) or cost (`loss`), the

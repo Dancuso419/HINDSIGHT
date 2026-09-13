@@ -8,18 +8,18 @@ import { useEffect, useState } from "react";
  */
 
 const ROWS = [
-  "T0001  NVDA  buy   5.6908  114.07",
-  "T0002  NVDA  sell  5.6908  119.10",
-  "T0003  SOL   buy   6.6558  133.46",
-  "T0004  SOL   sell  6.6558  140.51",
-  "T0005  COIN  buy   2.1662  227.50",
-  "T0006  COIN  buy   2.8914  218.79",
-  "T0007  COIN  buy   2.8047  209.61",
-  "T0008  COIN  sell  7.8623  195.75",
-  "T0009  SOL   buy  13.1043  149.99",
-  "T0010  SOL   sell 13.1043  154.76",
-  "T0011  SOL   buy   3.7602  153.34",
-  "T0012  SOL   sell  3.7602  160.03",
+  "T0001  TSLA  buy   2.0161  469.41",
+  "T0002  TSLA  buy   2.4796  442.06",
+  "T0003  PLTR  buy   6.3167  183.70",
+  "T0004  AMD   buy   2.4518  226.89",
+  "T0005  AMD   sell  2.4518  234.00",
+  "T0006  MSTR  buy   2.2494  324.46",
+  "T0007  MSTR  buy   1.9382  310.88",
+  "T0008  PLTR  buy   7.3284  174.04",
+  "T0009  TSLA  buy   2.4588  416.30",
+  "T0010  MSTR  buy   2.0784  297.86",
+  "T0011  PLTR  sell 13.6450  184.01",
+  "T0012  WMT   buy  10.4984  109.04",
 ];
 
 /** 1 — raw fills scroll past, as they arrive from an exchange export. */
@@ -37,13 +37,13 @@ function FillsFeed() {
   );
 }
 
-/** 2 — T0005-T0008 collapse into one decision: three buys down, one sell lower still. */
+/** 2 — T0014, T0016, T0017 and T0021 collapse into one decision: three buys down, one sell lower still. */
 function Grouping() {
   const fills = [
-    { id: "T0005", side: "buy", price: "227.50", y: 0 },
-    { id: "T0006", side: "buy", price: "218.79", y: 1 },
-    { id: "T0007", side: "buy", price: "209.61", y: 2 },
-    { id: "T0008", side: "sell", price: "195.75", y: 3 },
+    { id: "T0014", side: "buy", price: "368.84" },
+    { id: "T0016", side: "buy", price: "352.39" },
+    { id: "T0017", side: "buy", price: "336.67" },
+    { id: "T0021", side: "sell", price: "297.30" },
   ];
   return (
     <div className="relative flex h-full flex-col justify-center gap-2 px-1">
@@ -59,9 +59,9 @@ function Grouping() {
         </div>
       ))}
       <div className="mt-2 flex items-center justify-between rounded-lg border border-line-strong bg-white/[0.06] px-3 py-2.5 font-mono text-[11px] animate-[settle_6s_ease-in-out_infinite] motion-reduce:animate-none">
-        <span className="text-white">P03 · COIN</span>
+        <span className="text-white">P05 · COIN</span>
         <span className="text-grey">2 adds down</span>
-        <span className="tnum text-loss">−10.3%</span>
+        <span className="tnum text-loss">−15.6%</span>
       </div>
     </div>
   );
@@ -70,9 +70,9 @@ function Grouping() {
 /** 3 — the arithmetic, done before the model sees anything. */
 function Counting() {
   const figures: [string, string][] = [
-    ["70.8%", "win rate"],
-    ["−$893", "net result"],
-    ["100%", "of averaged-down trades lost"],
+    ["78%", "win rate"],
+    ["−$1,217", "net result"],
+    ["−$1,497", "lost on 2 trades opened right after a loss"],
   ];
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -102,16 +102,16 @@ function Counting() {
         <div>
           <div className="mb-1.5 flex justify-between text-grey">
             <span>avg winner</span>
-            <span className="tnum text-white">+4.1%</span>
+            <span className="tnum text-white">+3.9%</span>
           </div>
           <div className="h-1.5 rounded-full bg-white/[0.06]">
-            <div className="h-full w-[28%] rounded-full bg-white" />
+            <div className="h-full w-[41%] rounded-full bg-white" />
           </div>
         </div>
         <div>
           <div className="mb-1.5 flex justify-between text-grey">
             <span>avg loser</span>
-            <span className="tnum text-loss">−14.4%</span>
+            <span className="tnum text-loss">−9.4%</span>
           </div>
           <div className="h-1.5 rounded-full bg-white/[0.06]">
             <div className="h-full w-full rounded-full bg-loss" />
@@ -124,11 +124,11 @@ function Counting() {
 
 /** 4 — citations light up; one that does not exist gets struck before render. */
 function Citing() {
-  const chips = ["P03", "P06", "P08", "P99", "P16", "P17"];
+  const chips = ["P06", "P05", "P10", "P99", "P04", "P35"];
   return (
     <div className="flex h-full flex-col justify-end">
       <p className="text-sm leading-snug text-white">
-        You average down into losers — every one of them lost.
+        Your five worst trades all have two adds below entry.
       </p>
       <div className="mt-4 flex flex-wrap gap-1.5">
         {chips.map((id, i) => {
@@ -154,7 +154,7 @@ function Citing() {
 }
 
 const STEPS = [
-  { title: "Load your fills", body: "A CSV from any exchange. Buys, sells, quantities, prices.", Visual: FillsFeed },
+  { title: "Load your fills", body: "A CSV of your tokenized US stock trades. Buys, sells, quantities, prices.", Visual: FillsFeed },
   { title: "Grouped into decisions", body: "Fills become round trips — what you paid, what you added, when you left.", Visual: Grouping },
   { title: "Counted in code", body: "Every figure is arithmetic on your data, finished before the model is asked.", Visual: Counting },
   { title: "Named, and cited", body: "The model names the habit and points at the trades. Invented ones are struck.", Visual: Citing },

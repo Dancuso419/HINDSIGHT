@@ -99,15 +99,15 @@ export async function POST(req: Request) {
   // Market data is best-effort and time-boxed: the analysis never waits on a failing Skill.
   const closedDates = positions.filter((p) => p.pnl !== null).map((p) => Date.parse(p.openedAt));
   const daysBack = Math.ceil((Date.now() - Math.min(...closedDates)) / 86_400_000) + 2;
-  const [sentiment, candles] = await Promise.all([getSentiment(daysBack), getCandles(positions)]);
+  const [sentiment, prices] = await Promise.all([getSentiment(daysBack), getCandles(positions)]);
 
   const replays = [
     replayNoAveragingDown(positions, parsed.data.trades),
     replayNoReentryAfterLoss(positions),
-    candles.size
-      ? replayStopLoss(positions, candles, "bitget-signal")
+    prices.candles.size
+      ? replayStopLoss(positions, prices.candles, prices.sources.join(" + "))
       : unavailableStopLoss(
-          "Historical prices from bitget-signal are unavailable right now. This rule is replayed automatically once they return.",
+          "No price source answered — bitget-signal, Yahoo Finance and the saved prices all came back empty for these symbols.",
         ),
   ];
   const market = entrySentiment(positions, sentiment.byDay, sentiment.source);

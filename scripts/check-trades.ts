@@ -179,3 +179,16 @@ assert.ok(reentry.affected.every((a) => a.replayed === 0), "skipped trades repla
 console.log(
   `ok — replay (avg-down ${avgDown.delta >= 0 ? "+" : ""}${avgDown.delta}, re-entry ${reentry.delta >= 0 ? "+" : ""}${reentry.delta}), stop-loss, parsers, entry sentiment`,
 );
+
+// --- rounding dust must not keep a position open and swallow later trades ---
+{
+  const t = parseTrades(
+    `id,timestamp,symbol,side,qty,price,fee\nA,2026-01-01T00:00:00Z,PLTR,buy,6.3167,183.7,0\nB,2026-01-02T00:00:00Z,PLTR,buy,7.3284,174.04,0\nC,2026-01-03T00:00:00Z,PLTR,sell,13.645,184.01,0\nD,2026-02-01T00:00:00Z,PLTR,buy,2.6166,161.84,0\nE,2026-02-02T00:00:00Z,PLTR,sell,2.6166,169.59,0`,
+  ).trades;
+  const ps = buildPositions(t);
+  assert.equal(ps.length, 2, "dust closes the first round trip");
+  assert.deepEqual(ps[0].tradeIds, ["A", "B", "C"]);
+  assert.deepEqual(ps[1].tradeIds, ["D", "E"]);
+  assert.ok(ps.every((p) => p.pnl !== null), "both round trips are closed");
+}
+console.log("ok — rounding dust closes positions");
