@@ -34,10 +34,12 @@
   --font-mono: var(--font-jetbrains);
 }
 
+/* Scrolling is smoothed by Lenis; native scroll-behavior would fight its easing. */
 html {
   color-scheme: dark;
   background: var(--void);
-  scroll-behavior: smooth;
+  --scroll: 0;
+  --progress: 0;
 }
 
 body {
@@ -411,7 +413,53 @@ input {
   }
 }
 
+/* ---- Scroll-linked motion, driven by Lenis via --scroll / --progress --------------- */
+
+/* A hairline at the top of the viewport that fills as you read down the page. */
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9));
+  transform-origin: 0 50%;
+  transform: scaleX(var(--progress));
+  pointer-events: none;
+}
+
+/* Hero layers drift apart as you leave: copy rises fastest and fades, the mark sinks back
+   into its valley, the terrain barely moves — so the landscape reads as far away. */
+.parallax-copy {
+  transform: translate3d(0, calc(var(--scroll) * -0.32px), 0);
+  opacity: max(0, calc(1 - var(--scroll) / 620));
+  will-change: transform, opacity;
+}
+.parallax-mark {
+  transform: translate3d(0, calc(var(--scroll) * 0.18px), 0) scale(max(0.82, calc(1 - var(--scroll) / 2400)));
+  will-change: transform;
+}
+.parallax-terrain {
+  transform: translate3d(0, calc(var(--scroll) * 0.12px), 0) scale(calc(1 + var(--scroll) / 6000));
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+/* The ticker leans with the scroll so the band feels attached to the page's momentum. */
+.parallax-band {
+  transform: translate3d(calc(var(--scroll) * -0.06px), 0, 0);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .parallax-copy,
+  .parallax-mark,
+  .parallax-terrain,
+  .parallax-band {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .scroll-progress {
+    display: none;
+  }
   .marquee,
   .dust,
   .mark-tile,

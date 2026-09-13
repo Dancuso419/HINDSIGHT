@@ -120,9 +120,12 @@ export default function Home() {
 
   return (
     <main>
+      <div aria-hidden className="scroll-progress" />
       {/* ---------------------------------------------------------------- HERO */}
       <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden">
-        <Terrain series={landscape} className="absolute inset-0 -z-10" />
+        <div className="parallax-terrain absolute inset-0 -z-10">
+          <Terrain series={landscape} />
+        </div>
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_45%_at_50%_0%,rgba(255,255,255,0.08),transparent_70%)]"
@@ -140,7 +143,7 @@ export default function Home() {
           </span>
         </header>
 
-        <div className="mx-auto mt-10 max-w-4xl px-6 text-center sm:mt-16">
+        <div className="parallax-copy mx-auto mt-10 max-w-4xl px-6 text-center sm:mt-16">
           <h1 className="headline text-[clamp(2.5rem,6.4vw,5.25rem)] text-white">
             Your trades already know
             <br />
@@ -161,7 +164,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="relative mt-auto flex justify-center pb-[14vh]">
+        <div className="parallax-mark relative mt-auto flex justify-center pb-[14vh]">
           <div aria-hidden className="beam top-14 h-[28vh]" />
           <div className="mark-tile text-white">
             <Mark size={34} />
@@ -172,6 +175,7 @@ export default function Home() {
       {/* -------------------------------------------------------------- TICKER */}
       <section aria-label="Figures from the sample history" className="relative border-y border-line py-5">
         <div className="overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
+          <div className="parallax-band">
           <div className="marquee">
             {[...TICKER, ...TICKER].map((item, i) => (
               <span key={i} className="flex items-center gap-8 pr-8 text-sm whitespace-nowrap text-grey">
@@ -179,6 +183,7 @@ export default function Home() {
                 <span aria-hidden className="h-1 w-1 rounded-full bg-grey-deep" />
               </span>
             ))}
+          </div>
           </div>
         </div>
         <p className="mt-3 text-center font-mono text-[10px] text-grey-deep">measured from the sample history</p>

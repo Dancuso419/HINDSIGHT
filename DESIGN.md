@@ -222,6 +222,12 @@ Slow and continuous. Exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`) thro
   stays visible where the feature is unsupported.
 - The report verdict resolves from a 24px blur over 1.4s.
 - The analysing state is a travelling highlight on a hairline plus a pulsing dot.
+- **Smooth scroll is Lenis** (`src/components/smooth-scroll.tsx`, `lerp 0.085`). It publishes
+  `--scroll` and `--progress` on `<html>` every frame, and scroll-linked motion is written
+  in CSS against those: a 1px progress hairline at the top of the viewport, and hero
+  parallax in three depths — the copy rises and fades fastest, the mark sinks back into its
+  valley, the terrain barely moves. Anchor links and the jump to a cited position row glide
+  through `lenis.scrollTo`. Native `scroll-behavior: smooth` is deliberately absent.
 
 Every animation is disabled under `prefers-reduced-motion`.
 

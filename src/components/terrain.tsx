@@ -58,9 +58,9 @@ export function Terrain({ series, className = "" }: { series: number[] | null; c
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const rect = canvas.getBoundingClientRect();
-      w = rect.width;
-      h = rect.height;
+      // client size ignores the parallax transform on the wrapper; a bounding rect would not.
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

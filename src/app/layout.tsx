@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Onest, JetBrains_Mono } from "next/font/google";
+import "lenis/dist/lenis.css";
 import "./globals.css";
+import { SmoothScroll } from "@/components/smooth-scroll";
 
 const onest = Onest({ variable: "--font-onest", subsets: ["latin"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"] });
@@ -16,7 +18,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${onest.variable} ${jetbrains.variable} h-full`}>
       <body className="min-h-full">
         <div hidden aria-hidden dangerouslySetInnerHTML={{ __html: `<!--${CONTRACT}-->` }} />
-        {children}
+        <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
   );

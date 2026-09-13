@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLenis } from "lenis/react";
 import type { Position, Trade } from "@/lib/trades";
 import { Chevron } from "./icons";
 
@@ -23,6 +24,7 @@ export function PositionsTable({
   const [expanded, setExpanded] = useState<string | null>(null);
   const [lastFocused, setLastFocused] = useState<string | null>(null);
   const rows = useRef(new Map<string, HTMLTableRowElement>());
+  const lenis = useLenis();
 
   // Clicking a claim's proof opens the position it rests on — adjusted during render so a
   // later manual toggle still wins.
@@ -31,9 +33,15 @@ export function PositionsTable({
     setExpanded(focused);
   }
 
+  // Glide the cited row to the middle of the screen through Lenis, so it eases like every
+  // other scroll on the page instead of jumping against the smoothing.
   useEffect(() => {
-    if (focused) rows.current.get(focused)?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [focused]);
+    const row = focused ? rows.current.get(focused) : null;
+    if (!row) return;
+    const offset = -(window.innerHeight / 2 - row.offsetHeight / 2);
+    if (lenis) lenis.scrollTo(row, { offset, duration: 1.2 });
+    else row.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focused, lenis]);
 
   return (
     <div className="panel overflow-x-auto">
