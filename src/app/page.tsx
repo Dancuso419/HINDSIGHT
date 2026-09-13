@@ -8,7 +8,7 @@ import { ReportView } from "@/components/report-view";
 import { PositionsTable } from "@/components/positions-table";
 import { HowItWorks } from "@/components/how-it-works";
 import { Terrain } from "@/components/terrain";
-import { Mark, Upload, Sample, Arrow, ArrowDown, Lock } from "@/components/icons";
+import { Mark, Upload, Sample, Arrow, ArrowDown } from "@/components/icons";
 
 type Analysis = { report: Report; facts: Facts; positions: Position[]; dropped: string[] };
 
@@ -132,14 +132,10 @@ export default function Home() {
         />
         <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-void to-transparent" />
 
-        <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
+        <header className="mx-auto flex w-full max-w-6xl items-center px-6 py-6">
           <span className="flex items-center gap-2.5 text-white">
             <Mark size={22} />
             <span className="text-[15px] font-semibold tracking-tight">Hindsight</span>
-          </span>
-          <span className="flex items-center gap-2 rounded-full border border-line bg-black/40 px-3 py-1.5 text-xs text-grey backdrop-blur">
-            <Lock />
-            Read-only — never places an order
           </span>
         </header>
 
