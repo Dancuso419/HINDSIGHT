@@ -127,7 +127,7 @@ function Citing() {
   const chips = ["P03", "P06", "P08", "P99", "P16", "P17"];
   return (
     <div className="flex h-full flex-col justify-end">
-      <p className="text-[13px] leading-snug text-white">
+      <p className="text-sm leading-snug text-white">
         You average down into losers — every one of them lost.
       </p>
       <div className="mt-4 flex flex-wrap gap-1.5">

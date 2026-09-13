@@ -5,7 +5,7 @@ its only job is letting the next session resume without re-reading the codebase.
 
 ## Status
 
-**Day:** 4 / 12 (Sept 11 2026)
+**Day:** 6 / 12 (Sept 13 2026)
 **Deployed:** no
 **Demo URL:** —
 **Day-7 gate:** on track — day 7 falls Sept 16, ingest done on day 1
@@ -53,15 +53,32 @@ Day 3-4 detail:
   the position row to light up. Covered by `npm run check`.
 - Added the research-question input, pre-filled with the graded demo question.
 
+Day 5-6 detail — UI redesign (twice):
+
+- First pass (gold/editorial, reference `JOU.jpg`) was built, then discarded by the user.
+- **Current design, reference `hin.jpg`:** monochrome black with one muted loss red; story
+  first (hero → ticker → what it is → how it works → a real finding) and the tool below.
+- Hero: `src/components/terrain.tsx`, a canvas line-field landscape whose valley floor is
+  the sample history's real equity curve, with a breathing centre mark and light beam.
+- `src/components/how-it-works.tsx`: four panels, each running a working diagram made from
+  real sample output (fills feed; T0005-T0008 gathering into P03; figures counting in;
+  citations lighting while a fake P99 is struck).
+- Motion: scroll-driven reveals, verdict resolving from blur, dust, marquee, panel
+  highlights — all off under prefers-reduced-motion.
+- `PRODUCT.md`, `DESIGN.md` and `.impeccable/design.json` record the product and the system.
+  Design detector: 0 findings.
+
 ## Not built / known broken
 
-- **The UI has never been seen in a browser by Claude.** Chrome automation could not attach
-  ("Frame with ID 0 is showing error page") on three attempts across localhost and
-  127.0.0.1, while curl got 200 throughout. Build, typecheck, lint and `npm run check`
-  all pass, and evidence resolution is unit-checked, but the visual result and the
-  click-to-highlight interaction are unverified by eye. **Verify manually before deploy.**
+- **The UI has never been seen in a browser by Claude.** Chrome automation fails on every
+  attempt ("Frame with ID 0 is showing error page") while curl gets 200 — likely the
+  connected browser cannot reach this machine's localhost. Build, typecheck, lint, the
+  design detector and `npm run check` all pass, but the visual result — especially the
+  canvas terrain, which was written blind — is unverified by eye. **Deploying would make it
+  reachable for a screenshot review.**
 - Not deployed. Day 5-6.
-- Styling is restrained but undesigned — no shadcn/ui. Day 6 polish.
+- No shadcn/ui — plain Tailwind plus a small hand-written component set. Stack says shadcn; not
+  adopted because nothing it offers is on the demo path.
 
 ## Problems hit and how they were fixed
 
@@ -101,6 +118,5 @@ Day 3-4 detail:
 
 ## Next session starts with
 
-Open http://localhost:3000 by hand, click through upload → question → Analyse → click an
-evidence id, and fix what looks wrong. Then deploy to Vercel (day 5-6) and verify the link
-in a private window.
+User reviews the new design on localhost and reports what looks wrong. Then deploy to Vercel
+(day-7 gate is Sept 16) and verify the link in a private window.

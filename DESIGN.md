@@ -1,200 +1,245 @@
 ---
 name: Hindsight
-description: A verdict on your own trading, set at poster scale and provable on contact.
+description: Your trade history as a landscape you look back across, then interrogated until every claim points at a trade.
 colors:
-  ink: "#121110"
-  ink-raised: "#1a1815"
-  gold: "#e8b44c"
-  gold-deep: "#8a6a25"
-  bone: "#f3efe6"
-  bone-dim: "#a9a197"
-  clay: "#ee7a5c"
-  sage: "#a9be8c"
-  rule: "rgba(243, 239, 230, 0.09)"
-  rule-gold: "rgba(232, 180, 76, 0.28)"
+  void: "#050505"
+  panel: "#0c0c0c"
+  panel-deep: "#080808"
+  white: "#f5f5f5"
+  grey: "#8f8f8f"
+  grey-deep: "#7d7d7d"
+  loss: "#d2736a"
+  line: "rgba(255, 255, 255, 0.08)"
+  line-strong: "rgba(255, 255, 255, 0.16)"
+  scrollbar: "#262626"
+  scrollbar-hover: "#3a3a3a"
 typography:
   display:
-    fontFamily: "Archivo Black, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "clamp(2.5rem, 7.5vw, 6rem)"
-    fontWeight: 400
-    lineHeight: 0.92
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(2.5rem, 6.4vw, 5.25rem)"
+    fontWeight: 600
+    lineHeight: 1.02
     letterSpacing: "-0.035em"
   headline:
-    fontFamily: "Archivo Black, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "2rem"
-    fontWeight: 400
-    lineHeight: 0.92
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(2rem, 4.2vw, 3.25rem)"
+    fontWeight: 600
+    lineHeight: 1.02
     letterSpacing: "-0.035em"
+  title:
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1.75rem"
+    fontWeight: 600
+    lineHeight: 1.02
+    letterSpacing: "-0.035em"
+  lead:
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(1rem, 1.4vw, 1.1875rem)"
+    fontWeight: 400
+    lineHeight: 1.55
   body:
-    fontFamily: "Archivo, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.9375rem"
     fontWeight: 400
     lineHeight: 1.625
+  small:
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 400
   figure:
-    fontFamily: "Azeret Mono, ui-monospace, monospace"
-    fontSize: "1.75rem"
+    fontFamily: "JetBrains Mono, ui-monospace, monospace"
+    fontSize: "0.75rem"
     fontWeight: 400
     fontFeature: "tnum 1"
-  label:
-    fontFamily: "Azeret Mono, ui-monospace, monospace"
-    fontSize: "0.6875rem"
+  diagram:
+    fontFamily: "JetBrains Mono, ui-monospace, monospace"
+    fontSize: "11px"
     fontWeight: 400
-    letterSpacing: "0.16em"
+    fontFeature: "tnum 1"
+  micro:
+    fontFamily: "JetBrains Mono, ui-monospace, monospace"
+    fontSize: "10px"
+    fontWeight: 400
 rounded:
-  none: "0px"
+  chip: "6px"
+  tile: "12px"
+  card: "16px"
+  panel: "20px"
+  mark: "22px"
+  pill: "999px"
 spacing:
   gutter: "24px"
-  gutter-wide: "48px"
-  section: "80px"
+  panel-pad: "28px"
+  panel-pad-wide: "40px"
+  section: "160px"
 components:
-  button-primary:
-    backgroundColor: "{colors.gold}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
-    padding: "12px 20px"
-  button-quiet:
-    backgroundColor: "transparent"
-    textColor: "{colors.bone}"
-    rounded: "{rounded.none}"
-  button-quiet-hover:
-    backgroundColor: "transparent"
-    textColor: "{colors.gold}"
+  button-pill:
+    backgroundColor: "{colors.white}"
+    textColor: "{colors.void}"
+    rounded: "{rounded.pill}"
+    padding: "12.8px 22.4px"
+  button-ghost:
+    backgroundColor: "rgba(255, 255, 255, 0.02)"
+    textColor: "{colors.white}"
+    rounded: "{rounded.pill}"
+    padding: "12.8px 22.4px"
+  button-ghost-hover:
+    backgroundColor: "rgba(255, 255, 255, 0.07)"
+  panel:
+    backgroundColor: "{colors.panel}"
+    rounded: "{rounded.panel}"
   proof-chip:
     backgroundColor: "transparent"
-    textColor: "{colors.gold}"
-    typography: "{typography.label}"
-    rounded: "{rounded.none}"
-    padding: "4px 8px"
+    textColor: "{colors.white}"
+    rounded: "{rounded.pill}"
+    padding: "6px 12px"
   proof-chip-active:
-    backgroundColor: "{colors.gold}"
-    textColor: "{colors.ink}"
-  input-underline:
-    backgroundColor: "transparent"
-    textColor: "{colors.bone}"
-    rounded: "{rounded.none}"
-    padding: "0 0 12px 0"
+    backgroundColor: "{colors.white}"
+    textColor: "{colors.void}"
+  input-pill:
+    backgroundColor: "rgba(0, 0, 0, 0.5)"
+    textColor: "{colors.white}"
+    rounded: "{rounded.pill}"
+    padding: "14px 24px"
 ---
 
 # Design System: Hindsight
 
 ## Overview
 
-**North star: The Verdict Sheet.** A single lamp-lit page that states a finding at poster
-scale and then lets you audit it line by line — closer to a printed report card than to a
-trading dashboard. The gold carries authority, not decoration; every figure is set as a
-measurement.
+**North star: The Look Back.** A black room with one light above the centre. The first thing
+a visitor sees is their trading history drawn as terrain — walls rising either side, a
+valley floor that ripples with the real equity curve — and a lit mark sitting in the valley.
+Everything after that is interrogation: the mechanism shown working, a real finding, and a
+tool whose verdict can be clicked back down to the fills.
 
-Mood: sober, direct, unhurried, faintly severe. The interface never congratulates and never
-hedges, and the visual system follows: no badges, no progress rings, no celebratory colour.
+Mood: cinematic, calm, precise, slightly austere. Motion is slow and continuous rather than
+bouncy; light does the emphasis, not colour.
 
-**Anti-reference:** the trading-tool dashboard — grids of equal cards, stat tiles with big
-numbers and small labels, accent colours per metric, chart chrome standing in for insight.
-This surface refuses that arrangement. Also refused: light mode. The use scene is one
-person, one laptop, reviewing losses alone; the room is dark and the page matches it.
+**Anti-reference:** the trading-journal dashboard — rows of stat tiles, candlestick chrome,
+green/red everywhere, accent colour per metric. Also refused: any light theme. Pinned
+reference: the user's `hin.jpg`.
 
 ## Colors
 
-Strategy: **Restrained-committed.** A single warm near-black ground, one gold, one bone
-text colour. Gold is rationed — it means *authority or proof*, never decoration. Clay and
-sage exist only to carry sign on a number.
+Strategy: **Strict monochrome with one exception.** The whole surface is black, greys and
+white. The single colour, `loss`, is confirmed by the user and appears only inside data —
+a loss figure, a sell, a struck citation, a parse error. It never decorates.
 
-| Token | Value | Character | Role |
-|---|---|---|---|
-| `ink` | `#121110` | Warm lamp-off black | Page ground. There is no light variant. |
-| `ink-raised` | `#1a1815` | A shade nearer the lamp | Rare raised fill |
-| `gold` | `#e8b44c` | Struck brass | The verdict, proof marks, primary action |
-| `gold-deep` | `#8a6a25` | Tarnished brass | Rules, scrollbar, checkbox strokes, fill IDs |
-| `bone` | `#f3efe6` | Warm paper white | Primary text |
-| `bone-dim` | `#a9a197` | Ash | Secondary text, labels, quiet figures |
-| `clay` | `#ee7a5c` | Fired clay | Negative P&L, sells, parse errors |
-| `sage` | `#a9be8c` | Dry sage | Positive P&L, buys |
+| Token | Value | Role |
+|---|---|---|
+| `void` | `#050505` | Page ground |
+| `panel` → `panel-deep` | `#0c0c0c` → `#080808` | Panel body, top to bottom |
+| `white` | `#f5f5f5` | Primary text, primary action, active proof |
+| `grey` | `#8f8f8f` | Secondary text, labels, leads |
+| `grey-deep` | `#7d7d7d` | Dimmest grey permitted to carry text (4.7:1 on `void`) |
+| `line` / `line-strong` | white at 8% / 16% | Borders and dividers |
+| `loss` | `#d2736a` | Losses, sells, struck citations, errors — data only |
+| `scrollbar` / `scrollbar-hover` | `#262626` / `#3a3a3a` | Scrollbar thumb |
 
-Gain/loss never uses signal green or signal red. Clay and sage are muted enough to sit in
-a body of text without shouting, which matters because most of this page's numbers are
-losses and a wall of alarm red would read as decoration.
-
-**Colour is never the only channel.** A cited position carries three marks at once: a gold
-rule at the row head, the ID in gold at heavier weight, and a faint gold wash on the row.
+Emphasis comes from brightness: white is the loudest thing on the page, followed by the
+white glow around the primary pill and the active proof chip.
 
 ## Typography
 
-Three faces, each with one job.
+- **Onest** — all prose and headings. Headings at weight 600, tracked `-0.035em`, line
+  height 1.02, always `text-wrap: balance`. The hero's second line drops to 55% white rather
+  than changing weight or face.
+- **JetBrains Mono** — every measured or identifying thing: trade and position IDs, prices,
+  quantities, timestamps, step numerals. Tabular figures via `.tnum`.
 
-- **Archivo Black** — display only. The hero verdict, section headings, the question label.
-  Set tight (`-0.035em`, `line-height: 0.92`) and large; it is the voice of the finding.
-- **Archivo** — body prose. Findings and checklist rules, measure capped at 68–72ch.
-- **Azeret Mono** — every measured thing: trade IDs, prices, quantities, percentages,
-  timestamps, and the small tracked labels. Tabular figures via `.tnum` so columns align.
+Ramp as built: display `clamp(2.5rem, 6.4vw, 5.25rem)` → section headline
+`clamp(2rem, 4.2vw, 3.25rem)` → title `1.75rem` → lead `clamp(1rem, 1.4vw, 1.1875rem)` →
+body `0.9375rem` → small `0.875rem` → figure `0.75rem` → diagram `11px` (mono inside
+diagrams and fill lists) → micro `10px` (captions only).
 
-Monospace here is data, not costume: if a string is a measurement or an identifier it is
-mono, and if it is prose it is not.
-
-Ramp as built: display `clamp(2.5rem, 7.5vw, 6rem)` → headline `2rem` → title `1.25rem` →
-body `0.9375rem` → label `0.6875rem`. Steps are far apart on purpose; there is no
-mid-weight filler tier.
+Sections are headed by the heading alone. No eyebrow, pill label, or kicker sits above a
+heading, even though the reference uses them.
 
 ## Layout
 
-- One centred column, `max-width: 1180px`, with a **hairline rule down each side** — the
-  page reads as a framed sheet rather than a full-bleed app.
-- Gutters: `24px` mobile, `48px` from `sm`.
-- Sections are separated by a rule and roughly `80px` of space, always with more space
-  above a heading than below it.
-- Data tables are `border-collapse` with horizontal hairlines only. No vertical grid lines,
-  no zebra striping, no container around the table.
-- Desktop-first. Below `sm` the composition stacks and tables scroll horizontally inside
-  their own overflow container; the page body never scrolls sideways.
+- **Story first, tool below**, confirmed by the user: hero → ticker → what it is → how it
+  works → a real finding → the tool (`#run`) → footer. Hero actions anchor-scroll to `#how`
+  and `#run`; there is no navigation and no other route.
+- Hero is full viewport height (`100svh`). Content column is `max-width: 72rem` with `24px`
+  gutters. Section headings are centred; panel content is left-aligned.
+- Sections are `160px` apart on desktop (`128px` mobile). Panel padding `28px`, `40px` wide.
+- How-it-works is a 4 / 2 / 1 column grid of equal-height (`26rem`) panels.
+- Desktop-first; below `sm` grids stack and the positions table scrolls horizontally inside
+  its own panel.
 
 ## Elevation & Depth
 
-**Flat by rule.** There are no shadows anywhere in this system, and adding one would break
-it. Depth is expressed by tonal separation (`ink` vs `ink-raised`), by hairline rules, and
-by type weight. A lifted card in this world would read as a different product.
+**Lit from above.** Depth is light, not lift:
+
+- Panels carry a radial white wash from the top edge, an inset 1px top highlight, and a long
+  soft drop shadow (`0 30px 60px -30px`).
+- The centre mark tile glows and slowly breathes; a blurred, clipped trapezoid **beam** falls
+  from it. The same beam sits behind the report verdict and the showcase quote.
+- Drifting **dust** (tiled CSS radial points) hangs in panels that carry light.
+- A soft white radial glow crowns the hero; a black fade closes its bottom edge.
+
+No hard offset shadows. No colour in any glow.
 
 ## Shapes
 
-**Radius is zero, everywhere.** Buttons, inputs, chips and tables are all square. The
-squareness is the identity — it is what makes the page read as a printed sheet. Inputs are
-underlines, not boxes: a single `rule-gold` bottom border that turns solid `gold` on focus.
-
-Borders are 1px hairlines at low alpha. The only heavier rule is the 2px clay bar marking
-a parse error and the 2px gold bar marking a cited row.
+Soft and consistent: pills (`999px`) for every action, chip, and the question input;
+`20px` panels; `22px` for the mark tile; `16px` for the inner checklist cards; `12px` for
+icon tiles; `6px` for the small chips inside diagrams. Borders are 1px at low white alpha.
 
 ## Components
 
-- **button-primary** — solid gold, ink text, square, with a drawn arrow. Exactly one per
-  view: *Analyse*. Hover drops opacity to 85%; disabled to 40%.
-- **button-quiet** — an icon and a label, no border, no fill. Bone text going gold on hover.
-  All loading controls use this.
-- **proof-chip** — square mono chip, gold on transparent inside a `rule-gold` border.
-  Active state inverts to solid gold on ink at semibold. Carries `aria-pressed`.
-- **input-underline** — transparent, bottom hairline only, large text, gold caret.
-- **Icons** are drawn SVG on a 16-unit grid at a single 1.5px stroke (`src/components/icons.tsx`).
-  Never glyphs, never emoji.
-- **Browser surfaces are themed**: gold text selection, gold caret, a thin gold-deep
-  scrollbar inset against the ground, and a 2px gold focus ring at 2px offset.
+- **button-pill** — solid white on void, with a white outer glow that intensifies and lifts
+  1px on hover. One per region: *Run the post-mortem*, *Upload your CSV*, *Analyse*.
+- **button-ghost** — transparent pill with a `line-strong` border, brightening on hover.
+- **panel** — the universal container, described under Elevation. On hover a 1px highlight
+  travels across its top edge.
+- **proof-chip** — mono ID in a pill. Active state inverts to white on void with a glow and
+  `aria-pressed`. Clicking one highlights and scrolls to its position row.
+- **Positions table** — lives inside a panel; cited rows get a white wash plus a 2px inset
+  white bar at the left edge plus a bolder white ID, so proof never relies on colour alone.
+- **Terrain** (`src/components/terrain.tsx`) — canvas line field, 58 depth rows × 180
+  samples, perspective-fanned, walls rising to the edges, valley floor rippling with the
+  real cumulative P&L, slow drift, faint pointer parallax. Pauses off-screen; draws a single
+  still frame under reduced motion.
+- **How-it-works diagrams** (`src/components/how-it-works.tsx`) — each panel runs a working
+  diagram built from real sample data: a scrolling fills feed, T0005–T0008 gathering into
+  P03, figures counting in with a winner/loser bar comparison, and citations lighting in
+  sequence while a nonexistent `P99` is struck.
+- **Icons** — drawn SVG, single 1.5px stroke on a 16-unit grid, plus the Hindsight mark: an
+  arc turning back on itself around a fixed point.
+- **Browser surfaces** — white text selection, white caret, 2px white focus ring at 3px
+  offset, thin dark rounded scrollbar.
 
-Motion is one authored moment: the verdict arrives via a left-to-right `clip-path` strike
-(900ms, `cubic-bezier(0.16, 1, 0.3, 1)`), as if printed. The analysing state reuses that
-keyframe as a travelling hairline. Both respect `prefers-reduced-motion`. Nothing else on
-the page animates except 150–200ms colour transitions.
+### Motion
+
+Slow and continuous. Exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`) throughout.
+
+- Terrain drift and parallax (canvas, continuous).
+- Mark tile breathe (5s) and dust drift (26s).
+- Ticker marquee (48s) of measured sample figures.
+- Scroll-driven reveal via `animation-timeline: view()` — rise 36px with an 8px blur. Content
+  stays visible where the feature is unsupported.
+- The report verdict resolves from a 24px blur over 1.4s.
+- The analysing state is a travelling highlight on a hairline plus a pulsing dot.
+
+Every animation is disabled under `prefers-reduced-motion`.
 
 ## Do's and Don'ts
 
 **Do**
 
-- Spend gold on proof and authority only. If it isn't a verdict, a citation, or the primary
-  action, it isn't gold.
-- Set every figure in mono with tabular numerals.
-- Divide with rules and space.
-- Mark state in at least two channels so colour is never load-bearing alone.
+- Put emphasis in light: brightness, glow, the beam.
+- Keep `loss` inside data.
+- Set every ID and figure in mono with tabular numerals.
+- Build graphics from the user's real data wherever the product has it.
+- Mark state in at least two channels.
 
 **Don't**
 
-- Don't add cards, tiles, or a stat-tile row. The ledger strip is rule-separated values, and
-  turning it into boxes is the failure mode this system was designed against.
-- Don't add a second accent colour, a gradient, or gradient text.
-- Don't round a corner.
-- Don't add a shadow.
-- Don't use an eyebrow or kicker above a heading.
-- Don't introduce a light theme.
+- Don't add a second colour, a gradient in colour, or gradient text.
+- Don't put an eyebrow, pill label, or kicker above a heading.
+- Don't use a logo strip or any brand, customer, or partner mark — there are none to claim.
+- Don't add a light theme.
+- Don't animate on a spring or with bounce.
+- Don't let a diagram show a number the pipeline did not produce.

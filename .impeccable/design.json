@@ -1,46 +1,50 @@
 {
   "schemaVersion": 2,
-  "northStar": "The Verdict Sheet — a lamp-lit page that states a finding at poster scale, then lets you audit it line by line.",
+  "northStar": "The Look Back — a black room with one light above the centre; your trade history drawn as terrain, then interrogated until every claim points at a trade.",
   "colorMeta": {
-    "gold": { "displayName": "Struck Brass", "role": "authority and proof only; never decorative" },
-    "gold-deep": { "displayName": "Tarnished Brass", "role": "rules, strokes, scrollbar, fill identifiers" },
-    "ink": { "displayName": "Lamp-Off Black", "role": "the only ground; no light variant exists" },
-    "bone": { "displayName": "Warm Paper", "role": "primary text" },
-    "bone-dim": { "displayName": "Ash", "role": "secondary text and labels" },
-    "clay": { "displayName": "Fired Clay", "role": "negative P&L, sells, parse errors" },
-    "sage": { "displayName": "Dry Sage", "role": "positive P&L, buys" }
+    "void": { "displayName": "Void", "role": "page ground; there is no light variant" },
+    "panel": { "displayName": "Panel Black", "role": "panel body top" },
+    "panel-deep": { "displayName": "Panel Floor", "role": "panel body bottom" },
+    "white": { "displayName": "Beam White", "role": "primary text, primary action, active proof" },
+    "grey": { "displayName": "Ash", "role": "secondary text, labels, leads" },
+    "grey-deep": { "displayName": "Smoke", "role": "dimmest text-bearing grey, 4.7:1 on void" },
+    "loss": { "displayName": "Muted Loss", "role": "the single colour; losses, sells, struck citations, errors — data only" }
   },
   "extensions": {
-    "motion": {
-      "strike": {
-        "keyframes": "from { clip-path: inset(0 100% 0 0) } to { clip-path: inset(0 0 0 0) }",
-        "duration": "900ms",
-        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "usage": "The single authored moment: the generated verdict prints into the hero slot. Reused as a 1.4s travelling hairline for the analysing state. Disabled under prefers-reduced-motion."
-      },
-      "colorTransition": { "duration": "150-200ms", "usage": "hover and proof-selection only" }
+    "elevation": {
+      "panel": "radial-gradient(120% 80% at 50% -10%, rgba(255,255,255,0.07), transparent 60%) over linear-gradient(180deg, #0c0c0c, #080808); inset 0 1px 0 rgba(255,255,255,0.06); 0 30px 60px -30px rgba(0,0,0,0.9)",
+      "markTile": "inset 0 1px 0 rgba(255,255,255,0.25); 0 0 0 8px rgba(255,255,255,0.03); 0 0 60px 6px rgba(255,255,255,0.14); breathes 5s",
+      "pillGlow": "0 0 0 1px rgba(255,255,255,0.4), 0 0 30px -4px rgba(255,255,255,0.35); hover 0 0 44px 0 rgba(255,255,255,0.5)",
+      "beam": "160px wide, white 22%→5%→0 vertical gradient, blur 18px, clip-path trapezoid"
     },
-    "elevation": { "strategy": "flat", "shadows": "none", "notes": "Depth comes from tonal separation, hairline rules and type weight. A shadow anywhere breaks the system." },
-    "breakpoints": { "sm": "640px", "container": "1180px" },
+    "motion": {
+      "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "terrain": "canvas, continuous drift + pointer parallax, paused off-screen, single frame under reduced motion",
+      "breathe": "5s ease-in-out infinite on the mark tile",
+      "dust": "26s linear infinite background drift",
+      "marquee": "48s linear infinite",
+      "reveal": "animation-timeline: view(); rise 36px + blur 8px; range entry 0% to cover 28%",
+      "verdict": "resolve from blur 24px over 1400ms",
+      "scan": "1.6s travelling highlight on a hairline while analysing",
+      "reducedMotion": "all animations disabled"
+    },
+    "breakpoints": { "sm": "640px", "lg": "1024px", "content": "72rem" },
     "browserSurfaces": {
-      "selection": "background: gold; color: ink",
-      "caret": "gold",
-      "focusRing": "2px solid gold at 2px offset",
-      "scrollbar": "10px, gold-deep thumb with a 3px ink border, gold on hover"
+      "selection": "background white, text void",
+      "caret": "white",
+      "focusRing": "2px solid white, 3px offset",
+      "scrollbar": "10px, #262626 thumb with 3px void border, #3a3a3a hover"
     },
     "rules": [
-      "Colour is never the only channel: a cited row carries a gold bar, a heavier gold ID, and a gold wash.",
-      "Mono means measurement or identifier; prose is never mono.",
-      "More space above a heading than below it.",
-      "Tables use horizontal hairlines only — no vertical grid, no zebra, no container."
+      "Emphasis is light — brightness, glow, the beam — never a second colour.",
+      "The loss colour lives inside data only.",
+      "Graphics are built from real pipeline output; no diagram shows a number the pipeline did not produce.",
+      "Cited rows carry a wash, an inset bar and a bolder ID so proof never relies on colour alone.",
+      "Headings stand alone: no eyebrow, pill label or kicker above them."
     ],
-    "donts": [
-      "No cards, tiles, or stat-tile rows",
-      "No second accent, no gradients, no gradient text",
-      "No border radius",
-      "No shadows",
-      "No kickers or eyebrows above headings",
-      "No light theme"
+    "notCanonized": [
+      "The reference image's pill labels above section headings — a craft-floor ban, deliberately not built.",
+      "The reference image's partner logo strip — replaced with measured sample figures, since Hindsight has no partners to claim."
     ]
   }
 }
