@@ -1,16 +1,38 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { parseTrades, summarise, buildPositions, type ParseResult, type Position } from "@/lib/trades";
 import { resolveEvidence, type Report } from "@/lib/report";
 import type { Facts } from "@/lib/analysis";
 import { ReportView } from "@/components/report-view";
 import { PositionsTable } from "@/components/positions-table";
-import { Upload, Sample, Arrow } from "@/components/icons";
+import { HowItWorks } from "@/components/how-it-works";
+import { Terrain } from "@/components/terrain";
+import { Mark, Upload, Sample, Arrow, ArrowDown, Lock } from "@/components/icons";
 
 type Analysis = { report: Report; facts: Facts; positions: Position[]; dropped: string[] };
 
 const DEMO_QUESTION = "Why do I keep losing money on tech-adjacent positions?";
+
+/** Real figures computed from public/sample-trades.csv by the shipped pipeline. */
+const TICKER = [
+  "61 fills",
+  "24 round trips",
+  "70.8% win rate",
+  "−$893 net",
+  "winners held 5.9h",
+  "losers held 100h",
+  "5 positions averaged down",
+  "all 5 lost",
+  "3 revenge entries",
+  "−$1,382 from adding to losers",
+];
+
+const PROMISES = [
+  { title: "No journal to keep", body: "Export once from your exchange. No account, no tagging, no habit to build." },
+  { title: "Counted, never guessed", body: "Every number is arithmetic on your fills, done before the model is involved." },
+  { title: "Every claim cited", body: "Each finding names the trades behind it. A trade that isn't in your file is struck." },
+];
 
 export default function Home() {
   const [result, setResult] = useState<ParseResult | null>(null);
@@ -21,6 +43,24 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [focused, setFocused] = useState<string | null>(null);
+  const [landscape, setLandscape] = useState<number[] | null>(null);
+
+  // The hero landscape is drawn from the sample history's real equity curve.
+  useEffect(() => {
+    fetch("/sample-trades.csv")
+      .then((r) => r.text())
+      .then((csv) => {
+        let running = 0;
+        const curve = [0];
+        for (const p of buildPositions(parseTrades(csv).trades)) {
+          if (p.pnl === null) continue;
+          running += p.pnl;
+          curve.push(running);
+        }
+        setLandscape(curve);
+      })
+      .catch(() => {});
+  }, []);
 
   const load = (csv: string, name: string) => {
     setResult(parseTrades(csv));
@@ -30,6 +70,8 @@ export default function Home() {
     setSelected(new Set());
     setFocused(null);
   };
+
+  const loadSample = async () => load(await (await fetch("/sample-trades.csv")).text(), "sample-trades.csv");
 
   const analyse = async () => {
     if (!result) return;
@@ -64,121 +106,238 @@ export default function Home() {
     [result],
   );
 
+  const fileInput = (
+    <input
+      type="file"
+      accept=".csv,text/csv"
+      className="sr-only"
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (file) load(await file.text(), file.name);
+      }}
+    />
+  );
+
   return (
-    <div className="mx-auto min-h-screen max-w-[1180px] border-x border-rule px-6 pb-32 sm:px-12">
-      <header className="flex items-baseline justify-between gap-6 border-b border-rule py-5">
-        <span className="display text-lg tracking-tight text-gold">Hindsight</span>
-        <span className="label text-right">Read-only · never places an order</span>
-      </header>
+    <main>
+      {/* ---------------------------------------------------------------- HERO */}
+      <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden">
+        <Terrain series={landscape} className="absolute inset-0 -z-10" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_45%_at_50%_0%,rgba(255,255,255,0.08),transparent_70%)]"
+        />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-void to-transparent" />
 
-      <section className="pt-16 sm:pt-24">
-        {analysis ? (
-          <h1 key={analysis.report.headline} className="display verdict max-w-[16ch] text-[clamp(2.5rem,7vw,5.5rem)] text-gold">
-            {analysis.report.headline}
+        <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
+          <span className="flex items-center gap-2.5 text-white">
+            <Mark size={22} />
+            <span className="text-[15px] font-semibold tracking-tight">Hindsight</span>
+          </span>
+          <span className="flex items-center gap-2 rounded-full border border-line bg-black/40 px-3 py-1.5 text-xs text-grey backdrop-blur">
+            <Lock />
+            Read-only — never places an order
+          </span>
+        </header>
+
+        <div className="mx-auto mt-10 max-w-4xl px-6 text-center sm:mt-16">
+          <h1 className="headline text-[clamp(2.5rem,6.4vw,5.25rem)] text-white">
+            Your trades already know
+            <br />
+            <span className="text-white/55">what you keep getting wrong.</span>
           </h1>
-        ) : (
-          <h1 className="display max-w-[15ch] text-[clamp(2.5rem,7.5vw,6rem)] text-bone">
-            Your trade history already knows what you keep doing wrong.
-          </h1>
-        )}
-
-        {!analysis && (
-          <p className="mt-8 max-w-[54ch] text-[0.9375rem] leading-relaxed text-bone-dim">
-            Load the fills, ask one question, and read the answer against the trades that produced it. No account,
-            nothing to maintain, no figure the model was free to invent.
+          <p className="lead mx-auto mt-6 max-w-[46ch]">
+            One CSV. One honest post-mortem. Every finding tied to the exact trades behind it.
           </p>
-        )}
-      </section>
 
-      <section className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-rule pt-6">
-        <label className="group flex cursor-pointer items-center gap-2.5 text-sm text-bone transition-colors hover:text-gold">
-          <span className="text-gold">
-            <Upload />
-          </span>
-          Upload a CSV
-          <input
-            type="file"
-            accept=".csv,text/csv"
-            className="sr-only"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (file) load(await file.text(), file.name);
-            }}
-          />
-        </label>
-
-        <button
-          onClick={async () => load(await (await fetch("/sample-trades.csv")).text(), "sample-trades.csv")}
-          className="flex items-center gap-2.5 text-sm text-bone transition-colors hover:text-gold"
-        >
-          <span className="text-gold">
-            <Sample />
-          </span>
-          Use the sample history
-        </button>
-
-        {stats && (
-          <span className="label tnum ml-auto">
-            {source} · {stats.count} fills · {roundTrips} round trips · {stats.symbols.length} symbols ·{" "}
-            {stats.from?.slice(0, 10)} → {stats.to?.slice(0, 10)}
-          </span>
-        )}
-      </section>
-
-      {result?.errors.length ? (
-        <div className="mt-8 border-l-2 border-clay pl-4">
-          <p className="font-mono text-xs tracking-wide text-clay">
-            {result.errors.length} row{result.errors.length === 1 ? "" : "s"} could not be read
-          </p>
-          <ul className="mt-2 space-y-1 font-mono text-xs text-bone-dim">
-            {result.errors.slice(0, 5).map((e) => (
-              <li key={e.row}>
-                line {e.row} — {e.message}
-              </li>
-            ))}
-          </ul>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            <a href="#run" className="btn-pill">
+              Run the post-mortem
+              <Arrow />
+            </a>
+            <a href="#how" className="btn-ghost">
+              See how it works
+            </a>
+          </div>
         </div>
-      ) : null}
 
-      {result && (
-        <>
-          <section className="mt-16 border-t border-rule-gold pt-8">
-            <label htmlFor="question" className="display block text-xl text-bone sm:text-2xl">
-              What do you want to know?
-            </label>
+        <div className="relative mt-auto flex justify-center pb-[14vh]">
+          <div aria-hidden className="beam top-14 h-[28vh]" />
+          <div className="mark-tile text-white">
+            <Mark size={34} />
+          </div>
+        </div>
+      </section>
 
-            <div className="mt-6 flex flex-wrap items-end gap-4">
-              <input
-                id="question"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder={DEMO_QUESTION}
-                disabled={analysing}
-                className="min-w-0 flex-1 border-b border-rule-gold bg-transparent pb-3 text-lg text-bone placeholder:text-bone-dim/60 focus:border-gold focus:outline-none disabled:opacity-50 sm:text-xl"
-              />
-              <button
-                onClick={analyse}
-                disabled={analysing}
-                className="flex items-center gap-2.5 bg-gold px-5 py-3 text-sm font-semibold text-ink transition-opacity hover:opacity-85 disabled:opacity-40"
-              >
-                {analysing ? "Reading" : "Analyse"}
-                <Arrow />
+      {/* -------------------------------------------------------------- TICKER */}
+      <section aria-label="Figures from the sample history" className="relative border-y border-line py-5">
+        <div className="overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
+          <div className="marquee">
+            {[...TICKER, ...TICKER].map((item, i) => (
+              <span key={i} className="flex items-center gap-8 pr-8 text-sm whitespace-nowrap text-grey">
+                <span className={item.startsWith("−") || item.includes("lost") ? "text-loss" : ""}>{item}</span>
+                <span aria-hidden className="h-1 w-1 rounded-full bg-grey-deep" />
+              </span>
+            ))}
+          </div>
+        </div>
+        <p className="mt-3 text-center font-mono text-[10px] text-grey-deep">measured from the sample history</p>
+      </section>
+
+      <div className="mx-auto max-w-6xl px-6">
+        {/* ------------------------------------------------------------ WHAT */}
+        <section className="pt-32 text-center sm:pt-40">
+          <h2 className="headline reveal mx-auto max-w-[18ch] text-[clamp(2rem,4.2vw,3.25rem)] text-white">
+            A post-mortem for traders who never kept a journal
+          </h2>
+          <p className="lead reveal mx-auto mt-5 max-w-[56ch]">
+            Trading journals only work if you keep one. Hindsight reads the history you already have and tells you
+            the habit that is costing you — once, with receipts.
+          </p>
+
+          <div className="mt-14 grid gap-4 text-left sm:grid-cols-3">
+            {PROMISES.map((p, i) => (
+              <div key={p.title} className="panel reveal flex items-start gap-4 p-5">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line-strong bg-gradient-to-b from-white/10 to-transparent font-mono text-sm text-white">
+                  0{i + 1}
+                </span>
+                <div>
+                  <h3 className="font-medium text-white">{p.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-grey">{p.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------------- HOW */}
+        <section id="how" className="scroll-mt-10 pt-32 sm:pt-40">
+          <div className="text-center">
+            <h2 className="headline reveal text-[clamp(2rem,4.2vw,3.25rem)] text-white">How it works</h2>
+            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">
+              Four steps. Only the last one uses a language model, and it only gets numbers it cannot change.
+            </p>
+          </div>
+          <div className="mt-14">
+            <HowItWorks />
+          </div>
+        </section>
+
+        {/* -------------------------------------------------------- SHOWCASE */}
+        <section className="pt-32 sm:pt-40">
+          <div className="text-center">
+            <h2 className="headline reveal text-[clamp(2rem,4.2vw,3.25rem)] text-white">What it tells you</h2>
+            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">A finding from the sample history, word for word.</p>
+          </div>
+
+          <figure className="panel reveal relative mt-14 overflow-hidden px-7 py-14 text-center sm:px-16 sm:py-20">
+            <div className="dust" />
+            <div aria-hidden className="beam -top-10 h-80 opacity-70" />
+            <blockquote className="headline relative mx-auto max-w-[20ch] text-[clamp(1.75rem,3.6vw,2.75rem)] text-white">
+              You average down into losing positions with a 100% loss rate.
+            </blockquote>
+            <p className="relative mx-auto mt-6 max-w-[58ch] text-[0.9375rem] leading-relaxed text-grey">
+              Across 5 positions where you added to a falling trade, every one lost — averaging −12.97% over 112.6
+              hours. <span className="text-loss">Adding to losers cost you −$1,382.50 of a −$1,704.75 total.</span>
+            </p>
+            <figcaption className="relative mt-8 flex flex-wrap items-center justify-center gap-2">
+              {["P03", "P06", "P08", "P16", "P17"].map((id) => (
+                <span key={id} className="rounded-full border border-line-strong bg-black/40 px-3 py-1.5 font-mono text-xs text-white">
+                  {id}
+                </span>
+              ))}
+            </figcaption>
+          </figure>
+        </section>
+
+        {/* ------------------------------------------------------------- RUN */}
+        <section id="run" className="scroll-mt-10 pt-32 sm:pt-40">
+          <div className="text-center">
+            <h2 className="headline reveal text-[clamp(2rem,4.2vw,3.25rem)] text-white">Run it on your trades</h2>
+            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">
+              Nothing is stored — no account, no database. The analysis runs once and is gone when you close the tab.
+            </p>
+          </div>
+
+          <div className="panel relative mt-14 overflow-hidden p-7 sm:p-10">
+            <div className="dust opacity-40" />
+
+            <div className="relative flex flex-wrap items-center gap-3">
+              <label className="btn-pill cursor-pointer">
+                <Upload />
+                {result ? "Load a different CSV" : "Upload your CSV"}
+                {fileInput}
+              </label>
+              <button onClick={loadSample} className="btn-ghost">
+                <Sample />
+                Use the sample history
               </button>
+              {stats && (
+                <span className="tnum ml-auto font-mono text-xs text-grey">
+                  {source} · {stats.count} fills · {roundTrips} round trips · {stats.symbols.length} symbols
+                </span>
+              )}
             </div>
 
-            {analysing && (
-              <p className="label mt-5 flex items-center gap-3">
-                <span aria-hidden className="relative block h-px w-24 overflow-hidden bg-rule">
-                  <span className="absolute inset-y-0 left-0 w-1/3 animate-[strike_1.4s_ease-in-out_infinite] bg-gold" />
-                </span>
-                Reading {stats?.count} fills across {roundTrips} round trips
-              </p>
+            {result && result.errors.length > 0 && (
+              <div className="relative mt-6 rounded-xl border border-loss/30 bg-loss/[0.06] p-4">
+                <p className="text-sm text-loss">
+                  {result.errors.length} row{result.errors.length === 1 ? "" : "s"} could not be read
+                </p>
+                <ul className="mt-2 space-y-1 font-mono text-xs text-grey">
+                  {result.errors.slice(0, 5).map((e) => (
+                    <li key={e.row}>
+                      line {e.row} — {e.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
 
-            {error && <p className="mt-5 max-w-[60ch] font-mono text-xs leading-relaxed text-clay">{error}</p>}
-          </section>
+            {result ? (
+              <div className="relative mt-10 border-t border-line pt-9">
+                <label htmlFor="question" className="text-sm text-grey">
+                  What do you want to know?
+                </label>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <input
+                    id="question"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder={DEMO_QUESTION}
+                    disabled={analysing}
+                    className="min-w-0 flex-1 rounded-full border border-line-strong bg-black/50 px-6 py-3.5 text-[15px] text-white placeholder:text-grey-deep focus:border-white/50 focus:outline-none disabled:opacity-50"
+                  />
+                  <button onClick={analyse} disabled={analysing} className="btn-pill justify-center">
+                    {analysing ? "Reading your trades" : "Analyse"}
+                    <Arrow />
+                  </button>
+                </div>
 
-          {analysis && (
+                {analysing && (
+                  <div className="mt-6">
+                    <div className="relative h-px overflow-hidden rounded-full bg-line">
+                      <span className="absolute inset-y-0 left-0 w-1/4 animate-[scan_1.6s_cubic-bezier(0.45,0,0.55,1)_infinite] bg-gradient-to-r from-transparent via-white to-transparent" />
+                    </div>
+                    <p className="mt-3 flex items-center gap-2 text-xs text-grey">
+                      <span className="h-1.5 w-1.5 animate-[pulse-dot_1.2s_ease-in-out_infinite] rounded-full bg-white" />
+                      Counting {stats?.count} fills across {roundTrips} round trips, then asking for the write-up.
+                      This takes about 20 seconds.
+                    </p>
+                  </div>
+                )}
+
+                {error && <p className="mt-5 text-sm text-loss">{error}</p>}
+              </div>
+            ) : (
+              <p className="relative mt-8 max-w-[52ch] text-sm leading-relaxed text-grey">
+                No file handy? The sample history is 61 synthetic fills built to contain real, detectable habits —
+                it runs the full analysis exactly as your own file would.
+              </p>
+            )}
+          </div>
+
+          {analysis && result && (
             <ReportView
               report={analysis.report}
               facts={analysis.facts}
@@ -188,71 +347,50 @@ export default function Home() {
             />
           )}
 
-          <section className="mt-20">
-            <div className="flex flex-wrap items-baseline gap-4 border-t border-rule-gold pt-8 pb-6">
-              <h2 className="display text-xl text-bone sm:text-2xl">
-                {analysis ? "Every position, in order" : "Every fill you loaded"}
-              </h2>
-              {selected.size > 0 && (
-                <button
-                  onClick={() => {
-                    setSelected(new Set());
-                    setFocused(null);
-                  }}
-                  className="label text-gold underline-offset-4 hover:underline"
-                >
-                  Clear proof
-                </button>
-              )}
-              <span className="label ml-auto">
-                {analysis ? "Open a row for the fills behind it" : "Positions appear once analysed"}
-              </span>
-            </div>
-
-            {analysis ? (
+          {analysis && result && (
+            <div className="mt-20">
+              <div className="mb-6 flex flex-wrap items-end gap-4">
+                <h3 className="headline text-2xl text-white sm:text-[1.75rem]">Every position, in order</h3>
+                {selected.size > 0 && (
+                  <button
+                    onClick={() => {
+                      setSelected(new Set());
+                      setFocused(null);
+                    }}
+                    className="rounded-full border border-line-strong px-3 py-1 text-xs text-grey transition-colors hover:text-white"
+                  >
+                    Clear highlight
+                  </button>
+                )}
+                <span className="ml-auto text-xs text-grey">Open a row to see the fills behind it</span>
+              </div>
               <PositionsTable
                 positions={analysis.positions}
                 trades={result.trades}
                 selected={selected}
                 focused={focused}
               />
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="border-y border-rule">
-                      {["Trade", "Time", "Symbol", "Side", "Qty", "Price"].map((h, i) => (
-                        <th
-                          key={h}
-                          className={`label py-3 font-normal ${i === 0 ? "pl-0 text-left" : i > 3 ? "px-4 text-right" : "px-4 text-left"}`}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.trades.map((t) => (
-                      <tr key={t.id} className="border-b border-rule">
-                        <td className="py-2.5 pl-0 font-mono text-xs text-bone-dim">{t.id}</td>
-                        <td className="tnum px-4 py-2.5 font-mono text-xs whitespace-nowrap text-bone-dim">
-                          {t.timestamp.slice(0, 16).replace("T", " ")}
-                        </td>
-                        <td className="px-4 py-2.5 text-bone">{t.symbol}</td>
-                        <td className={`px-4 py-2.5 font-mono text-xs ${t.side === "buy" ? "text-sage" : "text-clay"}`}>
-                          {t.side}
-                        </td>
-                        <td className="tnum px-4 py-2.5 text-right font-mono text-xs text-bone-dim">{t.qty}</td>
-                        <td className="tnum px-4 py-2.5 text-right font-mono text-xs text-bone-dim">{t.price}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        </>
-      )}
-    </div>
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* ---------------------------------------------------------- FOOTER */}
+      <footer className="mt-40 border-t border-line">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-xs text-grey">
+          <span className="flex items-center gap-2 text-white">
+            <Mark size={18} />
+            Hindsight
+          </span>
+          <span>Read-only. It reads your history and never touches your account.</span>
+          <a href="#run" className="flex items-center gap-1.5 text-white hover:underline">
+            Back to the tool
+            <span className="inline-block rotate-180">
+              <ArrowDown />
+            </span>
+          </a>
+        </div>
+      </footer>
+    </main>
   );
 }

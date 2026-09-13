@@ -1,74 +1,71 @@
 @import "tailwindcss";
 
 :root {
-  /* Ground: a warm near-black, the colour of a desk lamp turned off. */
-  --ink: #121110;
-  --ink-raised: #1a1815;
-  --rule: rgba(243, 239, 230, 0.09);
-  --rule-gold: rgba(232, 180, 76, 0.28);
+  /* A black room with one light source above the centre. Everything is a shade of it. */
+  --void: #050505;
+  --panel: #0c0c0c;
+  --panel-deep: #080808;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
 
-  --bone: #f3efe6;
-  --bone-dim: #a9a197;
-  --gold: #e8b44c;
-  --gold-deep: #8a6a25;
-  --clay: #ee7a5c;
-  --sage: #a9be8c;
+  --white: #f5f5f5;
+  --grey: #8f8f8f;
+  --grey-deep: #7d7d7d; /* the dimmest grey still allowed to carry text: 4.7:1 on void */
+  /* The single permitted colour: a loss, muted so it reads as fact rather than alarm. */
+  --loss: #d2736a;
 
-  --background: var(--ink);
-  --foreground: var(--bone);
+  --background: var(--void);
+  --foreground: var(--white);
 }
 
 @theme inline {
-  --color-ink: var(--ink);
-  --color-ink-raised: var(--ink-raised);
-  --color-rule: var(--rule);
-  --color-rule-gold: var(--rule-gold);
-  --color-bone: var(--bone);
-  --color-bone-dim: var(--bone-dim);
-  --color-gold: var(--gold);
-  --color-gold-deep: var(--gold-deep);
-  --color-clay: var(--clay);
-  --color-sage: var(--sage);
+  --color-void: var(--void);
+  --color-panel: var(--panel);
+  --color-panel-deep: var(--panel-deep);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-white: var(--white);
+  --color-grey: var(--grey);
+  --color-grey-deep: var(--grey-deep);
+  --color-loss: var(--loss);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-display: var(--font-archivo-black);
-  --font-sans: var(--font-archivo);
-  --font-mono: var(--font-azeret);
+  --font-sans: var(--font-onest);
+  --font-mono: var(--font-jetbrains);
 }
 
-/* The world is lit one way: a dark room, one lamp. There is no light mode. */
 html {
   color-scheme: dark;
-  background: var(--ink);
+  background: var(--void);
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--ink);
-  color: var(--bone);
-  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  background: var(--void);
+  color: var(--white);
+  font-family: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Surfaces the browser draws for us still belong to the design. */
 ::selection {
-  background: var(--gold);
-  color: var(--ink);
+  background: var(--white);
+  color: var(--void);
 }
 
 :focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
+  outline: 2px solid var(--white);
+  outline-offset: 3px;
 }
 
 input {
-  caret-color: var(--gold);
+  caret-color: var(--white);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--gold-deep) transparent;
+  scrollbar-color: #2a2a2a transparent;
 }
-
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -77,52 +74,352 @@ input {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--gold-deep);
-  border: 3px solid var(--ink);
+  background: #262626;
+  border: 3px solid var(--void);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold);
+  background: #3a3a3a;
 }
 
-/* Every figure in this product is a measurement: one column, one width. */
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
 
-.display {
-  font-family: var(--font-archivo-black), ui-sans-serif, system-ui, sans-serif;
-  font-weight: 400;
+.headline {
+  font-weight: 600;
   letter-spacing: -0.035em;
-  line-height: 0.92;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
-.label {
-  font-family: var(--font-azeret), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--bone-dim);
+.lead {
+  font-size: clamp(1rem, 1.4vw, 1.1875rem);
+  line-height: 1.55;
+  color: var(--grey);
+  text-wrap: pretty;
 }
 
-/* The one authored moment: the verdict arrives as if printed, not faded in. */
-@keyframes strike {
+/* ---- Panels: dark glass lit from above ------------------------------------------ */
+
+.panel {
+  position: relative;
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 255, 255, 0.07), transparent 60%),
+    linear-gradient(180deg, var(--panel) 0%, var(--panel-deep) 100%);
+  border: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 30px 60px -30px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+
+/* A hairline of light that travels the top edge on hover. */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-100%);
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.panel:hover::before {
+  transform: translateX(100%);
+}
+
+/* The dust that hangs in the beam. Pure CSS: tiled radial points drifting upward. */
+.dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 72% 34%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 38% 62%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 88% 78%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 24% 88%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 56% 8%, rgba(255, 255, 255, 0.3), transparent);
+  background-size: 220px 220px;
+  animation: drift 26s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes drift {
   from {
-    clip-path: inset(0 100% 0 0);
+    background-position: 0 0;
   }
   to {
-    clip-path: inset(0 0 0 0);
+    background-position: 0 -220px;
   }
 }
 
+/* ---- The centre mark and its beam ------------------------------------------------ */
+
+.mark-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #2a2a2a 0%, #0d0d0d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 0 8px rgba(255, 255, 255, 0.03),
+    0 0 60px 6px rgba(255, 255, 255, 0.14),
+    0 20px 40px -10px rgba(0, 0, 0, 0.9);
+  animation: breathe 5s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 0 0 8px rgba(255, 255, 255, 0.03),
+      0 0 50px 4px rgba(255, 255, 255, 0.1),
+      0 20px 40px -10px rgba(0, 0, 0, 0.9);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 0 0 10px rgba(255, 255, 255, 0.045),
+      0 0 80px 10px rgba(255, 255, 255, 0.2),
+      0 20px 40px -10px rgba(0, 0, 0, 0.9);
+  }
+}
+
+.beam {
+  position: absolute;
+  left: 50%;
+  width: 160px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 55%, transparent 100%);
+  filter: blur(18px);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+/* ---- Buttons --------------------------------------------------------------------- */
+
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--void);
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.8rem 1.4rem;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.4),
+    0 0 30px -4px rgba(255, 255, 255, 0.35);
+  transition:
+    box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 200ms;
+}
+.btn-pill:hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.6),
+    0 0 44px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+.btn-pill:disabled {
+  opacity: 0.45;
+  transform: none;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  color: var(--white);
+  font-size: 0.875rem;
+  padding: 0.8rem 1.4rem;
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    background 250ms,
+    border-color 250ms;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Scroll-driven reveal: visible by default, choreographed where supported ------ */
+
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(36px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* ---- The facts ticker ------------------------------------------------------------ */
+
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 48s linear infinite;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---- The verdict arrives out of focus and resolves ------------------------------- */
+
 .verdict {
-  animation: strike 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: resolve 1400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes resolve {
+  from {
+    opacity: 0;
+    filter: blur(24px);
+    letter-spacing: 0.02em;
+  }
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* The scanner that runs while the analysis is out. */
+@keyframes scan {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(400%);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---- How-it-works diagrams ------------------------------------------------------- */
+
+@keyframes feed {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+/* Four fills drift in apart, then close ranks into one decision. */
+@keyframes gather {
+  0%,
+  12% {
+    transform: translateX(-10px);
+    opacity: 0.35;
+    margin-bottom: 10px;
+  }
+  38%,
+  78% {
+    transform: none;
+    opacity: 1;
+    margin-bottom: 0;
+  }
+  100% {
+    transform: translateX(-10px);
+    opacity: 0.35;
+    margin-bottom: 10px;
+  }
+}
+
+@keyframes settle {
+  0%,
+  34% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    filter: blur(4px);
+  }
+  46%,
+  82% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    filter: blur(4px);
+  }
+}
+
+@keyframes light {
+  0%,
+  10%,
+  70%,
+  100% {
+    color: var(--grey);
+    border-color: var(--line-strong);
+    background: transparent;
+  }
+  22%,
+  58% {
+    color: var(--void);
+    border-color: var(--white);
+    background: var(--white);
+  }
+}
+
+@keyframes strike-out {
+  0%,
+  30% {
+    opacity: 1;
+    text-decoration: none;
+  }
+  45%,
+  80% {
+    opacity: 0.35;
+    text-decoration: line-through;
+  }
+  100% {
+    opacity: 1;
+    text-decoration: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .verdict {
-    animation: none;
+  .marquee,
+  .dust,
+  .mark-tile,
+  .verdict,
+  .reveal {
+    animation: none !important;
+  }
+  .panel::before {
+    display: none;
   }
 }

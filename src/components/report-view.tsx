@@ -2,10 +2,10 @@
 
 import type { Report } from "@/lib/report";
 import type { Facts } from "@/lib/analysis";
-import { Checkbox } from "./icons";
+import { Check } from "./icons";
 
 const money = (n: number) =>
-  `${n < 0 ? "−" : ""}$${Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  `${n < 0 ? "−" : "+"}$${Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
 export function ReportView({
   report,
@@ -20,69 +20,86 @@ export function ReportView({
   selected: Set<string>;
   onSelect: (evidence: string[], focus: string) => void;
 }) {
-  const ledger: [string, string, string][] = [
-    ["Closed positions", String(facts.positions), "text-bone"],
-    ["Win rate", `${facts.winRate}%`, "text-bone"],
-    ["Net P&L", money(facts.netPnl), facts.netPnl < 0 ? "text-clay" : "text-sage"],
-    ["Average win", `+${facts.wins.avgPnlPct}%`, "text-sage"],
-    ["Average loss", `${facts.losses.avgPnlPct}%`, "text-clay"],
+  const figures: [string, string, boolean][] = [
+    ["Closed positions", String(facts.positions), false],
+    ["Win rate", `${facts.winRate}%`, false],
+    ["Net result", money(facts.netPnl), facts.netPnl < 0],
+    ["Average winner", `+${facts.wins.avgPnlPct}%`, false],
+    ["Average loser", `${facts.losses.avgPnlPct}%`, true],
   ];
 
   return (
     <section className="mt-20">
-      <div className="border-t border-rule-gold pt-10">
-        <dl className="flex flex-wrap gap-y-8">
-          {ledger.map(([label, value, tone], i) => (
-            <div key={label} className={`px-6 first:pl-0 ${i > 0 ? "border-l border-rule" : ""}`}>
-              <dd className={`tnum font-mono text-2xl sm:text-[1.75rem] ${tone}`}>{value}</dd>
-              <dt className="label mt-2">{label}</dt>
-            </div>
-          ))}
-        </dl>
+      <div className="relative text-center">
+        <div aria-hidden className="beam -top-24 h-72 opacity-60" />
+        <h2
+          key={report.headline}
+          className="headline verdict relative mx-auto max-w-[22ch] text-[clamp(2rem,4.6vw,3.75rem)] text-white"
+        >
+          {report.headline}
+        </h2>
       </div>
 
-      <div className="mt-16 space-y-14">
-        {report.patterns.map((p) => (
-          <article key={p.title} className="border-t border-rule pt-8">
-            <div className="flex items-start justify-between gap-8">
-              <h3 className="display max-w-[24ch] text-2xl text-bone sm:text-[2rem]">{p.title}</h3>
-              <span className="label shrink-0 pt-1">{p.confidence} confidence</span>
+      <dl className="panel mt-14 grid grid-cols-2 sm:grid-cols-5">
+        {figures.map(([label, value, isLoss], i) => (
+          <div
+            key={label}
+            className={`px-6 py-6 ${i > 0 ? "sm:border-l sm:border-line" : ""} ${i > 1 ? "border-t border-line sm:border-t-0" : ""}`}
+          >
+            <dd className={`tnum text-2xl font-semibold tracking-tight ${isLoss ? "text-loss" : "text-white"}`}>{value}</dd>
+            <dt className="mt-1.5 text-xs text-grey">{label}</dt>
+          </div>
+        ))}
+      </dl>
+
+      <div className="mt-6 space-y-4">
+        {report.patterns.map((p, i) => (
+          <article key={p.title} className="panel reveal grid gap-8 p-7 sm:p-9 lg:grid-cols-[1fr_17rem]">
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="grid h-7 w-7 place-items-center rounded-full border border-line-strong font-mono text-xs text-grey">
+                  {i + 1}
+                </span>
+                <span className="text-xs capitalize text-grey">{p.confidence} confidence</span>
+              </div>
+              <h3 className="headline mt-5 max-w-[26ch] text-2xl text-white sm:text-[1.75rem]">{p.title}</h3>
+              <p className="mt-5 max-w-[64ch] text-[0.9375rem] leading-relaxed text-grey">{p.finding}</p>
+              <p className="mt-4 max-w-[64ch] text-[0.9375rem] leading-relaxed text-white">{p.cost}</p>
             </div>
 
-            <p className="mt-6 max-w-[68ch] text-[0.9375rem] leading-relaxed text-bone-dim">{p.finding}</p>
-            <p className="mt-4 max-w-[68ch] text-[0.9375rem] leading-relaxed text-gold">{p.cost}</p>
-
-            <div className="mt-7 flex flex-wrap items-center gap-x-2 gap-y-2">
-              <span className="label mr-2">Proof</span>
-              {p.evidence.map((id) => {
-                const on = selected.has(id);
-                return (
-                  <button
-                    key={id}
-                    onClick={() => onSelect(p.evidence, id)}
-                    aria-pressed={on}
-                    className={`tnum rounded-none border px-2 py-1 font-mono text-xs transition-colors duration-150 ${
-                      on
-                        ? "border-gold bg-gold font-semibold text-ink"
-                        : "border-rule-gold text-gold hover:bg-gold hover:text-ink"
-                    }`}
-                  >
-                    {id}
-                  </button>
-                );
-              })}
+            <div className="flex flex-col justify-end border-t border-line pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
+              <p className="text-xs text-grey">The trades behind this</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {p.evidence.map((id) => {
+                  const on = selected.has(id);
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => onSelect(p.evidence, id)}
+                      aria-pressed={on}
+                      className={`tnum rounded-full border px-3 py-1.5 font-mono text-xs transition-all duration-300 ${
+                        on
+                          ? "border-white bg-white text-void shadow-[0_0_24px_-2px_rgba(255,255,255,0.55)]"
+                          : "border-line-strong text-white hover:border-white/40 hover:bg-white/[0.06]"
+                      }`}
+                    >
+                      {id}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </article>
         ))}
       </div>
 
-      <div className="mt-20 border-t border-rule-gold pt-8">
-        <h3 className="display text-2xl text-gold sm:text-[2rem]">Rules for your next trade</h3>
-        <ul className="mt-8 max-w-[72ch] divide-y divide-rule border-y border-rule">
+      <div className="panel reveal mt-4 p-7 sm:p-9">
+        <h3 className="headline text-2xl text-white sm:text-[1.75rem]">Rules for your next trade</h3>
+        <ul className="mt-7 grid gap-3 sm:grid-cols-2">
           {report.checklist.map((rule) => (
-            <li key={rule} className="flex gap-4 py-4 text-[0.9375rem] leading-relaxed text-bone">
-              <span className="mt-0.5 shrink-0 text-gold-deep">
-                <Checkbox />
+            <li key={rule} className="flex gap-4 rounded-2xl border border-line bg-white/[0.02] p-4 text-sm leading-relaxed text-white">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-line-strong bg-white/[0.04] text-white">
+                <Check />
               </span>
               {rule}
             </li>
@@ -91,9 +108,9 @@ export function ReportView({
       </div>
 
       {dropped.length > 0 && (
-        <p className="mt-6 max-w-[68ch] font-mono text-xs leading-relaxed text-bone-dim">
-          {dropped.length} citation{dropped.length === 1 ? "" : "s"} ({dropped.join(", ")}) matched no trade in this
-          file and {dropped.length === 1 ? "was" : "were"} struck from the report.
+        <p className="mt-5 text-center font-mono text-xs text-grey">
+          {dropped.length} citation{dropped.length === 1 ? "" : "s"} ({dropped.join(", ")}) matched no trade in your
+          file and {dropped.length === 1 ? "was" : "were"} removed.
         </p>
       )}
     </section>

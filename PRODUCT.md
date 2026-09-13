@@ -67,9 +67,15 @@ a public link.
 ## Brand Commitments
 
 - The name **Hindsight** is fixed.
-- Visual direction pinned by the user via reference image `JOU.jpg`: near-black ground,
-  warm gold accent, oversized display type, thin vertical column rules, generous negative
-  space, small mono labels, editorial layering.
+- Visual direction pinned by the user via reference image `hin.jpg` (supersedes the earlier
+  `JOU.jpg` gold direction): pure black ground, strictly monochrome greys and white, flowing
+  line-field wave surfaces in the hero with a glowing centre mark and light beam, centred
+  headline with a white pill action, soft dark rounded panels each carrying its own
+  graphic, particles and depth. The user asked for motion, graphics and effects.
+- Colour exception confirmed by the user: losses may use a single muted red inside the data;
+  everything else stays monochrome.
+- Page structure confirmed by the user: story first (hero, how it works, a real finding),
+  the working tool below it.
 - Voice: second person, plain language, no hedging, no encouragement, no disclaimers. The
   report talks about the trader's decisions, never about the market.
 
