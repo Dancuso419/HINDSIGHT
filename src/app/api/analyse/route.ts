@@ -3,6 +3,8 @@ import { z } from "zod";
 import { TradeSchema, buildPositions } from "@/lib/trades";
 import { computeFacts } from "@/lib/analysis";
 import { ReportSchema, enforceCitations } from "@/lib/report";
+import { replayNoAveragingDown, replayNoReentryAfterLoss, replayStopLoss, unavailableStopLoss } from "@/lib/replay";
+import { getSentiment, entrySentiment, getCandles } from "@/lib/market";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -37,7 +39,19 @@ price. Second person, plain language, no hedging, no encouragement, no disclaime
 
 The checklist is 3-6 rules this specific trader could have applied to the cited positions.
 Each rule must be checkable before or during a trade, and must be specific enough that
-someone reading it alone could tell which mistake it prevents.`;
+someone reading it alone could tell which mistake it prevents.
+
+A group's total P&L is not what a habit cost. The positions a trader averaged down may
+have lost $1,000 in total while adding to them cost only $300 — the first entry would
+have lost the rest anyway. When you say what a habit cost, use the REPLAY delta for that
+rule, and say "would have saved" only with a REPLAY figure. If a replay delta is negative,
+the rule would have cost money on this history — say so rather than recommending it. For a
+habit with no REPLAY figure, state what those positions lost ("these 7 positions lost
+$1,704.75") and never call that amount what the habit cost.
+
+MARKET CONTEXT gives the Fear & Greed index on the day each position was opened. Use it
+only where it separates this trader's winners from their losers; if it does not, leave
+it out. It describes the conditions they chose to act in, never a prediction.`;
 
 // Gemini takes plain JSON Schema; Zod generates it, and Zod validates what comes back.
 const REPORT_JSON_SCHEMA = (() => {
@@ -82,11 +96,39 @@ export async function POST(req: Request) {
     );
   }
 
+  // Market data is best-effort and time-boxed: the analysis never waits on a failing Skill.
+  const closedDates = positions.filter((p) => p.pnl !== null).map((p) => Date.parse(p.openedAt));
+  const daysBack = Math.ceil((Date.now() - Math.min(...closedDates)) / 86_400_000) + 2;
+  const [sentiment, candles] = await Promise.all([getSentiment(daysBack), getCandles(positions)]);
+
+  const replays = [
+    replayNoAveragingDown(positions, parsed.data.trades),
+    replayNoReentryAfterLoss(positions),
+    candles.size
+      ? replayStopLoss(positions, candles, "bitget-signal")
+      : unavailableStopLoss(
+          "Historical prices from bitget-signal are unavailable right now. This rule is replayed automatically once they return.",
+        ),
+  ];
+  const market = entrySentiment(positions, sentiment.byDay, sentiment.source);
+
   const question = parsed.data.question?.trim() || "What do I keep getting wrong?";
   const input = `The trader asks: "${question}"
 
 FACTS (computed from their fills — the only numbers you may use):
 ${JSON.stringify(facts, null, 2)}
+
+REPLAY (their history re-run with one rule applied; delta = dollars the rule would have saved):
+${JSON.stringify(
+  replays
+    .filter((r) => r.status === "computed")
+    .map(({ rule, delta, actualPnl, replayedPnl, affected }) => ({ rule, delta, actualPnl, replayedPnl, positionIds: affected.map((a) => a.id) })),
+  null,
+  2,
+)}
+
+MARKET CONTEXT (Fear & Greed index on each entry day, 0 = extreme fear, 100 = extreme greed):
+${JSON.stringify({ avgIndexAtLosingEntries: market.avgIndexAtLosingEntries, avgIndexAtWinningEntries: market.avgIndexAtWinningEntries, bands: market.bands }, null, 2)}
 
 POSITIONS (each id maps to the trade ids that make it up):
 ${JSON.stringify(
@@ -170,5 +212,5 @@ ${JSON.stringify(
     );
   }
 
-  return NextResponse.json({ report: checked, facts, positions, dropped });
+  return NextResponse.json({ report: checked, facts, positions, dropped, replays, market });
 }

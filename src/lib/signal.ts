@@ -12,6 +12,18 @@ const PROTOCOL = "2025-06-18";
 let session: { id: string; at: number } | null = null;
 let rpcId = 0;
 
+/**
+ * While the Skills are failing, stop waiting on them: after a failure, calls fail fast for
+ * COOLDOWN_MS, then the next request tries the Skills again. Recovery needs no action —
+ * the first call after the cooldown that succeeds puts every feature back on live data.
+ * ponytail: one breaker for the whole server, since outages so far have been server-wide
+ * (every upstream timing out at once). Per-tool breakers if that stops being true.
+ */
+const COOLDOWN_MS = 3 * 60_000;
+let failedAt = 0;
+
+export const skillsCoolingDown = () => Date.now() - failedAt < COOLDOWN_MS;
+
 /** Responses arrive either as JSON or as a single SSE `data:` frame. */
 async function readRpc(res: Response): Promise<unknown> {
   const text = await res.text();
@@ -70,6 +82,20 @@ type ToolResult = { content?: { type: string; text?: string }[]; isError?: boole
 
 /** Call one Skill tool and return its text payload parsed as JSON when possible. */
 export async function callSkill<T = unknown>(tool: string, args: Record<string, unknown>): Promise<T> {
+  if (skillsCoolingDown()) throw new Error("bitget-signal is cooling down after a recent failure");
+  try {
+    return await callSkillOnce<T>(tool, args);
+  } catch (e) {
+    failedAt = Date.now();
+    throw e;
+  }
+}
+
+/** A Skill whose upstream failed answers with an empty error object rather than an error. */
+const isEmptyError = (v: unknown) =>
+  !!v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 1 && /error/i.test(Object.keys(v)[0]);
+
+async function callSkillOnce<T>(tool: string, args: Record<string, unknown>): Promise<T> {
   const attempt = async () => {
     const sid = await openSession();
     const res = await fetch(ENDPOINT, {
@@ -96,9 +122,12 @@ export async function callSkill<T = unknown>(tool: string, args: Record<string, 
 
   const text = result?.content?.find((c) => c.type === "text")?.text ?? "";
   if (result?.isError) throw new Error(`bitget-signal ${tool}: ${text.slice(0, 200)}`);
+  let parsed: unknown;
   try {
-    return JSON.parse(text) as T;
+    parsed = JSON.parse(text);
   } catch {
-    return text as T;
+    parsed = text;
   }
+  if (isEmptyError(parsed)) throw new Error(`bitget-signal ${tool}: upstream returned an empty error`);
+  return parsed as T;
 }

@@ -99,3 +99,83 @@ assert.equal(unknown.focused, null);
 assert.deepEqual([...unknown.selected], ["NOPE"]);
 
 console.log("ok — evidence resolves to position rows");
+
+// --- replay: the history re-run with one rule applied ---
+import { replayNoAveragingDown, replayNoReentryAfterLoss, replayStopLoss, type Candle } from "../src/lib/replay";
+import { parseSentiment, parseCandles, entrySentiment } from "../src/lib/market";
+
+{
+  // Buy 1 @100, add 1 @80 (below entry), sell 2 @90, $1 fee each.
+  const t = parseTrades(
+    `id,timestamp,symbol,side,qty,price,fee\nA,2026-06-01T00:00:00Z,BTC,buy,1,100,1\nB,2026-06-02T00:00:00Z,BTC,buy,1,80,1\nC,2026-06-03T00:00:00Z,BTC,sell,2,90,1`,
+  ).trades;
+  const r = replayNoAveragingDown(buildPositions(t), t);
+  assert.equal(r.affected.length, 1);
+  assert.equal(r.affected[0].actual, -3); // 180 − 180 − 3 fees
+  // Without the add: 1 @100 exits @90 → −10, minus buy fee 1, minus half the sell fee 0.5
+  assert.equal(r.affected[0].replayed, -11.5);
+  assert.equal(r.delta, -8.5, "an add that lowered the average helped here, so the rule costs money — reported as such");
+}
+{
+  // An add ABOVE entry is not averaging down and must not be touched.
+  const t = parseTrades(
+    `id,timestamp,symbol,side,qty,price,fee\nA,2026-06-01T00:00:00Z,BTC,buy,1,100,0\nB,2026-06-02T00:00:00Z,BTC,buy,1,110,0\nC,2026-06-03T00:00:00Z,BTC,sell,2,120,0`,
+  ).trades;
+  assert.equal(replayNoAveragingDown(buildPositions(t), t).affected.length, 0);
+}
+
+const avgDown = replayNoAveragingDown(positions, sample.trades);
+assert.ok(avgDown.affected.length >= facts.averagedDown.count, "every averaged-down position is replayed");
+assert.ok(avgDown.delta > 0, "on the sample, not averaging down saves money");
+
+const reentry = replayNoReentryAfterLoss(positions);
+assert.ok(reentry.affected.length >= facts.revengeTrades.count, "revenge trades are a subset of re-entries");
+assert.ok(reentry.affected.every((a) => a.replayed === 0), "skipped trades replay to zero");
+
+{
+  // Stop at −5%: entry 100 on day 1, low 94 on day 3, actual exit day 6 at 80.
+  const t = parseTrades(
+    `id,timestamp,symbol,side,qty,price,fee\nA,2026-06-01T10:00:00Z,SOL,buy,10,100,0\nB,2026-06-06T10:00:00Z,SOL,sell,10,80,0`,
+  ).trades;
+  const day = (d: number) => Date.UTC(2026, 5, d);
+  const candles: Candle[] = [1, 2, 3, 4, 5, 6].map((d) => ({ t: day(d), open: 100, high: 101, low: d === 3 ? 94 : 97, close: 99 }));
+  const r = replayStopLoss(buildPositions(t), new Map([["SOL", candles]]), "test");
+  assert.equal(r.status, "computed");
+  assert.equal(r.affected[0].actual, -200);
+  assert.equal(r.affected[0].replayed, -50); // 10 × (95 − 100)
+  assert.equal(r.delta, 150);
+
+  // Guard: a file whose prices are nowhere near the market's is refused, not replayed.
+  const off: Candle[] = candles.map((c) => ({ ...c, open: 20, high: 21, low: 19, close: 20 }));
+  const refused = replayStopLoss(buildPositions(t), new Map([["SOL", off]]), "test");
+  assert.equal(refused.status, "unavailable");
+  assert.equal(refused.affected.length, 0);
+}
+
+// --- market data parsing accepts the shapes the sources return ---
+{
+  const alt = parseSentiment({ data: [{ value: "61", value_classification: "Greed", timestamp: "1789257600" }] });
+  assert.equal(alt.size, 1);
+  assert.equal([...alt.values()][0].value, 61);
+  assert.equal(parseSentiment({ error: "" }).size, 0, "the Skill's empty error payload parses to nothing, triggering fallback");
+
+  const arr = parseCandles({ ohlcv: [[1780000000000, 1, 2, 0.5, 1.5], [1780003600000, 1.5, 3, 1, 2]] });
+  assert.equal(arr.length, 1, "intraday candles merge into one daily bar");
+  assert.equal(arr[0].high, 3);
+  assert.equal(arr[0].low, 0.5);
+  assert.equal(arr[0].close, 2);
+  const objs = parseCandles([{ date: "2026-06-01", open: 1, high: 2, low: 0.5, close: 1.5 }]);
+  assert.equal(objs.length, 1);
+}
+
+// --- sentiment at entry, against the committed snapshot ---
+{
+  const snap = parseSentiment(JSON.parse(readFileSync("data/fng-snapshot.json", "utf8")));
+  const ctx = entrySentiment(positions, snap, "snapshot");
+  assert.equal(ctx.coverage.matched, ctx.coverage.of, "snapshot covers every sample entry date");
+  assert.equal(ctx.bands.reduce((s, b) => s + b.opened, 0), ctx.coverage.matched);
+}
+
+console.log(
+  `ok — replay (avg-down ${avgDown.delta >= 0 ? "+" : ""}${avgDown.delta}, re-entry ${reentry.delta >= 0 ? "+" : ""}${reentry.delta}), stop-loss, parsers, entry sentiment`,
+);

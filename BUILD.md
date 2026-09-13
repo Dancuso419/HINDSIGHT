@@ -27,6 +27,8 @@ npm run dev          # http://localhost:3000
 | `npm run facts` | Print the computed facts for a CSV (default: the sample) |
 | `npm run check` | Parser self-check (asserts, no framework) |
 | `npm run lint` | ESLint |
+| `npm run probe:signal` | Check the bitget-signal Skills the replay and market context use |
+| `npm run e2e` | Run the analysis end to end against a running dev server |
 
 ## Environment variables
 
@@ -57,6 +59,29 @@ Older models are not more generous — the headroom is in the current-generation
 model. `/api/analyse` therefore tries a different model on each attempt (best quality
 first, most headroom last), so one exhausted bucket does not end the request.
 
+### Market data: bitget-signal, with automatic fallback
+
+`BITGET_SIGNAL_URL` — optional. Defaults to the public bitget-signal MCP endpoint
+`https://datahub.noxiaohao.com/mcp`, which needs no key.
+
+Every analysis asks the Skills first and falls back without intervention:
+
+| Feature | First choice | If it fails |
+|---|---|---|
+| Fear & Greed at each entry | bitget-signal `sentiment_index` | alternative.me directly → `data/fng-snapshot.json` |
+| Stop-loss replay (daily prices) | bitget-signal `crypto_market` / `global_assets` | shown as waiting, with the reason |
+| Averaging-down and re-entry replays | computed from the fills | — no external data needed |
+
+After a Skill failure the server skips the Skills for 3 minutes, then tries again, so an
+outage never slows every analysis and recovery is picked up automatically. Each panel names
+the source that answered.
+
+**Known state (2026-09-13):** the Skills server completes the MCP handshake but every data
+tool fails upstream (ConnectTimeout). Fear & Greed is served from alternative.me; the
+stop-loss replay is waiting. The sample history's prices are synthetic, so the stop-loss
+replay will refuse it (prices must match the market) until the sample is rebuilt on real
+prices.
+
 ## Deploy
 
 Vercel, zero config: import the repo, framework auto-detects as Next.js, set the same env
@@ -73,6 +98,5 @@ demo needs no upload and no login.
 
 ## Status
 
-Days 1-2 complete: ingest renders, and `/api/analyse` returns a Zod-validated report whose
-every claim is checked against real trade ids. The report view is functional, not yet
-designed. Not deployed. See `PROGRESS.md`.
+Ingest, analysis, report, replay and market context all work locally. Not deployed. See
+`PROGRESS.md`.

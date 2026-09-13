@@ -13,6 +13,9 @@
   --grey-deep: #7d7d7d; /* the dimmest grey still allowed to carry text: 4.7:1 on void */
   /* The single permitted colour: a loss, muted so it reads as fact rather than alarm. */
   --loss: #d2736a;
+  /* The "won" fill in charts, stepped against --loss with the dataviz validator on --panel:
+     CVD ΔE 19.6, normal ΔE 22.9, contrast pass. A darker grey fails both separations. */
+  --won: #cfcfcf;
 
   --background: var(--void);
   --foreground: var(--white);
@@ -28,6 +31,7 @@
   --color-grey: var(--grey);
   --color-grey-deep: var(--grey-deep);
   --color-loss: var(--loss);
+  --color-won: var(--won);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-onest);

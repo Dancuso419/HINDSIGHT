@@ -17,6 +17,20 @@ const median = (xs: number[]) => {
 };
 const notional = (p: Position) => p.qty * p.avgEntry;
 
+export const REENTRY_WINDOW_HOURS = 3;
+
+/** Closed positions opened within the re-entry window after closing a losing one. */
+export function reentriesAfterLoss(closed: Position[]): Position[] {
+  const losses = closed.filter((p) => p.pnl! <= 0);
+  return closed.filter((p) => {
+    const opened = Date.parse(p.openedAt);
+    return losses.some((l) => {
+      const t = Date.parse(l.closedAt!);
+      return l.id !== p.id && t < opened && opened - t <= REENTRY_WINDOW_HOURS * 3600_000;
+    });
+  });
+}
+
 export function computeFacts(positions: Position[]) {
   const closed = positions.filter((p) => p.pnl !== null);
   const wins = closed.filter((p) => p.pnl! > 0);
@@ -25,15 +39,8 @@ export function computeFacts(positions: Position[]) {
   const averagedDown = closed.filter((p) => p.addsDown > 0);
   const medianNotional = median(closed.map(notional));
 
-  // A position opened within 3h of closing a loss, at well above the usual size.
-  const revenge = closed.filter((p) => {
-    const opened = Date.parse(p.openedAt);
-    const priorLoss = losses.find((l) => {
-      const t = Date.parse(l.closedAt!);
-      return t < opened && opened - t <= 3 * 3600_000;
-    });
-    return Boolean(priorLoss) && notional(p) >= 1.8 * medianNotional;
-  });
+  // Revenge: a quick re-entry after a loss, at well above the usual size.
+  const revenge = reentriesAfterLoss(closed).filter((p) => notional(p) >= 1.8 * medianNotional);
 
   const symbols = [...new Set(closed.map((p) => p.symbol))].map((symbol) => {
     const ps = closed.filter((p) => p.symbol === symbol);

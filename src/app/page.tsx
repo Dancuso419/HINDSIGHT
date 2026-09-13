@@ -4,13 +4,23 @@ import { useEffect, useMemo, useState } from "react";
 import { parseTrades, summarise, buildPositions, type ParseResult, type Position } from "@/lib/trades";
 import { resolveEvidence, type Report } from "@/lib/report";
 import type { Facts } from "@/lib/analysis";
+import type { RuleReplay } from "@/lib/replay";
+import type { EntrySentiment } from "@/lib/market";
 import { ReportView } from "@/components/report-view";
 import { PositionsTable } from "@/components/positions-table";
+import { ReplayView, MarketView } from "@/components/replay-view";
 import { HowItWorks } from "@/components/how-it-works";
 import { Terrain } from "@/components/terrain";
 import { Mark, Upload, Sample, Arrow, ArrowDown } from "@/components/icons";
 
-type Analysis = { report: Report; facts: Facts; positions: Position[]; dropped: string[] };
+type Analysis = {
+  report: Report;
+  facts: Facts;
+  positions: Position[];
+  dropped: string[];
+  replays: RuleReplay[];
+  market: EntrySentiment;
+};
 
 const DEMO_QUESTION = "Why do I keep losing money on tech-adjacent positions?";
 
@@ -25,7 +35,8 @@ const TICKER = [
   "5 positions averaged down",
   "all 5 lost",
   "3 revenge entries",
-  "−$1,382 from adding to losers",
+  "−$1,382 lost on averaged-down positions",
+  "+$629 kept by never adding below entry",
 ];
 
 const PROMISES = [
@@ -228,7 +239,7 @@ export default function Home() {
         <section className="pt-32 sm:pt-40">
           <div className="text-center">
             <h2 className="headline reveal text-[clamp(2rem,4.2vw,3.25rem)] text-white">What it tells you</h2>
-            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">A finding from the sample history, word for word.</p>
+            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">A finding from the sample history, checked against the replay.</p>
           </div>
 
           <figure className="panel reveal relative mt-14 overflow-hidden px-7 py-14 text-center sm:px-16 sm:py-20">
@@ -239,7 +250,8 @@ export default function Home() {
             </blockquote>
             <p className="relative mx-auto mt-6 max-w-[58ch] text-[0.9375rem] leading-relaxed text-grey">
               Across 5 positions where you added to a falling trade, every one lost — averaging −12.97% over 112.6
-              hours. <span className="text-loss">Adding to losers cost you −$1,382.50 of a −$1,704.75 total.</span>
+              hours. Those 5 positions lost $1,382.50 between them —{" "}
+              <span className="text-white">and replaying them without the adds keeps $628.96 of it.</span>
             </p>
             <figcaption className="relative mt-8 flex flex-wrap items-center justify-center gap-2">
               {["P03", "P06", "P08", "P16", "P17"].map((id) => (
@@ -323,7 +335,7 @@ export default function Home() {
                     <p className="mt-3 flex items-center gap-2 text-xs text-grey">
                       <span className="h-1.5 w-1.5 animate-[pulse-dot_1.2s_ease-in-out_infinite] rounded-full bg-white" />
                       Counting {stats?.count} fills across {roundTrips} round trips, then asking for the write-up.
-                      This takes about 20 seconds.
+                      This can take up to a minute.
                     </p>
                   </div>
                 )}
@@ -346,6 +358,13 @@ export default function Home() {
               selected={selected}
               onSelect={selectEvidence}
             />
+          )}
+
+          {analysis && result && (
+            <>
+              <ReplayView replays={analysis.replays} selected={selected} onSelect={selectEvidence} />
+              <MarketView market={analysis.market} selected={selected} onSelect={selectEvidence} />
+            </>
           )}
 
           {analysis && result && (

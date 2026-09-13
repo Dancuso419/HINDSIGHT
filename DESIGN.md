@@ -9,6 +9,7 @@ colors:
   grey: "#8f8f8f"
   grey-deep: "#7d7d7d"
   loss: "#d2736a"
+  won: "#cfcfcf"
   line: "rgba(255, 255, 255, 0.08)"
   line-strong: "rgba(255, 255, 255, 0.16)"
   scrollbar: "#262626"
@@ -135,6 +136,7 @@ a loss figure, a sell, a struck citation, a parse error. It never decorates.
 | `grey-deep` | `#7d7d7d` | Dimmest grey permitted to carry text (4.7:1 on `void`) |
 | `line` / `line-strong` | white at 8% / 16% | Borders and dividers |
 | `loss` | `#d2736a` | Losses, sells, struck citations, errors — data only |
+| `won` | `#cfcfcf` | The won segment in charts. Validated against `loss` on `panel`: CVD ΔE 19.6, normal ΔE 22.9 |
 | `scrollbar` / `scrollbar-hover` | `#262626` / `#3a3a3a` | Scrollbar thumb |
 
 Emphasis comes from brightness: white is the loudest thing on the page, followed by the
@@ -206,6 +208,13 @@ icon tiles; `6px` for the small chips inside diagrams. Borders are 1px at low wh
   diagram built from real sample data: a scrolling fills feed, T0005–T0008 gathering into
   P03, figures counting in with a winner/loser bar comparison, and citations lighting in
   sequence while a nonexistent `P99` is struck.
+- **Replay** (`src/components/replay-view.tsx`) — one card per rule, set as a headline dollar
+  figure rather than a chart: what the rule would have saved (white) or cost (`loss`), the
+  before → after in mono, and the affected positions as proof chips. A rule waiting on market
+  data renders dashed, with a pulsing dot and the reason in plain words.
+- **Market context** — five Fear & Greed bands as thin horizontal stacked bars (`won` then
+  `loss`, 2px gap, 4px rounded ends), counts direct-labelled, legend present, a hover/focus
+  tooltip on every row, and a "View as table" toggle. The data source is always named.
 - **Icons** — drawn SVG, single 1.5px stroke on a 16-unit grid, plus the Hindsight mark: an
   arc turning back on itself around a fixed point.
 - **Browser surfaces** — white text selection, white caret, 2px white focus ring at 3px

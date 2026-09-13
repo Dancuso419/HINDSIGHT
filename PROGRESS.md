@@ -68,6 +68,21 @@ Day 5-6 detail — UI redesign (twice):
 - `PRODUCT.md`, `DESIGN.md` and `.impeccable/design.json` record the product and the system.
   Design detector: 0 findings.
 
+Day 6 detail — replay and market context (Bitget Skills):
+
+- `src/lib/signal.ts` — server-side MCP client for bitget-signal over plain fetch/JSON-RPC,
+  with a 3-minute cooldown after failures so outages never slow every analysis.
+- `src/lib/replay.ts` — the history re-run with a rule applied: never average down below
+  first entry (sample: +$628.96), wait 3h after a loss (+$539.12), and a −5% stop-loss on
+  daily prices that switches itself on when bitget-signal price data returns. A guard
+  refuses the stop-loss replay when file prices don't match the market.
+- `src/lib/market.ts` — Fear & Greed on each entry date: bitget-signal → alternative.me →
+  committed snapshot. Candle parsing written defensively (Skill shape unverified while down).
+- The model now receives the replay results and is told a group's total loss is not what a
+  habit cost. Before this, the report and the landing page said averaging down "cost
+  $1,382"; the replay showed the true cost is $628.96. Landing copy corrected.
+- `src/components/replay-view.tsx` — replay cards and the Fear & Greed band chart.
+
 ## Not built / known broken
 
 - **The UI has never been seen in a browser by Claude.** Chrome automation fails on every
@@ -115,6 +130,15 @@ Day 5-6 detail — UI redesign (twice):
 - Testers run: 0
 - "Told me something I didn't know": _ / _
 - Notes: campus recruiting starts once the report view renders (target day 4).
+
+- **bitget-signal data tools are down upstream** (handshake OK, every tool ConnectTimeout).
+  Fear & Greed runs on alternative.me; stop-loss replay waits. Re-run `npm run probe:signal`.
+- The candle parser has never seen a real bitget-signal OHLCV response. Verify it the first
+  time the Skills answer.
+- Sample prices are synthetic, so the stop-loss replay will never show on the demo until the
+  sample is rebuilt from real historical prices.
+- An analysis took 55s with the Skills down (before cutting the candle budget to 7s).
+- Not deployed. Vercel CLI is installed but logged out.
 
 ## Next session starts with
 
