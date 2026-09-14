@@ -6,16 +6,16 @@ its only job is letting the next session resume without re-reading the codebase.
 ## Status
 
 **Day:** 7 / 12 (Sept 14 2026)
-**Deployed:** no
-**Demo URL:** —
-**Day-7 gate:** on track — day 7 falls Sept 16, ingest done on day 1
+**Deployed:** yes — 2026-09-14
+**Demo URL:** https://hindsight-brown-eight.vercel.app
+**Day-7 gate:** passed on day 7 (Sept 14) — deployed, full analysis verified on production
 
 ## Built
 
 - [x] Ingest — CSV → normalised, validated trade list; sample generator; renders
 - [x] Analyse — positions + computed facts + Gemini pass, Zod-validated, verified live
 - [x] Report — patterns, clickable evidence, expandable fills, checklist
-- [ ] Deployed, link verified in a private window
+- [x] Deployed; production verified by HTTP from outside (page, sample, full analysis). Private-window / phone check still to do by hand
 
 Day 1 detail:
 
@@ -119,6 +119,19 @@ Day 7 detail — live Bitget context:
 - One analysis run took 99s, of which market data was ~6s; the rest was Gemini on that run
   (the previous identical run took 25s). Watch it before deploy.
 
+Day 7 detail — deploy:
+
+- Pushed to https://github.com/Dancuso419/HINDGESIGHT (public). Git history scanned for keys
+  before the first push: none. Vercel project linked and connected to the repo.
+- **First production analysis failed: 504 after 120s.** The Gemini call had no timeout;
+  3.8-flash was hanging past 110s. Measured the models on the real prompt and reordered to
+  3.5-flash (minimal thinking) → 3.1-flash-lite → 3.8-flash, each capped under one deadline.
+- **Second failure: 502** — a model's titles broke the 120-char schema limit and the route gave
+  up instead of trying the next model. Validation failures now count as failed attempts.
+- Now: production analysis 200 in 12.5s, live technicals from bitget-signal.
+- Team-scoped Vercel URLs are behind Deployment Protection (login wall). Only
+  `hindsight-brown-eight.vercel.app` is public.
+
 ## Not built / known broken
 
 - **The UI has never been seen in a browser by Claude.** Chrome automation fails on every
@@ -179,5 +192,6 @@ Day 7 detail — live Bitget context:
 
 ## Next session starts with
 
-User reviews the new design on localhost and reports what looks wrong. Then deploy to Vercel
-(day-7 gate is Sept 16) and verify the link in a private window.
+Open https://hindsight-brown-eight.vercel.app in a private window and on a phone, run the
+sample end to end, and note anything off. Rotate the Vercel token pasted in chat. Then the
+submission materials (X post, form description, screen recording) and campus testers.

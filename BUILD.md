@@ -94,9 +94,31 @@ analysis — so "no pair for KO" never switches the Skill off for NVDA.
 
 ## Deploy
 
-Vercel, zero config: import the repo, framework auto-detects as Next.js, set the same env
-vars in Project Settings → Environment Variables. Sample data ships in `public/`, so the
-demo needs no upload and no login.
+**Live:** https://hindsight-brown-eight.vercel.app (Vercel project `grandstorms-projects/hindsight`).
+
+The project is connected to https://github.com/Dancuso419/HINDGESIGHT — every push to `main`
+deploys to production automatically (local branch `master` pushes to `main`).
+
+Environment variables are set in Vercel for Production and Preview: `GEMINI_API_KEY`.
+To redeploy by hand with a token (never pass it as `--token`):
+
+```bash
+export VERCEL_TOKEN=...            # vercel.com/account/tokens
+npx vercel deploy --prod --scope grandstorms-projects
+```
+
+**Only the production alias above is public.** The team-scoped URLs
+(`hindsight-*-grandstorms-projects.vercel.app`, `hindsight-git-main-…`) sit behind Vercel
+Deployment Protection and redirect strangers to a Vercel login. `hindsight.vercel.app` is a
+different, unrelated project. Share only `hindsight-brown-eight.vercel.app`.
+
+### Timeouts on Vercel
+
+`/api/analyse` runs under `maxDuration = 120`. Market data is capped at ~9s. Model attempts
+run 3.5-flash (minimal thinking) → 3.1-flash-lite (minimal) → 3.8-flash (low), each with its
+own cap and all inside one deadline 8s short of `maxDuration`. An attempt is accepted only if
+it parses, matches the schema and cites real trades; otherwise the next model runs. First
+production analysis before this change: 504 after 120s. After: 200 in 12.5s.
 
 ## Verify the demo opens for a stranger
 
@@ -108,5 +130,5 @@ demo needs no upload and no login.
 
 ## Status
 
-Ingest, analysis, report, replay and market context all work locally. Not deployed. See
-`PROGRESS.md`.
+Deployed and verified from outside: the page, the sample CSV and a full analysis all work on the
+production alias with no login. See `PROGRESS.md`.
