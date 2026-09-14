@@ -43,7 +43,7 @@ user the category assumes away.
 
 ## Operating Context
 
-A single page, opened once. The user loads a CSV (or the bundled sample), types a question
+A single page, opened once. The user loads a CSV, a pasted table or screenshots (or the bundled sample), types a question
 about their own trading, waits for one analysis pass, and reads the result. There is no
 return visit, no saved state, no account. Judges will run this exact path on a laptop from
 a public link.
@@ -54,8 +54,12 @@ a public link.
   without an explicit request: live price feeds, charts, chat, auth, multi-user, broker
   integration, order placement.
 - **The tool must never place an order.** Read-only, always.
-- Single page, no navigation, no routes beyond the one API endpoint. A stranger with no
-  login must be able to use everything.
+- Single page, no navigation. Two API endpoints: `/api/analyse` and `/api/extract` (reading
+  trades from screenshots). A stranger with no login must be able to use everything.
+- **Three ways in**, added because many trading apps (especially mobile) cannot export CSV:
+  upload a CSV, paste a copied table, or screenshots of the order history. Screenshot rows
+  are always shown for review and correction before analysis, and a year that is not visible
+  is supplied by the trader, never guessed.
 - No database. In-memory session state only.
 - Next.js 16 (App Router) + TypeScript + Tailwind 4, deployed on Vercel. PapaParse for
   CSV, Zod validating all structured model output.

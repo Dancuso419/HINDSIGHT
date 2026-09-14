@@ -66,3 +66,15 @@ export const Lock = () => (
     <path d="M4 7.5h8v6H4zM5.5 7.5V5.5a2.5 2.5 0 0 1 5 0v2" />
   </svg>
 );
+
+export const Clipboard = () => (
+  <svg {...base}>
+    <path d="M5.5 3H4v10.5h8V3h-1.5M6 2h4v2H6z" />
+  </svg>
+);
+
+export const ImageIcon = () => (
+  <svg {...base}>
+    <path d="M2.5 3h11v10h-11zM2.5 11l3.5-3.5L9 10.5l2-2 2.5 2.5M10 6.25h.01" />
+  </svg>
+);

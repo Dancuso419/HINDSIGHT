@@ -11,9 +11,10 @@ import { ReportView } from "@/components/report-view";
 import { PositionsTable } from "@/components/positions-table";
 import { ReplayView, MarketView } from "@/components/replay-view";
 import { TechnicalsView } from "@/components/technicals-view";
+import { ImportTrades } from "@/components/import-trades";
 import { HowItWorks } from "@/components/how-it-works";
 import { Terrain } from "@/components/terrain";
-import { Mark, Upload, Sample, Arrow, ArrowDown } from "@/components/icons";
+import { Mark, Arrow, ArrowDown } from "@/components/icons";
 
 type Analysis = {
   report: Report;
@@ -42,7 +43,7 @@ const TICKER = [
 ];
 
 const PROMISES = [
-  { title: "No journal to keep", body: "Export once from your exchange. No account, no tagging, no habit to build." },
+  { title: "No journal to keep", body: "A CSV, a pasted table or screenshots of your order history. No account, no tagging, no habit to build." },
   { title: "Counted, never guessed", body: "Every number is arithmetic on your fills, done before the model is involved." },
   { title: "Every claim cited", body: "Each finding names the trades behind it. A trade that isn't in your file is struck." },
 ];
@@ -119,18 +120,6 @@ export default function Home() {
     [result],
   );
 
-  const fileInput = (
-    <input
-      type="file"
-      accept=".csv,text/csv"
-      className="sr-only"
-      onChange={async (e) => {
-        const file = e.target.files?.[0];
-        if (file) load(await file.text(), file.name);
-      }}
-    />
-  );
-
   return (
     <main>
       <div aria-hidden data-scroll="progress" className="scroll-progress" />
@@ -163,7 +152,7 @@ export default function Home() {
               <span className="text-white/55">what you keep getting wrong.</span>
             </h1>
             <p className="lead mx-auto mt-6 max-w-[46ch]">
-              One CSV. One honest post-mortem. Every finding tied to the exact trades behind it.
+              One trade history. One honest post-mortem. Every finding tied to the exact trades behind it.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
@@ -282,22 +271,12 @@ export default function Home() {
           <div className="panel relative mt-14 overflow-hidden p-7 sm:p-10">
             <div className="dust opacity-40" />
 
-            <div className="relative flex flex-wrap items-center gap-3">
-              <label className="btn-pill cursor-pointer">
-                <Upload />
-                {result ? "Load a different CSV" : "Upload your CSV"}
-                {fileInput}
-              </label>
-              <button onClick={loadSample} className="btn-ghost">
-                <Sample />
-                Use the sample history
-              </button>
-              {stats && (
-                <span className="tnum ml-auto font-mono text-xs text-grey">
-                  {source} · {stats.count} fills · {roundTrips} round trips · {stats.symbols.length} symbols
-                </span>
-              )}
-            </div>
+            <ImportTrades
+              hasResult={Boolean(result)}
+              summary={stats ? `${source} · ${stats.count} fills · ${roundTrips} round trips · ${stats.symbols.length} symbols` : null}
+              onLoad={load}
+              onSample={loadSample}
+            />
 
             {result && result.errors.length > 0 && (
               <div className="relative mt-6 rounded-xl border border-loss/30 bg-loss/[0.06] p-4">
@@ -351,8 +330,9 @@ export default function Home() {
               </div>
             ) : (
               <p className="relative mt-8 max-w-[52ch] text-sm leading-relaxed text-grey">
-                No file handy? The sample is 116 fills from a synthetic trader on real US stock prices — every fill sits
-                inside that day&apos;s actual trading range — and it runs the full analysis exactly as your own file would.
+                No export in your trading app? Paste the table instead, or take screenshots of your order history. No trades
+                handy at all? The sample is 116 fills from a synthetic trader on real US stock prices, and it runs the full
+                analysis exactly as your own history would.
               </p>
             )}
           </div>

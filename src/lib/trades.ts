@@ -51,20 +51,34 @@ const ALIASES: Record<string, keyof Trade> = {
 
 const normaliseHeader = (h: string) => ALIASES[h.toLowerCase().replace(/[\s_-]/g, "")] ?? h;
 
-const SIDES: Record<string, "buy" | "sell"> = {
-  buy: "buy",
-  b: "buy",
-  long: "buy",
-  open: "buy",
-  sell: "sell",
-  s: "sell",
-  short: "sell",
-  close: "sell",
+const SIDES: Record<string, "buy" | "sell"> = { buy: "buy", b: "buy", bid: "buy", sell: "sell", s: "sell", ask: "sell" };
+
+/**
+ * Exchanges word a fill many ways: "Buy", "B", "Open long", "Close long". Hindsight models long
+ * positions only, so anything involving a short is refused with a reason rather than guessed.
+ */
+function normaliseSide(raw: unknown): "buy" | "sell" | { unsupported: string } | null {
+  const v = String(raw ?? "").trim().toLowerCase();
+  if (!v) return null;
+  if (/short/.test(v)) return { unsupported: `short positions are not supported ("${String(raw).trim()}")` };
+  if (SIDES[v]) return SIDES[v];
+  if (/\bclose\b/.test(v) || /\bsell\b/.test(v)) return "sell";
+  if (/\bopen\b/.test(v) || /\bbuy\b/.test(v) || /\blong\b/.test(v)) return "buy";
+  return null;
+}
+
+/** "218.29 USDT", "$1,234.50", "0.33 USDT" → the number. Anything without a number → NaN. */
+const num = (v: unknown) => {
+  const m = String(v ?? "").replace(/,/g, "").match(/-?\d+(?:\.\d+)?(?:e-?\d+)?/i);
+  const n = m ? Number(m[0]) : NaN;
+  return Number.isFinite(n) ? n : NaN;
 };
 
-const num = (v: unknown) => {
-  const n = Number(String(v ?? "").replace(/[$,\s]/g, ""));
-  return Number.isFinite(n) ? n : NaN;
+/** "NVDA/USDT", "NVDA-USDT", "NVDAUSDT" → "NVDA". A bare quote currency is left alone. */
+const normaliseSymbol = (raw: unknown) => {
+  const v = String(raw ?? "").trim().toUpperCase();
+  const m = v.match(/^(.+?)[\/\-_ ]?(USDT|USDC|USD)$/);
+  return m && m[1] ? m[1] : v;
 };
 
 /** Parse a raw CSV export into normalised trades. Bad rows are reported, never dropped silently. */
@@ -81,11 +95,16 @@ export function parseTrades(csv: string): ParseResult {
   data.forEach((row, i) => {
     const rowNo = i + 2; // +1 for header, +1 for 1-indexing
     const ts = Date.parse(String(row.timestamp ?? ""));
+    const side = normaliseSide(row.side);
+    if (side && typeof side === "object") {
+      errors.push({ row: rowNo, message: `side: ${side.unsupported}` });
+      return;
+    }
     const candidate = {
       id: String(row.id ?? "").trim() || `t${i + 1}`,
       timestamp: Number.isNaN(ts) ? String(row.timestamp ?? "") : new Date(ts).toISOString(),
-      symbol: String(row.symbol ?? "").trim().toUpperCase(),
-      side: SIDES[String(row.side ?? "").trim().toLowerCase()] ?? row.side,
+      symbol: normaliseSymbol(row.symbol),
+      side: typeof side === "string" ? side : row.side,
       qty: num(row.qty),
       price: num(row.price),
       fee: row.fee === undefined || row.fee === "" ? 0 : num(row.fee),

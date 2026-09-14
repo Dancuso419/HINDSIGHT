@@ -28,6 +28,8 @@ npm run dev          # http://localhost:3000
 | `npm run facts` | Print the computed facts for a CSV (default: the sample) |
 | `npm run check` | Parser self-check (asserts, no framework) |
 | `npm run lint` | ESLint |
+| `npx tsx scripts/eval-extract.ts` | Measure screenshot extraction against screenshots with known ground truth. Spends Gemini requests. Render the test screenshots first with `scripts/render-screens.ps1` (writes to `F:/tmp`) |
+ender-screens.ps1`) |
 | `npm run probe:signal` | Check the bitget-signal Skills the replay and market context use |
 | `npm run e2e` | Run the analysis end to end against a running dev server |
 
@@ -59,6 +61,22 @@ The request quota is a per-minute bucket held **separately per model**:
 Older models are not more generous — the headroom is in the current-generation *lite*
 model. `/api/analyse` therefore tries a different model on each attempt (best quality
 first, most headroom last), so one exhausted bucket does not end the request.
+
+### Getting trades in
+
+1. **CSV upload** — any export with a time, symbol, side, quantity and price column.
+2. **Paste** — a table copied from an exchange page, Excel or Sheets (tab-separated is fine).
+   The shared parser reads unit suffixes (`218.29 USDT`), pair symbols (`NVDA/USDT` → `NVDA`) and
+   futures wording (`Open long` → buy, `Close long` → sell); short positions are refused with a
+   reason because only long positions are modelled.
+3. **Screenshots** — `/api/extract`, up to 4 images, downscaled in the browser to stay under
+   Vercel's 4.5 MB body limit. Gemini transcribes rows into a Zod-validated schema; nothing is
+   guessed. The trader reviews and edits every row; a missing year must be typed in before the
+   trades can be used. Measured on two rendered test screenshots (a desktop table with full
+   timestamps and a phone card list without years): 102/102 fields correct, 0 years invented.
+   These are clean renders — real phone captures will be noisier, which is why review is mandatory.
+   Gemini's schema support rejects `nullable` types and a large `maxItems`; the schema uses
+   optional fields and no row cap for that reason.
 
 ### Market data: bitget-signal, with automatic fallback
 

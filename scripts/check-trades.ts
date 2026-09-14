@@ -220,3 +220,44 @@ import { parseTechnicals } from "../src/lib/technicals";
   assert.equal(parseTechnicals("X", { ...raw, rsi: { rsi: 140 } }), null, "an impossible RSI is rejected, not shown");
 }
 console.log("ok — technical snapshot parsing");
+
+// --- pasted exchange tables: unit suffixes, pair symbols, futures wording ---
+{
+  const tsv = parseTrades(
+    "Time\tPair\tSide\tPrice\tAmount\tFee\tStatus\n2026-09-11 14:32:10\tNVDA/USDT\tBuy\t218.29 USDT\t2.5\t0.33 USDT\tFilled\n2026-09-12 15:01:44\tNVDA/USDT\tSell\t221.10 USDT\t2.5\t0.33 USDT\tFilled",
+  );
+  assert.deepEqual(tsv.errors, []);
+  assert.deepEqual(tsv.trades.map((t) => [t.symbol, t.side, t.price, t.fee]), [["NVDA", "buy", 218.29, 0.33], ["NVDA", "sell", 221.1, 0.33]]);
+
+  const futures = parseTrades("Date,Symbol,Direction,Qty,Avg Price\n09/11/2026 14:32,TSLAUSDT,Open long,1,365.4\n09/12/2026 10:00,TSLAUSDT,Close long,1,370.1");
+  assert.deepEqual(futures.trades.map((t) => [t.symbol, t.side]), [["TSLA", "buy"], ["TSLA", "sell"]]);
+
+  const shorts = parseTrades("Date,Symbol,Direction,Qty,Price\n2026-09-11,TSLA,Open short,1,365.4");
+  assert.equal(shorts.trades.length, 0);
+  assert.match(shorts.errors[0].message, /short positions are not supported/);
+
+  assert.equal(parseTrades("Date,Symbol,Side,Qty,Price\n2026-09-11,USDT,buy,1,1").trades[0].symbol, "USDT", "a bare quote currency is not emptied");
+}
+console.log("ok — pasted exchange tables");
+
+// --- screenshot review rows: a missing year is supplied by the trader, never guessed ---
+import { toReviewRow, rowTimestamp, reviewToCsv } from "../src/lib/extract";
+{
+  const yearless = toReviewRow({ date: "10-27", time: "16:28", symbol: "TSLA/USDT", side: "sell", qty: 6.9545, price: 457.48, status: "Filled", issues: [] });
+  assert.ok(yearless.issues.includes("year not shown"), "a year-less date is flagged even if the model did not flag it");
+  assert.equal(rowTimestamp(yearless, ""), null, "no year supplied → no timestamp, not a guess");
+  assert.equal(rowTimestamp(yearless, "2025"), "2025-10-27T16:28:00Z");
+  assert.equal(rowTimestamp({ date: "2025-10-03", time: "18:08:52" }, ""), "2025-10-03T18:08:52Z");
+
+  const cancelled = toReviewRow({ date: "2025-10-03", symbol: "NVDA/USDT", side: "buy", qty: 1, price: 100, status: "Cancelled", issues: [] });
+  assert.equal(cancelled.include, false, "a cancelled order starts excluded");
+
+  const unresolvedRun = reviewToCsv([yearless], "");
+  assert.equal(unresolvedRun.unresolved, 1);
+  const { csv, unresolved } = reviewToCsv([yearless, cancelled], "2025");
+  assert.equal(unresolved, 0);
+  const parsedBack = parseTrades(csv);
+  assert.deepEqual(parsedBack.errors, []);
+  assert.deepEqual(parsedBack.trades.map((t) => [t.symbol, t.side, t.qty, t.price]), [["TSLA", "sell", 6.9545, 457.48]]);
+}
+console.log("ok — screenshot review rows");

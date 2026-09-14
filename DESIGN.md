@@ -226,6 +226,12 @@ icon tiles; `6px` for the small chips inside diagrams. Borders are 1px at low wh
   range and nearest support/resistance. Monochrome only: none of it is a loss, so `loss` is
   used only on the trader's P&L. The source, fetch time, missing stocks and excluded fields
   are named in the footer.
+- **Import controls** (`src/components/import-trades.tsx`) — one row of actions: the white
+  pill for CSV, ghost pills for Paste trades / Read screenshots / sample. Paste and screenshots
+  open an inset panel beneath. The screenshot review is a dense editable table (mono inputs,
+  checkbox per row, excluded rows at 45% opacity) with each row's issues in `loss` under its
+  status, a required year field when dates show none, and a primary action that stays disabled
+  while anything is unresolved.
 - **Icons** — drawn SVG, single 1.5px stroke on a 16-unit grid, plus the Hindsight mark: an
   arc turning back on itself around a fixed point.
 - **Browser surfaces** — white text selection, white caret, 2px white focus ring at 3px

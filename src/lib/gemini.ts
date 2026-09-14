@@ -116,26 +116,49 @@ function extractText(body: unknown): string {
 
 export type ThinkingLevel = "minimal" | "low" | "medium" | "high";
 
-/** One model, one attempt, hard-capped. Throws on timeout or network failure. */
-export async function callModel(opts: {
+export type GeminiResult = { ok: true; text: string } | { ok: false; status: number; detail: string };
+export type GeminiInput = string | ({ type: "text"; text: string } | { type: "image"; data: string; mime_type: string })[];
+
+/** One structured-output call to one model, hard-capped. Throws on timeout or network failure. */
+export async function callGemini(opts: {
   apiKey: string;
   model: string;
-  input: string;
+  system: string;
+  input: GeminiInput;
+  schema: Record<string, unknown>;
   timeoutMs: number;
   thinkingLevel?: ThinkingLevel;
-}): Promise<{ ok: true; text: string } | { ok: false; status: number; detail: string }> {
+}): Promise<GeminiResult> {
   const res = await fetch(ENDPOINT, {
     method: "POST",
     headers: { "x-goog-api-key": opts.apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: opts.model,
-      system_instruction: SYSTEM,
+      system_instruction: opts.system,
       input: opts.input,
       ...(opts.thinkingLevel ? { generation_config: { thinking_level: opts.thinkingLevel } } : {}),
-      response_format: { type: "text", mime_type: "application/json", schema: REPORT_JSON_SCHEMA },
+      response_format: { type: "text", mime_type: "application/json", schema: opts.schema },
     }),
     signal: AbortSignal.timeout(opts.timeoutMs),
   });
   if (res.ok) return { ok: true, text: extractText(await res.json()) };
   return { ok: false, status: res.status, detail: (await res.text()).slice(0, 300) };
+}
+
+/** Zod schema → the plain JSON Schema Gemini accepts. */
+export function toGeminiSchema(schema: z.ZodType) {
+  const out = z.toJSONSchema(schema, { io: "output", reused: "inline" }) as Record<string, unknown>;
+  delete out.$schema;
+  return out;
+}
+
+/** The report call: one model, one attempt, hard-capped. */
+export function callModel(opts: {
+  apiKey: string;
+  model: string;
+  input: string;
+  timeoutMs: number;
+  thinkingLevel?: ThinkingLevel;
+}): Promise<GeminiResult> {
+  return callGemini({ ...opts, system: SYSTEM, schema: REPORT_JSON_SCHEMA });
 }
