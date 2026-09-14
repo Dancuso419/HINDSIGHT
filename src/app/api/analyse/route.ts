@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { TradeSchema, buildPositions } from "@/lib/trades";
 import { computeFacts } from "@/lib/analysis";
-import { ReportSchema, enforceCitations } from "@/lib/report";
+import { ReportSchema, enforceCitations, type Report } from "@/lib/report";
 import { replayNoAveragingDown, replayNoReentryAfterLoss, replayStopLoss, unavailableStopLoss } from "@/lib/replay";
 import { getSentiment, entrySentiment, getCandles } from "@/lib/market";
 import { getTechnicals } from "@/lib/technicals";
@@ -65,63 +65,69 @@ export async function POST(req: Request) {
   const question = parsed.data.question?.trim() || "What do I keep getting wrong?";
   const input = buildInput({ question, facts, replays, market, positions });
 
-  let raw = "";
+  const validIds = new Set([...positions.map((p) => p.id), ...parsed.data.trades.map((t) => t.id)]);
+  let accepted: { report: Report; dropped: string[] } | null = null;
   let rateLimited = false;
+  let lastRejection = "";
 
+  // An attempt counts only if its output parses, matches the schema and cites real trades.
+  // Anything less is never rendered — it is logged, and the next model gets a turn.
   for (const { model, thinkingLevel, capMs } of ATTEMPTS) {
     const left = DEADLINE_MS - (Date.now() - startedAt);
     if (left < 5_000) break;
     try {
       const r = await callModel({ apiKey, model, input, thinkingLevel, timeoutMs: Math.min(capMs, left) });
-      if (r.ok) {
-        raw = r.text;
-        break;
+      if (!r.ok) {
+        rateLimited ||= r.status === 429;
+        console.error("gemini error", model, r.status, r.detail);
+        if (r.status === 400 || r.status === 401 || r.status === 403) break; // same request fails everywhere
+        continue;
       }
-      rateLimited ||= r.status === 429;
-      console.error("gemini error", model, r.status, r.detail);
-      if (r.status < 429) break; // a 400 will fail the same way on every retry
+
+      let candidate: unknown;
+      try {
+        candidate = JSON.parse(r.text);
+      } catch {
+        lastRejection = "The model did not return valid JSON.";
+        console.error("gemini rejected", model, lastRejection);
+        continue;
+      }
+
+      const report = ReportSchema.safeParse(candidate);
+      if (!report.success) {
+        lastRejection = "The model's report did not match the required shape.";
+        console.error("gemini rejected", model, JSON.stringify(report.error.issues).slice(0, 300));
+        continue;
+      }
+
+      const checked = enforceCitations(report.data, validIds);
+      if (checked.report.patterns.length === 0) {
+        lastRejection = "Every pattern the model produced cited trades that do not exist.";
+        console.error("gemini rejected", model, lastRejection, checked.dropped);
+        continue;
+      }
+
+      accepted = checked;
+      break;
     } catch (e) {
       // timeout or network failure — the next model gets a turn
       console.error("gemini attempt failed", model, (e as Error).name);
     }
   }
 
-  if (!raw) {
+  if (!accepted) {
     return NextResponse.json(
       {
         error: rateLimited
           ? "The Gemini free tier's quota is used up for the minute. Wait about a minute and try again."
-          : "The model API is unavailable right now. Try again in a moment.",
+          : lastRejection
+            ? `${lastRejection} No model produced a report that passed every check — try again in a moment.`
+            : "The model API is unavailable right now. Try again in a moment.",
       },
       { status: rateLimited ? 429 : 502 },
     );
   }
 
-  // Malformed output fails loudly rather than rendering garbage.
-  let candidate: unknown;
-  try {
-    candidate = JSON.parse(raw);
-  } catch {
-    return NextResponse.json({ error: "The model did not return valid JSON." }, { status: 502 });
-  }
-
-  const report = ReportSchema.safeParse(candidate);
-  if (!report.success) {
-    return NextResponse.json(
-      { error: "The model's report did not match the required shape.", issues: report.error.issues },
-      { status: 502 },
-    );
-  }
-
-  const validIds = new Set([...positions.map((p) => p.id), ...parsed.data.trades.map((t) => t.id)]);
-  const { report: checked, dropped } = enforceCitations(report.data, validIds);
-
-  if (checked.patterns.length === 0) {
-    return NextResponse.json(
-      { error: "Every pattern the model produced cited trades that do not exist. Nothing to show.", dropped },
-      { status: 502 },
-    );
-  }
-
+  const { report: checked, dropped } = accepted;
   return NextResponse.json({ report: checked, facts, positions, dropped, replays, market, technicals });
 }
