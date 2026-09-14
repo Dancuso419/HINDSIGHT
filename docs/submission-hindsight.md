@@ -94,7 +94,7 @@ Live demo (no login): https://hindsight-brown-eight.vercel.app
 GitHub repository (public, with README): https://github.com/Dancuso419/HINDGESIGHT
 Run record: full research-task walkthrough, question to actionable insight, from a real production run: https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/WALKTHROUGH.md
 Run record: raw output of that run: https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/walkthrough-run.json
-Demo video (≤3 min): the X post above, which has the demo video attached. TODO: paste the post 1 link
+Demo video (≤3 min, on X): PASTE_POST_1_LINK_HERE
 
 ## 15. Role of the LLM / AI in Your Project
 
