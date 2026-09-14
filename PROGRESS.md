@@ -132,6 +132,22 @@ Day 7 detail — deploy:
 - Team-scoped Vercel URLs are behind Deployment Protection (login wall). Only
   `hindsight-brown-eight.vercel.app` is public.
 
+Day 7 detail — imports, README, walkthrough:
+
+- Many trading apps (especially mobile) cannot export CSV. Added **Paste trades** (copied order
+  tables; parser now reads "218.29 USDT", "NVDA/USDT", "Open long"/"Close long"; shorts refused
+  with a reason) and **Read screenshots** (`/api/extract`, up to 4 images, Gemini transcription,
+  mandatory editable review, a missing year must be typed — never guessed).
+- Screenshot extraction measured on two rendered screenshots with known ground truth:
+  102/102 fields correct, 0 invented years. Production: 5.6 s for a phone screenshot.
+- Gemini's schema support rejected `nullable` (`["number","null"]`) and `maxItems: 300` with a
+  bare 400; found by bisecting the schema field by field.
+- README rewritten from the Next.js default (the form requires a complete README for GitHub
+  links). `docs/WALKTHROUGH.md` + `docs/walkthrough-run.json` are the required run record: one
+  research task on the live site, HTTP 200 in 11.1 s.
+- Screen recording is **not** required for this track — the form accepts "a full research-task
+  walkthrough or screen recording". A ≤3 min demo video is strongly recommended.
+
 ## Not built / known broken
 
 - **The UI has never been seen in a browser by Claude.** Chrome automation fails on every
@@ -192,6 +208,6 @@ Day 7 detail — deploy:
 
 ## Next session starts with
 
-Open https://hindsight-brown-eight.vercel.app in a private window and on a phone, run the
-sample end to end, and note anything off. Rotate the Vercel token pasted in chat. Then the
-submission materials (X post, form description, screen recording) and campus testers.
+Fill the personal fields and paste `docs/submission-hindsight.md` into the form. Still needed
+before submitting: the X post (#BitgetHackathon, @Bitget_AI) and retweet; ideally a ≤3 min demo
+video; testing the screenshot import with a real phone screenshot; rotating the Vercel token.
