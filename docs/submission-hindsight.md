@@ -36,9 +36,15 @@ Why existing tools fall short: the category (TradeZella, TraderSync, Tradervue, 
 
 **2. Target User & Product Value**
 
-Target user: a discretionary retail trader of tokenized US stocks with an account under roughly $10k, making 5–20 trades a month, concentrated in volatile tech-adjacent names, with no journalling habit. Moderate-to-high risk appetite; trades on intuition and momentum; notices they are losing money over time but cannot say why.
+Segment: Retail.
+- Risk appetite: moderate to high; trades on momentum and conviction rather than a written plan.
+- Capital size: under roughly $10k.
+- Trading frequency: 5–20 trades a month.
+- Primary market: tokenized US stocks, concentrated in volatile tech-adjacent names.
+- Defining trait: no journalling habit, and no intention of starting one.
+- Specific use case: after a losing month, bring the trade history once (a CSV export, a table pasted from the exchange's order-history page, or screenshots of the order history for apps that cannot export), ask one plain question ("Why do I keep losing money on tech-adjacent positions?") and get an evidenced answer in under a minute. Screenshot rows are shown to the trader to check and correct, and a year the screenshot does not show must be typed in rather than guessed.
 
-Use case: bring the trade history once (as a CSV export, a table pasted from the exchange's order-history page, or screenshots of the order history for apps that cannot export), ask one question in plain language ("Why do I keep losing money on tech-adjacent positions?"), and get an answer in under a minute. Screenshot imports are read by the model, then every row is shown to the trader to check and correct, and a year the screenshot does not show must be typed in rather than guessed.
+Why this segment needs it: this trader is losing money without knowing why, and the cause is usually a few repeated decisions (opening a new position straight after a loss, adding to a position as it falls, holding losers far longer than winners) that are invisible in an order list. Existing solutions still fail them in four ways. Journals only work if you keep one, which this trader will not. Exchange P&L pages show how much was lost, not which decision lost it. AI journals can state patterns and costs the data does not support, which is worse than no answer for someone deciding whether to change how they trade. And many of these traders use mobile apps with no CSV export, which rules them out of most tools before they start.
 
 Product value, from one upload:
 - The 2–3 habits that cost this trader the most, each tied to the specific positions and fills behind it. Every citation is clickable and opens the underlying trades.
@@ -48,22 +54,30 @@ Product value, from one upload:
 
 **3. Validation Data & Key Metrics**
 
-Honest status: Hindsight has not yet been tested by outside users. Real-user figures below are targets, not results.
+Honest status: Hindsight has not yet been tested by outside users. Every real-user figure below is targeted, not observed.
 
-Product and pipeline metrics (observed on the deployed build and its test suite):
-- Full analysis on the live deployment: 12.5 s end to end, observed (single run, 2026-09-14). An earlier build took 99 s locally and timed out in production at 120 s; the fix is described under Progress.
+Product metrics (observed on the deployed build and its test suite):
+- Response efficiency: a full analysis on the live deployment took 11.1 s and 12.5 s in two runs, observed (2026-09-14). An earlier build took 99 s locally and timed out in production at 120 s; the fix is described under Progress.
+- Screenshot import: 5.6 s to read a phone screenshot on the live deployment, observed. Accuracy 102 of 102 fields correct and 0 years invented, on two rendered test screenshots with known ground truth (a desktop order table and a year-less phone card list), observed. These are clean renders; real phone captures will be noisier, which is why every row is reviewed before use.
 - Fabricated citations reaching the screen: 0 by construction, observed in the automated check, which feeds a report citing non-existent positions and confirms they are stripped and a pattern left with no real evidence is dropped.
-- Arithmetic the model performs: none required. Every figure in the prompt is precomputed (win rate, hold times, replay deltas, re-entry gaps). Observed that the first model build subtracted timestamps itself; those gaps were then moved into the computed facts.
+- Arithmetic the model performs: none required. Every figure in the prompt is precomputed (win rate, hold times, replay deltas, re-entry gaps). Observed that an early build let the model subtract timestamps itself; those gaps were then moved into the computed facts.
 - bitget-signal technical-analysis coverage: 9 of 11 sample stocks returned live data, observed 2026-09-14 (no pair for KO or XOM).
-- Screenshot import accuracy: 102 of 102 fields correct and 0 years invented, on two rendered test screenshots with known ground truth (a desktop order table and a year-less phone card list), observed. These are clean renders; real phone captures will be noisier, which is why every row is reviewed before use.
 
 Demonstration data (synthetic, clearly labelled in the product): the bundled sample is a synthetic trader with fixed habits trading 11 real US stocks on real daily prices (every fill is inside that day's real high–low range). On it, Hindsight finds that the trader's two re-entries within two hours of a loss, at roughly 4× usual size, lost $1,497, more than their entire −$1,217 net result, and that waiting three hours after any loss would have saved $1,445.52 (observed output on synthetic data).
 
-Validation plan (target), running before and after submission:
-- Recruit 6–8 real traders on campus who trade anything, and run Hindsight on their own exported history.
-- Primary metric: "Did this tell you something about your trading you did not already know?" Target: ≥ 5 of 8 yes.
-- Secondary: task completion (upload → report without help), target 8 of 8; time to first report, target under 60 s; whether they would change one specific habit after reading, target ≥ 4 of 8.
+Validation plan with campus testers (targeted):
+- Recruit 6–8 real traders on campus who trade anything, and run Hindsight on their own history.
+- Primary metric: "Did this tell you something about your trading you did not already know?" Targeted: at least 5 of 8 yes.
+- Task completion (history in, report out, without help): targeted 8 of 8. Time to first report: targeted under 60 s.
 - Every result will be reported as observed, including negatives.
+
+How we will prove it is effectively used (all targeted unless stated):
+- Activation: visitors who load a history and complete an analysis. Targeted: 30% of visitors who reach the tool, and 50 completed analyses on real (non-sample) histories within 30 days of launch. Observed so far: 0 real-user analyses; every run to date is internal testing.
+- Import completion: screenshot imports that reach an analysis after review. Targeted: at least 70%.
+- Retention: Hindsight is one-shot by design, so retention means coming back with a newer export after more trades, not daily use. Targeted: at least 3 of 8 testers re-run within 30 days.
+- Risk: the outcome we care about is fewer costly decisions, not higher returns. Targeted: at least 4 of 8 testers commit to one checklist rule, and on their next month's export, Hindsight's own counts of re-entries within 3 hours of a loss and adds below first entry go down.
+- Trading Volume, AUM, Incremental Fee: not applicable. Hindsight is read-only, never places orders and never holds funds, so we will not claim effects on them. For a venue, the relevant outcome is traders who stop repeating the decisions that wipe them out and keep trading; we will report that only once measured.
+- Measurement: nothing is stored today. We will add count-only events (history loaded, analysis completed, screenshot import confirmed) with no trade data retained.
 
 **4. Progress**
 
@@ -87,6 +101,11 @@ Stack: Next.js, TypeScript, Tailwind CSS, Lenis, PapaParse, Zod; deployed on Ver
 **5. Your Take on AI Trading (optional)**
 
 The most useful thing AI can do for a retail trader is not to predict the next move. It is to make them honest about their last hundred. That only works if the AI cannot flatter or frighten them with numbers it made up. Our view: let code do the arithmetic, let the model do the explaining, and make every claim clickable back to a trade.
+
+Experience with Bitget's bitget-signal Skills (used over MCP): the technical-analysis Skill was fast and dependable, typically under a second per symbol, covering tokenized stock pairs such as NVDA/USDT. Three suggestions from building on it:
+- Historical tools (sentiment history, stock and crypto price history) failed at their data providers for at least two days (2026-09-13 and 14), and returned an empty {"error": ""} payload rather than an MCP error, so a client cannot tell "no data" from "service down" without special handling. We added automatic fallbacks and name the answering source on screen.
+- technical_analysis returns Bollinger bands with upper and lower swapped on every symbol we checked (upper below lower, negative bandwidth), which also inverts the band position its overall verdict relies on. We exclude both.
+- An as-of date parameter on technical_analysis would let review tools ask what the chart looked like when a position was opened, which is the question a post-mortem most wants answered.
 
 ## 14. Submission Material Links (one per line, labelled)
 
