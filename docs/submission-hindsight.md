@@ -28,110 +28,34 @@ A one-shot AI post-mortem for traders who never journal: your costliest habits, 
 
 **1. Thesis**
 
-Retail traders repeat the same expensive mistakes because nothing makes them look back. Their trade history already contains the answer, but a spreadsheet of fills says nothing about the decisions behind it. Hindsight turns a raw trade export into a behavioural post-mortem: the habits costing this trader money, the specific trades that prove each one, and their own history replayed with the fix applied, so they see in dollars what changing the habit would have saved.
-
-Core hypothesis: a trader who will never keep a journal will still act on one honest review of trades they already made, if every claim in it can be verified against those trades.
-
-Why existing tools fall short: the category (TradeZella, TraderSync, Tradervue, Trademetria and newer AI journals) is built on sustained journalling: link a broker, tag trades as you go, keep the habit. That mechanism cannot serve the trader who will not keep the habit, and it is exactly that trader who most needs the review. AI journals also tend to let the model narrate freely over the data, so a confident-sounding claim can rest on a number the model invented. Hindsight takes the opposite approach: every figure is computed in code before the model is involved, the model only chooses which facts matter and explains them, and any trade it cites that does not exist in the file is removed before the report renders.
+Traders repeat the same costly mistakes because nothing makes them look back, and journals only work if you keep one. Hindsight reads a trade history once, finds the habits costing money, cites the exact trades behind each, and replays the history with the fix to show the dollars saved. The AI cannot invent numbers: code computes every figure, and citations to trades not in the file are removed.
 
 **2. Target User & Product Value**
 
-Segment: Retail.
-- Risk appetite: moderate to high; trades on momentum and conviction rather than a written plan.
-- Capital size: under roughly $10k.
-- Trading frequency: 5–20 trades a month.
-- Primary market: tokenized US stocks, concentrated in volatile tech-adjacent names.
-- Defining trait: no journalling habit, and no intention of starting one.
-- Specific use case: after a losing month, bring the trade history once (a CSV export, a table pasted from the exchange's order-history page, or screenshots of the order history for apps that cannot export), ask one plain question ("Why do I keep losing money on tech-adjacent positions?") and get an evidenced answer in under a minute. Screenshot rows are shown to the trader to check and correct, and a year the screenshot does not show must be typed in rather than guessed.
-
-Why this segment needs it: this trader is losing money without knowing why, and the cause is usually a few repeated decisions (opening a new position straight after a loss, adding to a position as it falls, holding losers far longer than winners) that are invisible in an order list. Existing solutions still fail them in four ways. Journals only work if you keep one, which this trader will not. Exchange P&L pages show how much was lost, not which decision lost it. AI journals can state patterns and costs the data does not support, which is worse than no answer for someone deciding whether to change how they trade. And many of these traders use mobile apps with no CSV export, which rules them out of most tools before they start.
-
-Product value, from one upload:
-- The 2–3 habits that cost this trader the most, each tied to the specific positions and fills behind it. Every citation is clickable and opens the underlying trades.
-- A replay of their own history with each rule applied (same trades, same exits, only the forbidden decision removed), stated in dollars saved or, honestly, lost: on the sample history a −5% stop-loss would have cost money, and the report says so instead of recommending it.
-- A checklist of rules whose thresholds come from their own data.
-- Beside the post-mortem, the current daily technical picture for each stock they traded, live from Bitget's bitget-signal technical-analysis Skill, shown as context rather than a signal.
+Retail traders of tokenized US stocks: moderate-to-high risk appetite, under $10k capital, 5–20 trades a month, no journalling habit. After a losing month they upload a CSV, paste a table or screenshot their order history, and ask "why do I keep losing?". Existing tools need a journal kept daily, show P&L but not the decision behind it, or let AI state numbers the data does not support.
 
 **3. Validation Data & Key Metrics**
 
-Honest status: Hindsight has not yet been tested by outside users. Every real-user figure below is targeted, not observed.
-
-Product metrics (observed on the deployed build and its test suite):
-- Response efficiency: a full analysis on the live deployment took 11.1 s and 12.5 s in two runs, observed (2026-09-14). An earlier build took 99 s locally and timed out in production at 120 s; the fix is described under Progress.
-- Screenshot import: 5.6 s to read a phone screenshot on the live deployment, observed. Accuracy 102 of 102 fields correct and 0 years invented, on two rendered test screenshots with known ground truth (a desktop order table and a year-less phone card list), observed. These are clean renders; real phone captures will be noisier, which is why every row is reviewed before use.
-- Fabricated citations reaching the screen: 0 by construction, observed in the automated check, which feeds a report citing non-existent positions and confirms they are stripped and a pattern left with no real evidence is dropped.
-- Arithmetic the model performs: none required. Every figure in the prompt is precomputed (win rate, hold times, replay deltas, re-entry gaps). Observed that an early build let the model subtract timestamps itself; those gaps were then moved into the computed facts.
-- bitget-signal technical-analysis coverage: 9 of 11 sample stocks returned live data, observed 2026-09-14 (no pair for KO or XOM).
-
-Demonstration data (synthetic, clearly labelled in the product): the bundled sample is a synthetic trader with fixed habits trading 11 real US stocks on real daily prices (every fill is inside that day's real high–low range). On it, Hindsight finds that the trader's two re-entries within two hours of a loss, at roughly 4× usual size, lost $1,497, more than their entire −$1,217 net result, and that waiting three hours after any loss would have saved $1,445.52 (observed output on synthetic data).
-
-Validation plan with campus testers (targeted):
-- Recruit 6–8 real traders on campus who trade anything, and run Hindsight on their own history.
-- Primary metric: "Did this tell you something about your trading you did not already know?" Targeted: at least 5 of 8 yes.
-- Task completion (history in, report out, without help): targeted 8 of 8. Time to first report: targeted under 60 s.
-- Every result will be reported as observed, including negatives.
-
-How we will prove it is effectively used (all targeted unless stated):
-- Activation: visitors who load a history and complete an analysis. Targeted: 30% of visitors who reach the tool, and 50 completed analyses on real (non-sample) histories within 30 days of launch. Observed so far: 0 real-user analyses; every run to date is internal testing.
-- Import completion: screenshot imports that reach an analysis after review. Targeted: at least 70%.
-- Retention: Hindsight is one-shot by design, so retention means coming back with a newer export after more trades, not daily use. Targeted: at least 3 of 8 testers re-run within 30 days.
-- Risk: the outcome we care about is fewer costly decisions, not higher returns. Targeted: at least 4 of 8 testers commit to one checklist rule, and on their next month's export, Hindsight's own counts of re-entries within 3 hours of a loss and adds below first entry go down.
-- Trading Volume, AUM, Incremental Fee: not applicable. Hindsight is read-only, never places orders and never holds funds, so we will not claim effects on them. For a venue, the relevant outcome is traders who stop repeating the decisions that wipe them out and keep trading; we will report that only once measured.
-- Measurement: nothing is stored today. We will add count-only events (history loaded, analysis completed, screenshot import confirmed) with no trade data retained.
+Observed: full analysis in 11–12.5 s on the live site; screenshot reading 102/102 fields correct on test images; 0 fabricated citations reach the report (automated check); 0 real users so far. On the sample (synthetic trader, real US stock prices): two trades opened right after a loss lost $1,497, and waiting 3 hours after any loss would have saved $1,446. Targeted: 6–8 campus testers with at least 5 of 8 learning something new; activation 30% of visitors; retention 3 of 8 re-running within 30 days; risk measured as fewer re-entries after losses on their next export. Trading volume, AUM and fees: not applicable (read-only tool).
 
 **4. Progress**
 
-Built and deployed (live, no login):
-- Ingest: three ways in. CSV upload, pasting a copied order table (reads "218.29 USDT", "NVDA/USDT", "Open long"/"Close long"), and screenshots of the order history read by the model with a mandatory review-and-edit step. Per-row error reporting; fills grouped into round-trip positions.
-- Analyse: all behavioural facts computed deterministically; replays of three rules on the trader's own history; entry-day market sentiment; a server-side LLM pass constrained by a JSON schema, re-validated with Zod, with a citation guard.
-- Report: patterns with clickable evidence that scrolls to and expands the underlying fills, the rule replays, sentiment-at-entry chart with a table view, a live technical picture per traded stock, and the checklist.
-- A landing page that explains the mechanism with working diagrams built from real pipeline output.
-
-Not built yet:
-- Saved history or accounts (by design: nothing is stored, no login).
-- Short positions: the analysis models long positions only, and short fills are refused with a reason.
-- Native parsing of Bitget's own export formats; today they go through the generic CSV and paste paths.
-- Usage analytics, so activation and retention cannot be measured yet.
-- A stock-market sentiment series; entry-day sentiment currently uses the crypto Fear & Greed index.
-- Testing on real users and real phone screenshots: so far only synthetic data and rendered screenshots.
-
-Problems hit and how they were fixed:
-- Production analysis timed out at 120 s: the model call had no timeout and one model hung past 110 s. Measured every model on the real prompt and switched to a capped, ordered fallback chain under one deadline, with 12.5 s observed afterwards.
-- A model's output broke the schema's length limits and the request failed instead of trying another model; schema failures now count as a failed attempt and the next model runs. Invalid output is never rendered.
-- Position building treated a position as open until quantity reached exactly zero, so exchange rounding dust (buys of 6.3167 + 7.3284 closed by a sale of 13.645) silently merged unrelated later trades. Positions now close within 0.1% of size, with a regression test.
-- On an earlier version of the sample, the report said averaging down "cost $1,382"; replaying that history showed the true cost was $628.96. The rest would have been lost on the first entry anyway. The model now receives replay figures and is instructed that a group's total loss is not what a habit cost.
-- bitget-signal's historical tools (sentiment history, stock prices) have been failing upstream; every analysis tries the Skill first and falls back automatically (alternative.me, Yahoo Finance, committed snapshots), with the source named on screen. Its technical-analysis Skill returns Bollinger bands with upper and lower swapped and a directional verdict built partly on them; both are deliberately excluded.
-
-Next steps: campus testers, including real phone screenshots to measure extraction accuracy beyond clean renders; native parsing of Bitget export formats; switching all market context back to bitget-signal as its historical tools recover; a stock-market sentiment measure to replace the crypto Fear & Greed index for equity histories.
-
-Stack: Next.js, TypeScript, Tailwind CSS, Lenis, PapaParse, Zod; deployed on Vercel. Models: Google Gemini (gemini-3.5-flash primary, gemini-3.1-flash-lite and gemini-3.8-flash as fallbacks) for the report and for reading screenshots. Data: Bitget bitget-signal MCP (technical_analysis live; sentiment_index and global_assets with fallbacks), alternative.me, Yahoo Finance.
+Built and live: CSV, paste and screenshot import; facts computed in code; three rule replays; Gemini report with schema and citation checks; clickable evidence; live technicals from Bitget bitget-signal. Not built: accounts, short positions, usage analytics, real-user testing. Fixed: a 120 s production timeout (capped model fallbacks), rounding dust merging positions, and a report overstating a habit's cost (now uses replay figures). Next: campus testers and Bitget export formats. Stack: Next.js, TypeScript, Zod, Vercel, Google Gemini, bitget-signal MCP (technical_analysis, sentiment_index, global_assets).
 
 **5. Your Take on AI Trading (optional)**
 
-The most useful thing AI can do for a retail trader is not to predict the next move. It is to make them honest about their last hundred. That only works if the AI cannot flatter or frighten them with numbers it made up. Our view: let code do the arithmetic, let the model do the explaining, and make every claim clickable back to a trade.
-
-Experience with Bitget's bitget-signal Skills (used over MCP): the technical-analysis Skill was fast and dependable, typically under a second per symbol, covering tokenized stock pairs such as NVDA/USDT. Three suggestions from building on it:
-- Historical tools (sentiment history, stock and crypto price history) failed at their data providers for at least two days (2026-09-13 and 14), and returned an empty {"error": ""} payload rather than an MCP error, so a client cannot tell "no data" from "service down" without special handling. We added automatic fallbacks and name the answering source on screen.
-- technical_analysis returns Bollinger bands with upper and lower swapped on every symbol we checked (upper below lower, negative bandwidth), which also inverts the band position its overall verdict relies on. We exclude both.
-- An as-of date parameter on technical_analysis would let review tools ask what the chart looked like when a position was opened, which is the question a post-mortem most wants answered.
+AI should make traders honest about their past trades, not predict the next move. Bitget feedback: bitget-signal returns Bollinger bands with upper and lower swapped, its historical tools return empty errors instead of failing clearly, and an as-of date on technical_analysis would help review tools.
 
 ## 14. Submission Material Links (one per line, labelled)
 
-Live demo (no login): https://hindsight-brown-eight.vercel.app
-GitHub repository (public, with README): https://github.com/Dancuso419/HINDGESIGHT
-Run record: full research-task walkthrough, question to actionable insight, from a real production run: https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/WALKTHROUGH.md
-Run record: raw output of that run: https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/walkthrough-run.json
-Demo video (≤3 min, on X): PASTE_POST_1_LINK_HERE
+Project link (demo): https://hindsight-brown-eight.vercel.app
+Project link (GitHub): https://github.com/Dancuso419/HINDGESIGHT
+Run record (walkthrough): https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/WALKTHROUGH.md
+Demo video (X): PASTE_POST_1_LINK_HERE
 
 ## 15. Role of the LLM / AI in Your Project
 
-Report generation: Google Gemini via the Gemini API, called server-side only. Primary model gemini-3.5-flash with minimal thinking; automatic fallbacks gemini-3.1-flash-lite and gemini-3.8-flash, each attempt time-capped. The model receives facts already computed in code (positions, win rate, hold times, rule replays in dollars, re-entry gaps, entry-day sentiment) and is forbidden to compute or invent numbers. It chooses the 2–3 habits that cost the trader most, explains them in plain language citing specific position and trade IDs, and writes a checklist whose thresholds come from those facts. Output is constrained by a JSON schema, re-validated with Zod, and passed through a citation guard that removes any cited ID not present in the uploaded file; a report that fails any check is discarded and the next model is tried.
-
-The model does not see the live technical-analysis data and does not produce any trading signal, price prediction or order.
-
-Market data: Bitget's bitget-signal Skills over MCP: technical_analysis for each traded stock's current daily picture; sentiment_index and global_assets for entry-day sentiment and the stop-loss replay, with automatic fallbacks while those tools are unavailable.
-
-Development: the codebase was written with Anthropic's Claude (Claude Opus 5 in Claude Code) as a coding assistant.
+Gemini (gemini-3.5-flash, with 3.1-flash-lite and 3.8-flash as fallbacks) writes the report from figures computed in code and reads trades from order-history screenshots for the user to check; it never computes numbers, gives signals or places orders. The code was written with Claude (Claude Code).
 
 ## 16. X Project Post URL
 
