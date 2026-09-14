@@ -72,6 +72,7 @@ Every analysis asks the Skills first and falls back without intervention:
 | Fear & Greed at each entry | bitget-signal `sentiment_index` | alternative.me directly → `data/fng-snapshot.json` |
 | Stop-loss replay (daily prices) | bitget-signal `global_assets` (stocks) / `crypto_market` | Yahoo Finance → `data/prices.json`, per symbol |
 | Averaging-down and re-entry replays | computed from the fills | — no external data needed |
+| Today's technical picture per stock | bitget-signal `technical_analysis` (tokenized /USDT pairs) | none — the panel says which stocks had no data |
 
 After a Skill failure the server skips the Skills for 3 minutes, then tries again, so an
 outage never slows every analysis and recovery is picked up automatically. Each panel names
@@ -85,6 +86,11 @@ Every historical lookup fails upstream: `sentiment_index`, `global_assets`, `cry
 `derivatives_sentiment`. The `series_list` / `assets_list` actions answer instantly because
 they are static lists, not data. Fear & Greed is served from alternative.me and prices from
 Yahoo Finance; bitget-signal is used again automatically once it answers.
+
+The technical picture is **display-only**: it is never sent to the model. Its Bollinger bands
+(upper and lower arrive swapped), overall verdict and suggested stop are deliberately dropped
+in `src/lib/technicals.ts`. The Skills cooldown is per tool — and per symbol for technical
+analysis — so "no pair for KO" never switches the Skill off for NVDA.
 
 ## Deploy
 

@@ -13,16 +13,15 @@ let session: { id: string; at: number } | null = null;
 let rpcId = 0;
 
 /**
- * While the Skills are failing, stop waiting on them: after a failure, calls fail fast for
- * COOLDOWN_MS, then the next request tries the Skills again. Recovery needs no action —
- * the first call after the cooldown that succeeds puts every feature back on live data.
- * ponytail: one breaker for the whole server, since outages so far have been server-wide
- * (every upstream timing out at once). Per-tool breakers if that stops being true.
+ * While a Skill is failing, stop waiting on it: after a failure, calls to that tool fail fast
+ * for COOLDOWN_MS, then the next request tries it again. Recovery needs no action.
+ * Per tool, because outages are partial: on 2026-09-14 technical_analysis answered while
+ * every historical lookup timed out upstream — one shared breaker would have blocked it.
  */
 const COOLDOWN_MS = 3 * 60_000;
-let failedAt = 0;
+const failedAt = new Map<string, number>();
 
-export const skillsCoolingDown = () => Date.now() - failedAt < COOLDOWN_MS;
+export const skillCoolingDown = (key: string) => Date.now() - (failedAt.get(key) ?? 0) < COOLDOWN_MS;
 
 /** Responses arrive either as JSON or as a single SSE `data:` frame. */
 async function readRpc(res: Response): Promise<unknown> {
@@ -81,12 +80,17 @@ async function openSession(): Promise<string> {
 type ToolResult = { content?: { type: string; text?: string }[]; isError?: boolean };
 
 /** Call one Skill tool and return its text payload parsed as JSON when possible. */
-export async function callSkill<T = unknown>(tool: string, args: Record<string, unknown>): Promise<T> {
-  if (skillsCoolingDown()) throw new Error("bitget-signal is cooling down after a recent failure");
+export async function callSkill<T = unknown>(
+  tool: string,
+  args: Record<string, unknown>,
+  /** Narrow the breaker when a failure means "no data for this input", not "tool is down". */
+  breakerKey = tool,
+): Promise<T> {
+  if (skillCoolingDown(breakerKey)) throw new Error(`bitget-signal ${breakerKey} is cooling down after a recent failure`);
   try {
     return await callSkillOnce<T>(tool, args);
   } catch (e) {
-    failedAt = Date.now();
+    failedAt.set(breakerKey, Date.now());
     throw e;
   }
 }

@@ -192,3 +192,31 @@ console.log(
   assert.ok(ps.every((p) => p.pnl !== null), "both round trips are closed");
 }
 console.log("ok — rounding dust closes positions");
+
+// --- technical snapshot keeps only measurements it can trust ---
+import { parseTechnicals } from "../src/lib/technicals";
+{
+  // Shape as returned by bitget-signal on 2026-09-14, including its swapped Bollinger bands.
+  const raw = {
+    symbol: "NVDA/USDT",
+    rsi: { rsi: 39.64, period: 14, signal: "neutral" },
+    macd: { macd: -0.339, signal: -1.808, histogram: 1.469, cross: "golden_cross" },
+    bollinger: { upper: 210.41, middle: 222.45, lower: 234.49, bandwidth: -0.1082, position: "above_upper" },
+    ma: { price: 212.72, ma7: 218.84, ma25: 220.89, ma99: 210.87, trend: "mixed" },
+    atr: { atr: 5.2, atr_pct: 2.45, suggested_stop: 204.92 },
+    support_resistance: { supports: [208.98, 218.32], resistances: [225.77, 226.08, 231.73], current_price: 212.72 },
+    verdict: "BULLISH",
+  };
+  const t = parseTechnicals("NVDA", raw)!;
+  assert.equal(t.price, 212.72);
+  assert.deepEqual(t.averages.map((a) => a.above), [false, false, true]);
+  assert.equal(t.support, 208.98, "support is the nearest level below price — 218.32 is above it and is excluded");
+  assert.equal(t.resistance, 225.77);
+  const keys = JSON.stringify(t);
+  for (const banned of ["bollinger", "verdict", "BULLISH", "suggested_stop", "upper"])
+    assert.ok(!keys.includes(banned), `untrusted field leaked: ${banned}`);
+
+  assert.equal(parseTechnicals("KO", { error: "" }), null, "an empty error payload is no snapshot");
+  assert.equal(parseTechnicals("X", { ...raw, rsi: { rsi: 140 } }), null, "an impossible RSI is rejected, not shown");
+}
+console.log("ok — technical snapshot parsing");

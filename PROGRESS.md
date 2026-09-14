@@ -103,6 +103,22 @@ Day 7 detail — sample rebuilt on real US stock prices:
   trades opened 27 and 116 minutes after a loss at ~4× size lost $1,497; replays +$308,
   +$1,446, and the −5% stop −$88 (the report correctly advises against it).
 
+Day 7 detail — live Bitget context:
+
+- bitget-signal is up but partial: only `technical_analysis` and `news_feed` return data;
+  every historical lookup fails upstream. `npm run probe:signal` now tests every tool
+  (it had been tripping its own cooldown and skipping them).
+- `src/lib/technicals.ts` + `technicals-view.tsx` — today's daily technical picture for each
+  traded stock, beside the trader's record in it. Live from bitget-signal for 9 of the 11
+  sample stocks (no pair for KO, XOM). Display-only, never in the prompt.
+- Found in the Skill's output and excluded: Bollinger bands with upper and lower swapped on
+  every symbol (so its band position is inverted), a BULLISH/BEARISH verdict partly built on
+  them, and a suggested stop. A check fails if any of them leak into the snapshot.
+- Skills cooldown changed from one server-wide breaker to per tool, and per symbol for
+  technical analysis — the shared breaker would have blocked the one working tool.
+- One analysis run took 99s, of which market data was ~6s; the rest was Gemini on that run
+  (the previous identical run took 25s). Watch it before deploy.
+
 ## Not built / known broken
 
 - **The UI has never been seen in a browser by Claude.** Chrome automation fails on every

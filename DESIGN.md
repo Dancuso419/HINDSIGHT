@@ -215,6 +215,13 @@ icon tiles; `6px` for the small chips inside diagrams. Borders are 1px at low wh
 - **Market context** — five Fear & Greed bands as thin horizontal stacked bars (`won` then
   `loss`, 2px gap, 4px rounded ends), counts direct-labelled, legend present, a hover/focus
   tooltip on every row, and a "View as table" toggle. The data source is always named.
+- **Today's technical picture** (`src/components/technicals-view.tsx`) — one card per traded
+  stock, worst record first: the trader's own record in that stock (a black inset strip),
+  price, an RSI value on a 0–100 scale with 30/70 reference ticks (a single white marker,
+  labelled), price above/below its 7/25/99-day averages as word chips, MACD histogram, daily
+  range and nearest support/resistance. Monochrome only: none of it is a loss, so `loss` is
+  used only on the trader's P&L. The source, fetch time, missing stocks and excluded fields
+  are named in the footer.
 - **Icons** — drawn SVG, single 1.5px stroke on a 16-unit grid, plus the Hindsight mark: an
   arc turning back on itself around a fixed point.
 - **Browser surfaces** — white text selection, white caret, 2px white focus ring at 3px

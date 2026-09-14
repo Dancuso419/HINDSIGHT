@@ -5,6 +5,7 @@ import { computeFacts } from "@/lib/analysis";
 import { ReportSchema, enforceCitations } from "@/lib/report";
 import { replayNoAveragingDown, replayNoReentryAfterLoss, replayStopLoss, unavailableStopLoss } from "@/lib/replay";
 import { getSentiment, entrySentiment, getCandles } from "@/lib/market";
+import { getTechnicals } from "@/lib/technicals";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -99,7 +100,12 @@ export async function POST(req: Request) {
   // Market data is best-effort and time-boxed: the analysis never waits on a failing Skill.
   const closedDates = positions.filter((p) => p.pnl !== null).map((p) => Date.parse(p.openedAt));
   const daysBack = Math.ceil((Date.now() - Math.min(...closedDates)) / 86_400_000) + 2;
-  const [sentiment, prices] = await Promise.all([getSentiment(daysBack), getCandles(positions)]);
+  // Technicals are display-only context for the symbols traded — they never enter the prompt.
+  const [sentiment, prices, technicals] = await Promise.all([
+    getSentiment(daysBack),
+    getCandles(positions),
+    getTechnicals(positions.filter((p) => p.pnl !== null).map((p) => p.symbol)),
+  ]);
 
   const replays = [
     replayNoAveragingDown(positions, parsed.data.trades),
@@ -212,5 +218,5 @@ ${JSON.stringify(
     );
   }
 
-  return NextResponse.json({ report: checked, facts, positions, dropped, replays, market });
+  return NextResponse.json({ report: checked, facts, positions, dropped, replays, market, technicals });
 }

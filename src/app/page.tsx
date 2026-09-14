@@ -6,9 +6,11 @@ import { resolveEvidence, type Report } from "@/lib/report";
 import type { Facts } from "@/lib/analysis";
 import type { RuleReplay } from "@/lib/replay";
 import type { EntrySentiment } from "@/lib/market";
+import type { Technicals } from "@/lib/technicals";
 import { ReportView } from "@/components/report-view";
 import { PositionsTable } from "@/components/positions-table";
 import { ReplayView, MarketView } from "@/components/replay-view";
+import { TechnicalsView } from "@/components/technicals-view";
 import { HowItWorks } from "@/components/how-it-works";
 import { Terrain } from "@/components/terrain";
 import { Mark, Upload, Sample, Arrow, ArrowDown } from "@/components/icons";
@@ -20,6 +22,7 @@ type Analysis = {
   dropped: string[];
   replays: RuleReplay[];
   market: EntrySentiment;
+  technicals: Technicals;
 };
 
 const DEMO_QUESTION = "Why do I keep losing money on tech-adjacent positions?";
@@ -363,6 +366,7 @@ export default function Home() {
             <>
               <ReplayView replays={analysis.replays} selected={selected} onSelect={selectEvidence} />
               <MarketView market={analysis.market} selected={selected} onSelect={selectEvidence} />
+              <TechnicalsView technicals={analysis.technicals} facts={analysis.facts} />
             </>
           )}
 
