@@ -169,10 +169,10 @@ heading, even though the reference uses them.
 - How-it-works is a 4 / 2 / 1 column grid of equal-height (`26rem`) panels.
 - Desktop-first; below `sm` grids stack and the positions table scrolls horizontally inside
   its own panel.
-- **Hero on phones (below `sm`):** headline `clamp(2.25rem, 9.6vw, …)` with no forced line
-  break; lead capped at 34ch; the two actions stack full-width inside `max-width: 20rem`; the
-  mark tile shrinks to 64px with a narrower beam. The terrain detects portrait and sits lower
-  (horizon 60%) with walls at roughly half height, so it frames the copy rather than crossing it.
+- **Hero on phones (below `sm`):** the same look as desktop; the copy block fills the space
+  between the header and the mark and is vertically centred in it, and the mark sits lower
+  (`6vh` from the bottom instead of `14vh`) so the centred buttons never meet it. A user-rejected
+  rework (smaller headline, stacked buttons, portrait-tuned terrain) was reverted — keep it out.
 
 ## Elevation & Depth
 

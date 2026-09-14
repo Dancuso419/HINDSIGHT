@@ -217,22 +217,6 @@ input {
   pointer-events: none;
 }
 
-/* Phones: a smaller mark and a narrower beam, so the valley does not crowd the stacked actions. */
-@media (max-width: 639px) {
-  .mark-tile {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-  }
-  .mark-tile svg {
-    width: 26px;
-    height: 26px;
-  }
-  .beam {
-    width: 112px;
-  }
-}
-
 /* ---- Buttons --------------------------------------------------------------------- */
 
 .btn-pill {

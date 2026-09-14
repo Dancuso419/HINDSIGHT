@@ -110,19 +110,12 @@ export function Terrain({ series, className = "" }: { series: number[] | null; c
       ctx.clearRect(0, 0, w, h);
       if (ripple.current.length !== samples) ripple.current = shape(series_.current, samples);
       const r = ripple.current;
-      // On a tall phone screen the landscape sits lower and its walls rise less, so it frames the
-      // copy instead of running through it; lines fan wider so the walls meet the screen edges.
-      const portrait = h > w;
-      const horizon = portrait ? 0.6 : 0.5;
-      const depthDrop = portrait ? 0.46 : 0.56;
-      const wallScale = portrait ? 0.34 : 0.62;
-      const spreadBase = portrait ? 0.95 : 0.62;
 
       for (let row = 0; row < rows; row++) {
         const d = row / (rows - 1); // 0 = far, 1 = near
-        const baseY = h * (horizon + depthDrop * Math.pow(d, 1.7));
-        const spread = spreadBase + 0.75 * d; // perspective: near rows fan wider
-        const wallHeight = h * (wallScale - 0.22 * wallScale * d / 0.62) * (1 + p.y * 0.04);
+        const baseY = h * (0.5 + 0.56 * Math.pow(d, 1.7));
+        const spread = 0.62 + 0.75 * d; // perspective: near rows fan wider
+        const wallHeight = h * (0.62 - 0.22 * d) * (1 + p.y * 0.04);
         const floorAmp = h * 0.05 * (0.25 + 0.75 * d);
 
         ctx.strokeStyle = gradients[row];

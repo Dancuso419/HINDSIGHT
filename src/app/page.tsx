@@ -145,37 +145,41 @@ export default function Home() {
         />
         <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-void to-transparent" />
 
-        <header className="mx-auto flex w-full max-w-6xl items-center px-5 py-5 sm:px-6 sm:py-6">
+        <header className="mx-auto flex w-full max-w-6xl items-center px-6 py-6">
           <span className="flex items-center gap-2.5 text-white">
             <Mark size={22} />
             <span className="text-[15px] font-semibold tracking-tight">Hindsight</span>
           </span>
         </header>
 
-        <div data-scroll="copy" className="parallax-copy mx-auto mt-8 w-full max-w-4xl px-5 text-center sm:mt-16 sm:px-6">
-          <h1 className="headline text-[clamp(2.25rem,9.6vw,5.25rem)] text-white sm:text-[clamp(2.5rem,6.4vw,5.25rem)]">
-            Your trades already know
-            {/* A fixed break only where the line is long enough to need one; phones wrap naturally. */}
-            <br className="hidden sm:inline" />
-            <span className="text-white/55">what you keep getting wrong.</span>
-          </h1>
-          <p className="lead mx-auto mt-5 max-w-[34ch] sm:mt-6 sm:max-w-[46ch]">
-            One CSV. One honest post-mortem. Every finding tied to the exact trades behind it.
-          </p>
+        {/* On phones the copy fills the space between the header and the mark and sits centred in it;
+            from sm up the layout is unchanged. The wrapper does the centring so the scroll-driven
+            transform on the copy itself is never overwritten. */}
+        <div className="max-sm:flex max-sm:flex-1 max-sm:items-center">
+          <div data-scroll="copy" className="parallax-copy mx-auto mt-10 w-full max-w-4xl px-6 text-center max-sm:mt-0 sm:mt-16">
+            <h1 className="headline text-[clamp(2.5rem,6.4vw,5.25rem)] text-white">
+              Your trades already know
+              <br />
+              <span className="text-white/55">what you keep getting wrong.</span>
+            </h1>
+            <p className="lead mx-auto mt-6 max-w-[46ch]">
+              One CSV. One honest post-mortem. Every finding tied to the exact trades behind it.
+            </p>
 
-          <div className="mx-auto mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
-            <a href="#run" className="btn-pill justify-center">
-              Run the post-mortem
-              <Arrow />
-            </a>
-            <a href="#how" className="btn-ghost justify-center">
-              See how it works
-            </a>
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+              <a href="#run" className="btn-pill">
+                Run the post-mortem
+                <Arrow />
+              </a>
+              <a href="#how" className="btn-ghost">
+                See how it works
+              </a>
+            </div>
           </div>
         </div>
 
-        <div data-scroll="mark" className="parallax-mark relative mt-auto flex justify-center pt-10 pb-[9vh] sm:pt-0 sm:pb-[14vh]">
-          <div aria-hidden className="beam top-20 h-[20vh] sm:top-14 sm:h-[28vh]" />
+        <div data-scroll="mark" className="parallax-mark relative mt-auto flex justify-center pb-[6vh] sm:pb-[14vh]">
+          <div aria-hidden className="beam top-14 h-[28vh]" />
           <div className="mark-tile text-white">
             <Mark size={34} />
           </div>
