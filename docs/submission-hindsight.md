@@ -87,6 +87,14 @@ Built and deployed (live, no login):
 - Report: patterns with clickable evidence that scrolls to and expands the underlying fills, the rule replays, sentiment-at-entry chart with a table view, a live technical picture per traded stock, and the checklist.
 - A landing page that explains the mechanism with working diagrams built from real pipeline output.
 
+Not built yet:
+- Saved history or accounts (by design: nothing is stored, no login).
+- Short positions: the analysis models long positions only, and short fills are refused with a reason.
+- Native parsing of Bitget's own export formats; today they go through the generic CSV and paste paths.
+- Usage analytics, so activation and retention cannot be measured yet.
+- A stock-market sentiment series; entry-day sentiment currently uses the crypto Fear & Greed index.
+- Testing on real users and real phone screenshots: so far only synthetic data and rendered screenshots.
+
 Problems hit and how they were fixed:
 - Production analysis timed out at 120 s: the model call had no timeout and one model hung past 110 s. Measured every model on the real prompt and switched to a capped, ordered fallback chain under one deadline, with 12.5 s observed afterwards.
 - A model's output broke the schema's length limits and the request failed instead of trying another model; schema failures now count as a failed attempt and the next model runs. Invalid output is never rendered.
@@ -96,7 +104,7 @@ Problems hit and how they were fixed:
 
 Next steps: campus testers, including real phone screenshots to measure extraction accuracy beyond clean renders; native parsing of Bitget export formats; switching all market context back to bitget-signal as its historical tools recover; a stock-market sentiment measure to replace the crypto Fear & Greed index for equity histories.
 
-Stack: Next.js, TypeScript, Tailwind CSS, Lenis, PapaParse, Zod; deployed on Vercel. Data: Bitget bitget-signal MCP (technical_analysis live; sentiment_index and global_assets with fallbacks), alternative.me, Yahoo Finance.
+Stack: Next.js, TypeScript, Tailwind CSS, Lenis, PapaParse, Zod; deployed on Vercel. Models: Google Gemini (gemini-3.5-flash primary, gemini-3.1-flash-lite and gemini-3.8-flash as fallbacks) for the report and for reading screenshots. Data: Bitget bitget-signal MCP (technical_analysis live; sentiment_index and global_assets with fallbacks), alternative.me, Yahoo Finance.
 
 **5. Your Take on AI Trading (optional)**
 
