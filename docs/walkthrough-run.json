@@ -1,0 +1,2016 @@
+{
+  "ranAt": "2026-09-14T15:41:36.087Z",
+  "endpoint": "https://hindsight-brown-eight.vercel.app/api/analyse",
+  "question": "Why do I keep losing money on tech-adjacent positions?",
+  "durationMs": 11055,
+  "fills": 116,
+  "response": {
+    "report": {
+      "headline": "You sabotage your trading capital by jumping into revenge trades immediately following significant losses.",
+      "patterns": [
+        {
+          "title": "You revenge trade after losses, which resulted in a $1,497.36 loss across two positions.",
+          "finding": "When you close a losing position, you often open a new one within 116 minutes or less with sizes up to 4.35 times your median trade size. These high-pressure entries into P10 and P06 have exacerbated your drawdown significantly compared to your disciplined trades.",
+          "cost": "The REPLAY data indicates that waiting 3 hours after closing a loss before opening a new position would have saved you $1,445.52.",
+          "evidence": [
+            "P10",
+            "P06"
+          ],
+          "confidence": "high"
+        },
+        {
+          "title": "You average down into losing positions, which contributed to your $1,568.95 total loss in these trades.",
+          "finding": "You added to losing positions 22 times across your portfolio. In trades like P06, P05, P10, and P04, you added to the position even as the price moved against you, increasing your exposure while the position was already underwater.",
+          "cost": "The REPLAY data shows that a rule to never add to a position trading below your first entry would have saved you $307.96.",
+          "evidence": [
+            "P06",
+            "P05",
+            "P10",
+            "P04",
+            "P35"
+          ],
+          "confidence": "high"
+        }
+      ],
+      "checklist": [
+        "Check the time since your last closed position and ensure at least 180 minutes have passed before entering a new one.",
+        "Verify that the current price of the security is above your initial entry price before adding any additional size to the position.",
+        "Limit your position size to no more than 1.0 times your median notional value of $1,370.19 for any new entry."
+      ]
+    },
+    "facts": {
+      "positions": 41,
+      "open": 0,
+      "winRate": 78,
+      "netPnl": -1216.51,
+      "totalFees": 82.17,
+      "wins": {
+        "count": 32,
+        "avgPnlPct": 3.9,
+        "avgHoldHours": 308.4,
+        "totalPnl": 1656.57,
+        "positionIds": [
+          "P03",
+          "P02",
+          "P01",
+          "P08",
+          "P07",
+          "P09",
+          "P12",
+          "P11",
+          "P14",
+          "P15",
+          "P13",
+          "P16",
+          "P17",
+          "P19",
+          "P18",
+          "P28",
+          "P22",
+          "P23",
+          "P24",
+          "P25",
+          "P26",
+          "P27",
+          "P29",
+          "P30",
+          "P31",
+          "P32",
+          "P34",
+          "P36",
+          "P38",
+          "P37",
+          "P39",
+          "P41"
+        ]
+      },
+      "losses": {
+        "count": 9,
+        "avgPnlPct": -9.43,
+        "avgHoldHours": 698.9,
+        "totalPnl": -2873.08,
+        "positionIds": [
+          "P04",
+          "P05",
+          "P10",
+          "P06",
+          "P20",
+          "P21",
+          "P33",
+          "P35",
+          "P40"
+        ]
+      },
+      "averagedDown": {
+        "count": 22,
+        "avgPnlPct": -0.71,
+        "avgHoldHours": 579.8,
+        "totalPnl": -1568.95,
+        "positionIds": [
+          "P03",
+          "P02",
+          "P04",
+          "P08",
+          "P05",
+          "P10",
+          "P06",
+          "P14",
+          "P15",
+          "P19",
+          "P20",
+          "P18",
+          "P21",
+          "P28",
+          "P26",
+          "P29",
+          "P33",
+          "P35",
+          "P30",
+          "P32",
+          "P36",
+          "P39"
+        ],
+        "losingShare": 36.4
+      },
+      "revengeTrades": {
+        "count": 2,
+        "avgPnlPct": -13.29,
+        "avgHoldHours": 608.6,
+        "totalPnl": -1497.36,
+        "positionIds": [
+          "P10",
+          "P06"
+        ]
+      },
+      "reentriesAfterLoss": [
+        {
+          "id": "P10",
+          "afterLoss": "P04",
+          "minutesAfterLoss": 116,
+          "sizeVsMedian": 4.35,
+          "pnl": -582.52
+        },
+        {
+          "id": "P06",
+          "afterLoss": "P05",
+          "minutesAfterLoss": 27,
+          "sizeVsMedian": 3.97,
+          "pnl": -914.84
+        },
+        {
+          "id": "P41",
+          "afterLoss": "P40",
+          "minutesAfterLoss": 23,
+          "sizeVsMedian": 1.27,
+          "pnl": 51.84
+        }
+      ],
+      "medianNotional": 1370.19,
+      "bySymbol": [
+        {
+          "symbol": "MSTR",
+          "positions": 5,
+          "wins": 3,
+          "pnl": -1110.22,
+          "positionIds": [
+            "P04",
+            "P06",
+            "P24",
+            "P27",
+            "P32"
+          ]
+        },
+        {
+          "symbol": "COIN",
+          "positions": 3,
+          "wins": 1,
+          "pnl": -667.47,
+          "positionIds": [
+            "P05",
+            "P26",
+            "P40"
+          ]
+        },
+        {
+          "symbol": "NVDA",
+          "positions": 5,
+          "wins": 3,
+          "pnl": -646.92,
+          "positionIds": [
+            "P10",
+            "P15",
+            "P33",
+            "P38",
+            "P39"
+          ]
+        },
+        {
+          "symbol": "WMT",
+          "positions": 5,
+          "wins": 4,
+          "pnl": 1.38,
+          "positionIds": [
+            "P08",
+            "P12",
+            "P16",
+            "P23",
+            "P35"
+          ]
+        },
+        {
+          "symbol": "JPM",
+          "positions": 3,
+          "wins": 2,
+          "pnl": 33.85,
+          "positionIds": [
+            "P11",
+            "P20",
+            "P28"
+          ]
+        },
+        {
+          "symbol": "XOM",
+          "positions": 2,
+          "wins": 2,
+          "pnl": 46.55,
+          "positionIds": [
+            "P13",
+            "P17"
+          ]
+        },
+        {
+          "symbol": "KO",
+          "positions": 3,
+          "wins": 2,
+          "pnl": 110.6,
+          "positionIds": [
+            "P21",
+            "P30",
+            "P41"
+          ]
+        },
+        {
+          "symbol": "PLTR",
+          "positions": 3,
+          "wins": 3,
+          "pnl": 111.92,
+          "positionIds": [
+            "P02",
+            "P09",
+            "P37"
+          ]
+        },
+        {
+          "symbol": "TSLA",
+          "positions": 3,
+          "wins": 3,
+          "pnl": 207.28,
+          "positionIds": [
+            "P03",
+            "P07",
+            "P18"
+          ]
+        },
+        {
+          "symbol": "META",
+          "positions": 4,
+          "wins": 4,
+          "pnl": 311.14,
+          "positionIds": [
+            "P14",
+            "P22",
+            "P34",
+            "P36"
+          ]
+        },
+        {
+          "symbol": "AMD",
+          "positions": 5,
+          "wins": 5,
+          "pnl": 385.38,
+          "positionIds": [
+            "P01",
+            "P19",
+            "P25",
+            "P29",
+            "P31"
+          ]
+        }
+      ],
+      "worstPositions": [
+        {
+          "id": "P06",
+          "symbol": "MSTR",
+          "pnl": -914.84,
+          "pnlPct": -16.8,
+          "addsDown": 2,
+          "tradeIds": [
+            "T0022",
+            "T0023",
+            "T0025",
+            "T0026"
+          ]
+        },
+        {
+          "id": "P05",
+          "symbol": "COIN",
+          "pnl": -604.98,
+          "pnlPct": -15.6,
+          "addsDown": 2,
+          "tradeIds": [
+            "T0014",
+            "T0016",
+            "T0017",
+            "T0021"
+          ]
+        },
+        {
+          "id": "P10",
+          "symbol": "NVDA",
+          "pnl": -582.52,
+          "pnlPct": -9.77,
+          "addsDown": 2,
+          "tradeIds": [
+            "T0019",
+            "T0020",
+            "T0024",
+            "T0033"
+          ]
+        },
+        {
+          "id": "P04",
+          "symbol": "MSTR",
+          "pnl": -270.91,
+          "pnlPct": -13.88,
+          "addsDown": 2,
+          "tradeIds": [
+            "T0006",
+            "T0007",
+            "T0010",
+            "T0018"
+          ]
+        },
+        {
+          "id": "P35",
+          "symbol": "WMT",
+          "pnl": -176.19,
+          "pnlPct": -5.41,
+          "addsDown": 2,
+          "tradeIds": [
+            "T0084",
+            "T0089",
+            "T0100",
+            "T0103"
+          ]
+        }
+      ]
+    },
+    "positions": [
+      {
+        "id": "P03",
+        "symbol": "TSLA",
+        "tradeIds": [
+          "T0001",
+          "T0002",
+          "T0009",
+          "T0013"
+        ],
+        "openedAt": "2025-10-02T15:31:49.866Z",
+        "closedAt": "2025-10-27T16:28:57.142Z",
+        "qty": 6.9545,
+        "avgEntry": 440.8811,
+        "exitPrice": 457.48,
+        "pnl": 111.69,
+        "pnlPct": 3.64,
+        "addsDown": 2,
+        "holdHours": 601,
+        "fees": 3.75
+      },
+      {
+        "id": "P02",
+        "symbol": "PLTR",
+        "tradeIds": [
+          "T0003",
+          "T0008",
+          "T0011"
+        ],
+        "openedAt": "2025-10-03T18:08:52.421Z",
+        "closedAt": "2025-10-15T15:52:16.665Z",
+        "qty": 13.6451,
+        "avgEntry": 178.5119,
+        "exitPrice": 184.01,
+        "pnl": 72.02,
+        "pnlPct": 2.96,
+        "addsDown": 1,
+        "holdHours": 285.7,
+        "fees": 2.98
+      },
+      {
+        "id": "P01",
+        "symbol": "AMD",
+        "tradeIds": [
+          "T0004",
+          "T0005"
+        ],
+        "openedAt": "2025-10-08T18:55:50.254Z",
+        "closedAt": "2025-10-09T17:49:33.784Z",
+        "qty": 2.4518,
+        "avgEntry": 226.89,
+        "exitPrice": 234,
+        "pnl": 16.76,
+        "pnlPct": 3.01,
+        "addsDown": 0,
+        "holdHours": 22.9,
+        "fees": 0.67
+      },
+      {
+        "id": "P04",
+        "symbol": "MSTR",
+        "tradeIds": [
+          "T0006",
+          "T0007",
+          "T0010",
+          "T0018"
+        ],
+        "openedAt": "2025-10-09T19:17:37.003Z",
+        "closedAt": "2025-10-30T18:53:24.684Z",
+        "qty": 6.266,
+        "avgEntry": 311.4363,
+        "exitPrice": 268.55,
+        "pnl": -270.91,
+        "pnlPct": -13.88,
+        "addsDown": 2,
+        "holdHours": 503.6,
+        "fees": 2.18
+      },
+      {
+        "id": "P08",
+        "symbol": "WMT",
+        "tradeIds": [
+          "T0012",
+          "T0015",
+          "T0030"
+        ],
+        "openedAt": "2025-10-16T17:47:41.702Z",
+        "closedAt": "2025-11-28T19:54:57.739Z",
+        "qty": 22.9363,
+        "avgEntry": 105.949,
+        "exitPrice": 110.51,
+        "pnl": 101.63,
+        "pnlPct": 4.18,
+        "addsDown": 1,
+        "holdHours": 1034.1,
+        "fees": 2.98
+      },
+      {
+        "id": "P05",
+        "symbol": "COIN",
+        "tradeIds": [
+          "T0014",
+          "T0016",
+          "T0017",
+          "T0021"
+        ],
+        "openedAt": "2025-10-27T17:10:23.013Z",
+        "closedAt": "2025-11-06T20:01:41.676Z",
+        "qty": 11.0229,
+        "avgEntry": 351.794,
+        "exitPrice": 297.3,
+        "pnl": -604.98,
+        "pnlPct": -15.6,
+        "addsDown": 2,
+        "holdHours": 242.9,
+        "fees": 4.3
+      },
+      {
+        "id": "P10",
+        "symbol": "NVDA",
+        "tradeIds": [
+          "T0019",
+          "T0020",
+          "T0024",
+          "T0033"
+        ],
+        "openedAt": "2025-10-30T20:49:17.651Z",
+        "closedAt": "2025-12-12T19:49:03.860Z",
+        "qty": 30.785,
+        "avgEntry": 193.7212,
+        "exitPrice": 175.02,
+        "pnl": -582.52,
+        "pnlPct": -9.77,
+        "addsDown": 2,
+        "holdHours": 1031,
+        "fees": 6.8
+      },
+      {
+        "id": "P06",
+        "symbol": "MSTR",
+        "tradeIds": [
+          "T0022",
+          "T0023",
+          "T0025",
+          "T0026"
+        ],
+        "openedAt": "2025-11-06T20:28:18.872Z",
+        "closedAt": "2025-11-14T14:40:06.759Z",
+        "qty": 22.7441,
+        "avgEntry": 239.39,
+        "exitPrice": 199.43,
+        "pnl": -914.84,
+        "pnlPct": -16.8,
+        "addsDown": 2,
+        "holdHours": 186.2,
+        "fees": 5.99
+      },
+      {
+        "id": "P07",
+        "symbol": "TSLA",
+        "tradeIds": [
+          "T0027",
+          "T0028"
+        ],
+        "openedAt": "2025-11-18T14:51:00.401Z",
+        "closedAt": "2025-11-20T14:43:23.744Z",
+        "qty": 1.7439,
+        "avgEntry": 408.62,
+        "exitPrice": 423.77,
+        "pnl": 25.55,
+        "pnlPct": 3.59,
+        "addsDown": 0,
+        "holdHours": 47.9,
+        "fees": 0.87
+      },
+      {
+        "id": "P09",
+        "symbol": "PLTR",
+        "tradeIds": [
+          "T0029",
+          "T0031"
+        ],
+        "openedAt": "2025-11-24T19:17:34.937Z",
+        "closedAt": "2025-12-02T14:58:42.312Z",
+        "qty": 2.6166,
+        "avgEntry": 161.84,
+        "exitPrice": 169.59,
+        "pnl": 19.76,
+        "pnlPct": 4.67,
+        "addsDown": 0,
+        "holdHours": 187.7,
+        "fees": 0.52
+      },
+      {
+        "id": "P12",
+        "symbol": "WMT",
+        "tradeIds": [
+          "T0032",
+          "T0040"
+        ],
+        "openedAt": "2025-12-03T15:27:02.451Z",
+        "closedAt": "2026-01-13T18:45:59.619Z",
+        "qty": 5.52,
+        "avgEntry": 113.75,
+        "exitPrice": 119.23,
+        "pnl": 29.48,
+        "pnlPct": 4.69,
+        "addsDown": 0,
+        "holdHours": 987.3,
+        "fees": 0.77
+      },
+      {
+        "id": "P11",
+        "symbol": "JPM",
+        "tradeIds": [
+          "T0034",
+          "T0037"
+        ],
+        "openedAt": "2025-12-18T16:13:49.136Z",
+        "closedAt": "2026-01-05T16:48:04.945Z",
+        "qty": 2.1613,
+        "avgEntry": 316.84,
+        "exitPrice": 331.45,
+        "pnl": 30.74,
+        "pnlPct": 4.49,
+        "addsDown": 0,
+        "holdHours": 432.6,
+        "fees": 0.84
+      },
+      {
+        "id": "P14",
+        "symbol": "META",
+        "tradeIds": [
+          "T0035",
+          "T0038",
+          "T0044",
+          "T0045"
+        ],
+        "openedAt": "2025-12-19T14:52:51.199Z",
+        "closedAt": "2026-01-23T20:25:50.099Z",
+        "qty": 2.2515,
+        "avgEntry": 636.0332,
+        "exitPrice": 663.64,
+        "pnl": 60.41,
+        "pnlPct": 4.22,
+        "addsDown": 2,
+        "holdHours": 845.5,
+        "fees": 1.75
+      },
+      {
+        "id": "P15",
+        "symbol": "NVDA",
+        "tradeIds": [
+          "T0036",
+          "T0041",
+          "T0046"
+        ],
+        "openedAt": "2026-01-05T15:54:07.133Z",
+        "closedAt": "2026-01-28T15:32:37.755Z",
+        "qty": 7.3857,
+        "avgEntry": 186.3756,
+        "exitPrice": 191.73,
+        "pnl": 37.86,
+        "pnlPct": 2.75,
+        "addsDown": 1,
+        "holdHours": 551.6,
+        "fees": 1.67
+      },
+      {
+        "id": "P13",
+        "symbol": "XOM",
+        "tradeIds": [
+          "T0039",
+          "T0042"
+        ],
+        "openedAt": "2026-01-13T14:54:31.373Z",
+        "closedAt": "2026-01-14T18:16:05.570Z",
+        "qty": 6.7842,
+        "avgEntry": 126.54,
+        "exitPrice": 130.45,
+        "pnl": 25.48,
+        "pnlPct": 2.97,
+        "addsDown": 0,
+        "holdHours": 27.4,
+        "fees": 1.05
+      },
+      {
+        "id": "P16",
+        "symbol": "WMT",
+        "tradeIds": [
+          "T0043",
+          "T0048"
+        ],
+        "openedAt": "2026-01-14T20:26:38.599Z",
+        "closedAt": "2026-02-02T20:16:07.904Z",
+        "qty": 7.1271,
+        "avgEntry": 120.58,
+        "exitPrice": 123.76,
+        "pnl": 21.61,
+        "pnlPct": 2.52,
+        "addsDown": 0,
+        "holdHours": 455.8,
+        "fees": 1.05
+      },
+      {
+        "id": "P17",
+        "symbol": "XOM",
+        "tradeIds": [
+          "T0047",
+          "T0049"
+        ],
+        "openedAt": "2026-01-30T20:02:00.918Z",
+        "closedAt": "2026-02-04T18:37:48.890Z",
+        "qty": 3.0861,
+        "avgEntry": 140.46,
+        "exitPrice": 147.46,
+        "pnl": 21.07,
+        "pnlPct": 4.86,
+        "addsDown": 0,
+        "holdHours": 118.6,
+        "fees": 0.53
+      },
+      {
+        "id": "P19",
+        "symbol": "AMD",
+        "tradeIds": [
+          "T0050",
+          "T0051",
+          "T0058",
+          "T0061"
+        ],
+        "openedAt": "2026-02-11T16:44:49.902Z",
+        "closedAt": "2026-03-25T16:33:48.793Z",
+        "qty": 16.8393,
+        "avgEntry": 203.4011,
+        "exitPrice": 213.43,
+        "pnl": 164.66,
+        "pnlPct": 4.81,
+        "addsDown": 2,
+        "holdHours": 1007.8,
+        "fees": 4.22
+      },
+      {
+        "id": "P20",
+        "symbol": "JPM",
+        "tradeIds": [
+          "T0052",
+          "T0054",
+          "T0059",
+          "T0062"
+        ],
+        "openedAt": "2026-02-19T18:50:59.325Z",
+        "closedAt": "2026-04-02T19:38:34.812Z",
+        "qty": 5.8461,
+        "avgEntry": 295.3429,
+        "exitPrice": 294.6,
+        "pnl": -6.41,
+        "pnlPct": -0.37,
+        "addsDown": 2,
+        "holdHours": 1008.8,
+        "fees": 2.07
+      },
+      {
+        "id": "P18",
+        "symbol": "TSLA",
+        "tradeIds": [
+          "T0053",
+          "T0055",
+          "T0057"
+        ],
+        "openedAt": "2026-02-20T16:19:12.506Z",
+        "closedAt": "2026-02-25T19:24:31.711Z",
+        "qty": 5.9325,
+        "avgEntry": 402.6385,
+        "exitPrice": 414.93,
+        "pnl": 70.04,
+        "pnlPct": 2.93,
+        "addsDown": 1,
+        "holdHours": 123.1,
+        "fees": 2.92
+      },
+      {
+        "id": "P21",
+        "symbol": "KO",
+        "tradeIds": [
+          "T0056",
+          "T0060",
+          "T0064"
+        ],
+        "openedAt": "2026-02-25T15:17:45.088Z",
+        "closedAt": "2026-04-09T20:06:07.197Z",
+        "qty": 10.5199,
+        "avgEntry": 78.5065,
+        "exitPrice": 78.18,
+        "pnl": -4.41,
+        "pnlPct": -0.53,
+        "addsDown": 1,
+        "holdHours": 1036.8,
+        "fees": 0.98
+      },
+      {
+        "id": "P28",
+        "symbol": "JPM",
+        "tradeIds": [
+          "T0063",
+          "T0083",
+          "T0085"
+        ],
+        "openedAt": "2026-04-09T16:56:29.641Z",
+        "closedAt": "2026-05-21T20:11:02.161Z",
+        "qty": 8.0223,
+        "avgEntry": 301.4508,
+        "exitPrice": 303,
+        "pnl": 9.52,
+        "pnlPct": 0.39,
+        "addsDown": 1,
+        "holdHours": 1011.2,
+        "fees": 2.91
+      },
+      {
+        "id": "P22",
+        "symbol": "META",
+        "tradeIds": [
+          "T0065",
+          "T0066"
+        ],
+        "openedAt": "2026-04-13T17:33:27.031Z",
+        "closedAt": "2026-04-14T17:13:15.160Z",
+        "qty": 1.6061,
+        "avgEntry": 634.3,
+        "exitPrice": 663.54,
+        "pnl": 45.71,
+        "pnlPct": 4.49,
+        "addsDown": 0,
+        "holdHours": 23.7,
+        "fees": 1.25
+      },
+      {
+        "id": "P23",
+        "symbol": "WMT",
+        "tradeIds": [
+          "T0067",
+          "T0068"
+        ],
+        "openedAt": "2026-04-15T17:39:47.812Z",
+        "closedAt": "2026-04-20T16:38:45.299Z",
+        "qty": 6.0182,
+        "avgEntry": 124.45,
+        "exitPrice": 128.73,
+        "pnl": 24.85,
+        "pnlPct": 3.32,
+        "addsDown": 0,
+        "holdHours": 119,
+        "fees": 0.91
+      },
+      {
+        "id": "P24",
+        "symbol": "MSTR",
+        "tradeIds": [
+          "T0069",
+          "T0070"
+        ],
+        "openedAt": "2026-04-20T17:51:55.408Z",
+        "closedAt": "2026-04-22T19:33:53.492Z",
+        "qty": 3.4211,
+        "avgEntry": 170.61,
+        "exitPrice": 178.58,
+        "pnl": 26.55,
+        "pnlPct": 4.55,
+        "addsDown": 0,
+        "holdHours": 49.7,
+        "fees": 0.72
+      },
+      {
+        "id": "P25",
+        "symbol": "AMD",
+        "tradeIds": [
+          "T0071",
+          "T0072"
+        ],
+        "openedAt": "2026-04-29T19:56:36.642Z",
+        "closedAt": "2026-05-01T14:43:05.130Z",
+        "qty": 3.123,
+        "avgEntry": 339.51,
+        "exitPrice": 355.03,
+        "pnl": 47.16,
+        "pnlPct": 4.45,
+        "addsDown": 0,
+        "holdHours": 42.8,
+        "fees": 1.31
+      },
+      {
+        "id": "P26",
+        "symbol": "COIN",
+        "tradeIds": [
+          "T0073",
+          "T0074",
+          "T0076",
+          "T0078"
+        ],
+        "openedAt": "2026-05-05T19:34:12.061Z",
+        "closedAt": "2026-05-11T17:24:47.041Z",
+        "qty": 9.9211,
+        "avgEntry": 196.2843,
+        "exitPrice": 204.05,
+        "pnl": 74.68,
+        "pnlPct": 3.84,
+        "addsDown": 2,
+        "holdHours": 141.8,
+        "fees": 2.38
+      },
+      {
+        "id": "P27",
+        "symbol": "MSTR",
+        "tradeIds": [
+          "T0075",
+          "T0079"
+        ],
+        "openedAt": "2026-05-06T19:09:36.214Z",
+        "closedAt": "2026-05-11T18:54:59.332Z",
+        "qty": 2.7301,
+        "avgEntry": 185.87,
+        "exitPrice": 194.49,
+        "pnl": 22.91,
+        "pnlPct": 4.52,
+        "addsDown": 0,
+        "holdHours": 119.8,
+        "fees": 0.62
+      },
+      {
+        "id": "P29",
+        "symbol": "AMD",
+        "tradeIds": [
+          "T0077",
+          "T0080",
+          "T0082",
+          "T0087"
+        ],
+        "openedAt": "2026-05-11T16:40:20.980Z",
+        "closedAt": "2026-05-22T15:30:24.154Z",
+        "qty": 5.7127,
+        "avgEntry": 437.5572,
+        "exitPrice": 461.71,
+        "pnl": 134.89,
+        "pnlPct": 5.4,
+        "addsDown": 2,
+        "holdHours": 262.8,
+        "fees": 3.09
+      },
+      {
+        "id": "P33",
+        "symbol": "NVDA",
+        "tradeIds": [
+          "T0081",
+          "T0086",
+          "T0091",
+          "T0099"
+        ],
+        "openedAt": "2026-05-15T18:50:05.027Z",
+        "closedAt": "2026-06-30T20:19:03.310Z",
+        "qty": 10.5122,
+        "avgEntry": 216.5491,
+        "exitPrice": 200.09,
+        "pnl": -175.65,
+        "pnlPct": -7.72,
+        "addsDown": 2,
+        "holdHours": 1105.5,
+        "fees": 2.63
+      },
+      {
+        "id": "P35",
+        "symbol": "WMT",
+        "tradeIds": [
+          "T0084",
+          "T0089",
+          "T0100",
+          "T0103"
+        ],
+        "openedAt": "2026-05-21T19:39:06.296Z",
+        "closedAt": "2026-07-07T20:16:20.418Z",
+        "qty": 27.6454,
+        "avgEntry": 117.7763,
+        "exitPrice": 111.54,
+        "pnl": -176.19,
+        "pnlPct": -5.41,
+        "addsDown": 2,
+        "holdHours": 1128.6,
+        "fees": 3.8
+      },
+      {
+        "id": "P30",
+        "symbol": "KO",
+        "tradeIds": [
+          "T0088",
+          "T0090",
+          "T0092"
+        ],
+        "openedAt": "2026-05-27T19:53:40.563Z",
+        "closedAt": "2026-06-10T17:36:29.459Z",
+        "qty": 17.2377,
+        "avgEntry": 79.4877,
+        "exitPrice": 83.25,
+        "pnl": 63.17,
+        "pnlPct": 4.61,
+        "addsDown": 1,
+        "holdHours": 333.7,
+        "fees": 1.68
+      },
+      {
+        "id": "P31",
+        "symbol": "AMD",
+        "tradeIds": [
+          "T0093",
+          "T0094"
+        ],
+        "openedAt": "2026-06-23T15:31:41.494Z",
+        "closedAt": "2026-06-25T16:24:29.851Z",
+        "qty": 1.2672,
+        "avgEntry": 528.39,
+        "exitPrice": 546.33,
+        "pnl": 21.91,
+        "pnlPct": 3.27,
+        "addsDown": 0,
+        "holdHours": 48.9,
+        "fees": 0.82
+      },
+      {
+        "id": "P32",
+        "symbol": "MSTR",
+        "tradeIds": [
+          "T0095",
+          "T0096",
+          "T0098"
+        ],
+        "openedAt": "2026-06-25T19:01:19.354Z",
+        "closedAt": "2026-06-29T20:12:10.175Z",
+        "qty": 10.3012,
+        "avgEntry": 90.1297,
+        "exitPrice": 92.77,
+        "pnl": 26.07,
+        "pnlPct": 2.81,
+        "addsDown": 1,
+        "holdHours": 97.2,
+        "fees": 1.13
+      },
+      {
+        "id": "P34",
+        "symbol": "META",
+        "tradeIds": [
+          "T0097",
+          "T0101"
+        ],
+        "openedAt": "2026-06-29T18:42:35.312Z",
+        "closedAt": "2026-07-01T20:10:29.590Z",
+        "qty": 0.7151,
+        "avgEntry": 567.87,
+        "exitPrice": 595.33,
+        "pnl": 19.14,
+        "pnlPct": 4.71,
+        "addsDown": 0,
+        "holdHours": 49.5,
+        "fees": 0.5
+      },
+      {
+        "id": "P36",
+        "symbol": "META",
+        "tradeIds": [
+          "T0102",
+          "T0104",
+          "T0106"
+        ],
+        "openedAt": "2026-07-07T17:16:00.918Z",
+        "closedAt": "2026-07-10T17:22:54.454Z",
+        "qty": 3.4035,
+        "avgEntry": 602.6205,
+        "exitPrice": 658.01,
+        "pnl": 185.88,
+        "pnlPct": 9.06,
+        "addsDown": 1,
+        "holdHours": 72.1,
+        "fees": 2.57
+      },
+      {
+        "id": "P38",
+        "symbol": "NVDA",
+        "tradeIds": [
+          "T0105",
+          "T0109"
+        ],
+        "openedAt": "2026-07-09T20:03:00.714Z",
+        "closedAt": "2026-07-15T20:25:39.972Z",
+        "qty": 2.0084,
+        "avgEntry": 203.96,
+        "exitPrice": 213.65,
+        "pnl": 18.95,
+        "pnlPct": 4.63,
+        "addsDown": 0,
+        "holdHours": 144.4,
+        "fees": 0.51
+      },
+      {
+        "id": "P37",
+        "symbol": "PLTR",
+        "tradeIds": [
+          "T0107",
+          "T0108"
+        ],
+        "openedAt": "2026-07-14T17:18:11.323Z",
+        "closedAt": "2026-07-15T15:41:30.508Z",
+        "qty": 5.5819,
+        "avgEntry": 132.41,
+        "exitPrice": 136.18,
+        "pnl": 20.14,
+        "pnlPct": 2.73,
+        "addsDown": 0,
+        "holdHours": 22.4,
+        "fees": 0.9
+      },
+      {
+        "id": "P39",
+        "symbol": "NVDA",
+        "tradeIds": [
+          "T0110",
+          "T0111",
+          "T0112"
+        ],
+        "openedAt": "2026-07-16T18:38:09.980Z",
+        "closedAt": "2026-07-22T18:59:21.412Z",
+        "qty": 9.6784,
+        "avgEntry": 204.689,
+        "exitPrice": 210.56,
+        "pnl": 54.44,
+        "pnlPct": 2.75,
+        "addsDown": 1,
+        "holdHours": 144.4,
+        "fees": 2.4
+      },
+      {
+        "id": "P40",
+        "symbol": "COIN",
+        "tradeIds": [
+          "T0113",
+          "T0114"
+        ],
+        "openedAt": "2026-07-29T18:44:05.675Z",
+        "closedAt": "2026-07-31T17:38:23.721Z",
+        "qty": 5.5659,
+        "avgEntry": 166.45,
+        "exitPrice": 141.99,
+        "pnl": -137.17,
+        "pnlPct": -14.81,
+        "addsDown": 0,
+        "holdHours": 46.9,
+        "fees": 1.03
+      },
+      {
+        "id": "P41",
+        "symbol": "KO",
+        "tradeIds": [
+          "T0115",
+          "T0116"
+        ],
+        "openedAt": "2026-07-31T18:01:18.892Z",
+        "closedAt": "2026-08-19T19:24:23.478Z",
+        "qty": 19.8373,
+        "avgEntry": 87.74,
+        "exitPrice": 90.46,
+        "pnl": 51.84,
+        "pnlPct": 2.98,
+        "addsDown": 0,
+        "holdHours": 457.4,
+        "fees": 2.12
+      }
+    ],
+    "dropped": [],
+    "replays": [
+      {
+        "id": "no-averaging-down",
+        "rule": "Never add to a position trading below your first entry",
+        "status": "computed",
+        "affected": [
+          {
+            "id": "P03",
+            "actual": 111.69,
+            "replayed": -25.18
+          },
+          {
+            "id": "P02",
+            "actual": 72.02,
+            "replayed": 0.56
+          },
+          {
+            "id": "P04",
+            "actual": -270.91,
+            "replayed": -126.57
+          },
+          {
+            "id": "P08",
+            "actual": 101.63,
+            "replayed": 14.05
+          },
+          {
+            "id": "P05",
+            "actual": -604.98,
+            "replayed": -232.2
+          },
+          {
+            "id": "P10",
+            "actual": -582.52,
+            "replayed": -287.86
+          },
+          {
+            "id": "P06",
+            "actual": -914.84,
+            "replayed": -380.3
+          },
+          {
+            "id": "P14",
+            "actual": 60.41,
+            "replayed": -2.69
+          },
+          {
+            "id": "P15",
+            "actual": 37.86,
+            "replayed": 1.82
+          },
+          {
+            "id": "P19",
+            "actual": 164.66,
+            "replayed": -15.81
+          },
+          {
+            "id": "P20",
+            "actual": -6.41,
+            "replayed": -27.4
+          },
+          {
+            "id": "P18",
+            "actual": 70.04,
+            "replayed": 7.6
+          },
+          {
+            "id": "P21",
+            "actual": -4.41,
+            "replayed": -13.88
+          },
+          {
+            "id": "P28",
+            "actual": 9.52,
+            "replayed": -25.4
+          },
+          {
+            "id": "P26",
+            "actual": 74.68,
+            "replayed": -5.96
+          },
+          {
+            "id": "P29",
+            "actual": 134.89,
+            "replayed": -1.65
+          },
+          {
+            "id": "P33",
+            "actual": -175.65,
+            "replayed": -99.55
+          },
+          {
+            "id": "P35",
+            "actual": -176.19,
+            "replayed": -120.3
+          },
+          {
+            "id": "P30",
+            "actual": 63.17,
+            "replayed": 7.96
+          },
+          {
+            "id": "P32",
+            "actual": 26.07,
+            "replayed": -1.19
+          },
+          {
+            "id": "P36",
+            "actual": 185.88,
+            "replayed": 69.05
+          },
+          {
+            "id": "P39",
+            "actual": 54.44,
+            "replayed": 3.91
+          }
+        ],
+        "actualPnl": -1568.95,
+        "replayedPnl": -1260.99,
+        "delta": 307.96
+      },
+      {
+        "id": "no-reentry-after-loss",
+        "rule": "Wait 3 hours after closing a loss before opening anything new",
+        "status": "computed",
+        "affected": [
+          {
+            "id": "P10",
+            "actual": -582.52,
+            "replayed": 0
+          },
+          {
+            "id": "P06",
+            "actual": -914.84,
+            "replayed": 0
+          },
+          {
+            "id": "P41",
+            "actual": 51.84,
+            "replayed": 0
+          }
+        ],
+        "actualPnl": -1445.52,
+        "replayedPnl": 0,
+        "delta": 1445.52
+      },
+      {
+        "id": "stop-loss",
+        "rule": "Exit any position that falls 5% below your entry",
+        "status": "computed",
+        "source": "Yahoo Finance",
+        "affected": [
+          {
+            "id": "P03",
+            "actual": 111.69,
+            "replayed": -157.06
+          },
+          {
+            "id": "P04",
+            "actual": -270.91,
+            "replayed": -99.75
+          },
+          {
+            "id": "P08",
+            "actual": 101.63,
+            "replayed": -124.48
+          },
+          {
+            "id": "P05",
+            "actual": -604.98,
+            "replayed": -198.19
+          },
+          {
+            "id": "P10",
+            "actual": -582.52,
+            "replayed": -304.99
+          },
+          {
+            "id": "P06",
+            "actual": -914.84,
+            "replayed": -278.23
+          },
+          {
+            "id": "P14",
+            "actual": 60.41,
+            "replayed": -73.35
+          },
+          {
+            "id": "P19",
+            "actual": 164.66,
+            "replayed": -175.48
+          },
+          {
+            "id": "P20",
+            "actual": -6.41,
+            "replayed": -88.4
+          },
+          {
+            "id": "P21",
+            "actual": -4.41,
+            "replayed": -42.27
+          },
+          {
+            "id": "P26",
+            "actual": 74.68,
+            "replayed": -99.75
+          },
+          {
+            "id": "P27",
+            "actual": 22.91,
+            "replayed": -25.99
+          },
+          {
+            "id": "P29",
+            "actual": 134.89,
+            "replayed": -128.07
+          },
+          {
+            "id": "P33",
+            "actual": -175.65,
+            "replayed": -116.45
+          },
+          {
+            "id": "P35",
+            "actual": -176.19,
+            "replayed": -166.6
+          },
+          {
+            "id": "P32",
+            "actual": 26.07,
+            "replayed": -47.55
+          }
+        ],
+        "actualPnl": -2038.97,
+        "replayedPnl": -2126.61,
+        "delta": -87.64
+      }
+    ],
+    "market": {
+      "source": "alternative.me",
+      "coverage": {
+        "matched": 41,
+        "of": 41
+      },
+      "avgIndexAtLosingEntries": 33.7,
+      "avgIndexAtWinningEntries": 27.5,
+      "bands": [
+        {
+          "band": "Extreme Fear",
+          "opened": 17,
+          "lost": 2,
+          "pnl": 567.7,
+          "positionIds": [
+            "P07",
+            "P09",
+            "P11",
+            "P14",
+            "P17",
+            "P19",
+            "P20",
+            "P18",
+            "P21",
+            "P28",
+            "P22",
+            "P23",
+            "P31",
+            "P32",
+            "P34",
+            "P38",
+            "P37"
+          ]
+        },
+        {
+          "band": "Fear",
+          "opened": 15,
+          "lost": 5,
+          "pnl": -1362.88,
+          "positionIds": [
+            "P08",
+            "P10",
+            "P06",
+            "P12",
+            "P15",
+            "P13",
+            "P24",
+            "P25",
+            "P33",
+            "P35",
+            "P30",
+            "P36",
+            "P39",
+            "P40",
+            "P41"
+          ]
+        },
+        {
+          "band": "Neutral",
+          "opened": 5,
+          "lost": 1,
+          "pnl": -350.89,
+          "positionIds": [
+            "P05",
+            "P16",
+            "P26",
+            "P27",
+            "P29"
+          ]
+        },
+        {
+          "band": "Greed",
+          "opened": 4,
+          "lost": 1,
+          "pnl": -70.44,
+          "positionIds": [
+            "P03",
+            "P02",
+            "P01",
+            "P04"
+          ]
+        },
+        {
+          "band": "Extreme Greed",
+          "opened": 0,
+          "lost": 0,
+          "pnl": 0,
+          "positionIds": []
+        }
+      ],
+      "entries": [
+        {
+          "id": "P03",
+          "value": 64,
+          "band": "Greed",
+          "won": true,
+          "pnl": 111.69
+        },
+        {
+          "id": "P02",
+          "value": 63,
+          "band": "Greed",
+          "won": true,
+          "pnl": 72.02
+        },
+        {
+          "id": "P01",
+          "value": 60,
+          "band": "Greed",
+          "won": true,
+          "pnl": 16.76
+        },
+        {
+          "id": "P04",
+          "value": 70,
+          "band": "Greed",
+          "won": false,
+          "pnl": -270.91
+        },
+        {
+          "id": "P08",
+          "value": 28,
+          "band": "Fear",
+          "won": true,
+          "pnl": 101.63
+        },
+        {
+          "id": "P05",
+          "value": 51,
+          "band": "Neutral",
+          "won": false,
+          "pnl": -604.98
+        },
+        {
+          "id": "P10",
+          "value": 34,
+          "band": "Fear",
+          "won": false,
+          "pnl": -582.52
+        },
+        {
+          "id": "P06",
+          "value": 27,
+          "band": "Fear",
+          "won": false,
+          "pnl": -914.84
+        },
+        {
+          "id": "P07",
+          "value": 11,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 25.55
+        },
+        {
+          "id": "P09",
+          "value": 19,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 19.76
+        },
+        {
+          "id": "P12",
+          "value": 28,
+          "band": "Fear",
+          "won": true,
+          "pnl": 29.48
+        },
+        {
+          "id": "P11",
+          "value": 17,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 30.74
+        },
+        {
+          "id": "P14",
+          "value": 16,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 60.41
+        },
+        {
+          "id": "P15",
+          "value": 26,
+          "band": "Fear",
+          "won": true,
+          "pnl": 37.86
+        },
+        {
+          "id": "P13",
+          "value": 26,
+          "band": "Fear",
+          "won": true,
+          "pnl": 25.48
+        },
+        {
+          "id": "P16",
+          "value": 48,
+          "band": "Neutral",
+          "won": true,
+          "pnl": 21.61
+        },
+        {
+          "id": "P17",
+          "value": 16,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 21.07
+        },
+        {
+          "id": "P19",
+          "value": 11,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 164.66
+        },
+        {
+          "id": "P20",
+          "value": 9,
+          "band": "Extreme Fear",
+          "won": false,
+          "pnl": -6.41
+        },
+        {
+          "id": "P18",
+          "value": 7,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 70.04
+        },
+        {
+          "id": "P21",
+          "value": 11,
+          "band": "Extreme Fear",
+          "won": false,
+          "pnl": -4.41
+        },
+        {
+          "id": "P28",
+          "value": 14,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 9.52
+        },
+        {
+          "id": "P22",
+          "value": 12,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 45.71
+        },
+        {
+          "id": "P23",
+          "value": 23,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 24.85
+        },
+        {
+          "id": "P24",
+          "value": 29,
+          "band": "Fear",
+          "won": true,
+          "pnl": 26.55
+        },
+        {
+          "id": "P25",
+          "value": 26,
+          "band": "Fear",
+          "won": true,
+          "pnl": 47.16
+        },
+        {
+          "id": "P26",
+          "value": 50,
+          "band": "Neutral",
+          "won": true,
+          "pnl": 74.68
+        },
+        {
+          "id": "P27",
+          "value": 46,
+          "band": "Neutral",
+          "won": true,
+          "pnl": 22.91
+        },
+        {
+          "id": "P29",
+          "value": 48,
+          "band": "Neutral",
+          "won": true,
+          "pnl": 134.89
+        },
+        {
+          "id": "P33",
+          "value": 43,
+          "band": "Fear",
+          "won": false,
+          "pnl": -175.65
+        },
+        {
+          "id": "P35",
+          "value": 29,
+          "band": "Fear",
+          "won": false,
+          "pnl": -176.19
+        },
+        {
+          "id": "P30",
+          "value": 25,
+          "band": "Fear",
+          "won": true,
+          "pnl": 63.17
+        },
+        {
+          "id": "P31",
+          "value": 23,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 21.91
+        },
+        {
+          "id": "P32",
+          "value": 12,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 26.07
+        },
+        {
+          "id": "P34",
+          "value": 12,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 19.14
+        },
+        {
+          "id": "P36",
+          "value": 27,
+          "band": "Fear",
+          "won": true,
+          "pnl": 185.88
+        },
+        {
+          "id": "P38",
+          "value": 22,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 18.95
+        },
+        {
+          "id": "P37",
+          "value": 22,
+          "band": "Extreme Fear",
+          "won": true,
+          "pnl": 20.14
+        },
+        {
+          "id": "P39",
+          "value": 25,
+          "band": "Fear",
+          "won": true,
+          "pnl": 54.44
+        },
+        {
+          "id": "P40",
+          "value": 29,
+          "band": "Fear",
+          "won": false,
+          "pnl": -137.17
+        },
+        {
+          "id": "P41",
+          "value": 25,
+          "band": "Fear",
+          "won": true,
+          "pnl": 51.84
+        }
+      ]
+    },
+    "technicals": {
+      "source": "bitget-signal",
+      "fetchedAt": "2026-09-14T15:41:40.119Z",
+      "timeframe": "1d",
+      "snapshots": [
+        {
+          "symbol": "TSLA",
+          "pair": "TSLA/USDT",
+          "price": 363.53,
+          "rsi": 54.26,
+          "averages": [
+            {
+              "days": 7,
+              "value": 365.32,
+              "above": false
+            },
+            {
+              "days": 25,
+              "value": 359.0952,
+              "above": true
+            },
+            {
+              "days": 99,
+              "value": 365.8691,
+              "above": false
+            }
+          ],
+          "macdHistogram": 4.555185,
+          "dailyRangePct": 2.93,
+          "support": 347.99,
+          "resistance": 365.99
+        },
+        {
+          "symbol": "PLTR",
+          "pair": "PLTR/USDT",
+          "price": 171.74,
+          "rsi": 50.17,
+          "averages": [
+            {
+              "days": 7,
+              "value": 168.3243,
+              "above": true
+            },
+            {
+              "days": 25,
+              "value": 176.3268,
+              "above": false
+            },
+            {
+              "days": 99,
+              "value": 147.0024,
+              "above": true
+            }
+          ],
+          "macdHistogram": 1.356802,
+          "dailyRangePct": 3.33,
+          "support": 171.15,
+          "resistance": 178.37
+        },
+        {
+          "symbol": "AMD",
+          "pair": "AMD/USDT",
+          "price": 492.85,
+          "rsi": 51.54,
+          "averages": [
+            {
+              "days": 7,
+              "value": 507.35,
+              "above": false
+            },
+            {
+              "days": 25,
+              "value": 480.6324,
+              "above": true
+            },
+            {
+              "days": 99,
+              "value": 504.2138,
+              "above": false
+            }
+          ],
+          "macdHistogram": 3.18749,
+          "dailyRangePct": 3.73,
+          "support": 469.83,
+          "resistance": 516.8
+        },
+        {
+          "symbol": "MSTR",
+          "pair": "MSTR/USDT",
+          "price": 135.7,
+          "rsi": 57.6,
+          "averages": [
+            {
+              "days": 7,
+              "value": 131.8057,
+              "above": true
+            },
+            {
+              "days": 25,
+              "value": 131.2016,
+              "above": true
+            },
+            {
+              "days": 99,
+              "value": 108.7423,
+              "above": true
+            }
+          ],
+          "macdHistogram": 6.72873,
+          "dailyRangePct": 5.65,
+          "support": 123.53,
+          "resistance": 139.06
+        },
+        {
+          "symbol": "WMT",
+          "pair": "WMT/USDT",
+          "price": 108.95,
+          "rsi": 57.01,
+          "averages": [
+            {
+              "days": 7,
+              "value": 106.8057,
+              "above": true
+            },
+            {
+              "days": 25,
+              "value": 105.684,
+              "above": true
+            },
+            {
+              "days": 99,
+              "value": 112.0459,
+              "above": false
+            }
+          ],
+          "macdHistogram": -0.848567,
+          "dailyRangePct": 1.56,
+          "support": 105.86,
+          "resistance": 112.85
+        },
+        {
+          "symbol": "COIN",
+          "pair": "COIN/USDT",
+          "price": 188.08,
+          "rsi": 57.89,
+          "averages": [
+            {
+              "days": 7,
+              "value": 176.5771,
+              "above": true
+            },
+            {
+              "days": 25,
+              "value": 182.1124,
+              "above": true
+            },
+            {
+              "days": 99,
+              "value": 164.388,
+              "above": true
+            }
+          ],
+          "macdHistogram": 3.435781,
+          "dailyRangePct": 4.69,
+          "support": 175.49,
+          "resistance": 189.38
+        },
+        {
+          "symbol": "NVDA",
+          "pair": "NVDA/USDT",
+          "price": 212.26,
+          "rsi": 39.19,
+          "averages": [
+            {
+              "days": 7,
+              "value": 218.77,
+              "above": false
+            },
+            {
+              "days": 25,
+              "value": 220.8676,
+              "above": false
+            },
+            {
+              "days": 99,
+              "value": 210.8612,
+              "above": true
+            }
+          ],
+          "macdHistogram": 1.462354,
+          "dailyRangePct": 2.52,
+          "support": 208.98,
+          "resistance": 225.77
+        },
+        {
+          "symbol": "JPM",
+          "pair": "JPM/USDT",
+          "price": 351.44,
+          "rsi": 40.92,
+          "averages": [
+            {
+              "days": 7,
+              "value": 354.8814,
+              "above": false
+            },
+            {
+              "days": 25,
+              "value": 356.2816,
+              "above": false
+            },
+            {
+              "days": 99,
+              "value": 345.5411,
+              "above": true
+            }
+          ],
+          "macdHistogram": 0.107872,
+          "dailyRangePct": 1.53,
+          "support": null,
+          "resistance": 360.16
+        },
+        {
+          "symbol": "META",
+          "pair": "META/USDT",
+          "price": 660.16,
+          "rsi": 72.16,
+          "averages": [
+            {
+              "days": 7,
+              "value": 643.7843,
+              "above": true
+            },
+            {
+              "days": 25,
+              "value": 600.0768,
+              "above": true
+            },
+            {
+              "days": 99,
+              "value": 594.9366,
+              "above": true
+            }
+          ],
+          "macdHistogram": 13.771676,
+          "dailyRangePct": 2.57,
+          "support": 545.51,
+          "resistance": null
+        }
+      ],
+      "missing": [
+        "XOM",
+        "KO"
+      ]
+    }
+  }
+}

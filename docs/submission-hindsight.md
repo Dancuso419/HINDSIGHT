@@ -38,7 +38,7 @@ Why existing tools fall short: the category (TradeZella, TraderSync, Tradervue, 
 
 Target user: a discretionary retail trader of tokenized US stocks with an account under roughly $10k, making 5–20 trades a month, concentrated in volatile tech-adjacent names, with no journalling habit. Moderate-to-high risk appetite; trades on intuition and momentum; notices they are losing money over time but cannot say why.
 
-Use case: export the trade history once, ask one question in plain language ("Why do I keep losing money on tech-adjacent positions?"), and get an answer in under a minute.
+Use case: bring the trade history once — as a CSV export, a table pasted from the exchange's order-history page, or screenshots of the order history for apps that cannot export — ask one question in plain language ("Why do I keep losing money on tech-adjacent positions?"), and get an answer in under a minute. Screenshot imports are read by the model, then every row is shown to the trader to check and correct, and a year the screenshot does not show must be typed in rather than guessed.
 
 Product value, from one upload:
 - The 2–3 habits that cost this trader the most, each tied to the specific positions and fills behind it — every citation is clickable and opens the underlying trades.
@@ -55,6 +55,7 @@ Product and pipeline metrics (observed on the deployed build and its test suite)
 - Fabricated citations reaching the screen: 0 by construction — observed in the automated check, which feeds a report citing non-existent positions and confirms they are stripped and a pattern left with no real evidence is dropped.
 - Arithmetic the model performs: none required — every figure in the prompt is precomputed (win rate, hold times, replay deltas, re-entry gaps). Observed that the first model build subtracted timestamps itself; those gaps were then moved into the computed facts.
 - bitget-signal technical-analysis coverage: 9 of 11 sample stocks returned live data — observed 2026-09-14 (no pair for KO or XOM).
+- Screenshot import accuracy: 102 of 102 fields correct and 0 years invented, on two rendered test screenshots with known ground truth (a desktop order table and a year-less phone card list) — observed. These are clean renders; real phone captures will be noisier, which is why every row is reviewed before use.
 
 Demonstration data (synthetic, clearly labelled in the product): the bundled sample is a synthetic trader with fixed habits trading 11 real US stocks on real daily prices (every fill is inside that day's real high–low range). On it, Hindsight finds that the trader's two re-entries within two hours of a loss, at roughly 4× usual size, lost $1,497 — more than their entire −$1,217 net result — and that waiting three hours after any loss would have saved $1,445.52 (observed output on synthetic data).
 
@@ -67,7 +68,7 @@ Validation plan (target), running before and after submission:
 **4. Progress**
 
 Built and deployed (live, no login):
-- Ingest: CSV parsing with header aliases and per-row error reporting; fills grouped into round-trip positions.
+- Ingest: three ways in — CSV upload, pasting a copied order table (reads "218.29 USDT", "NVDA/USDT", "Open long"/"Close long"), and screenshots of the order history read by the model with a mandatory review-and-edit step. Per-row error reporting; fills grouped into round-trip positions.
 - Analyse: all behavioural facts computed deterministically; replays of three rules on the trader's own history; entry-day market sentiment; a server-side LLM pass constrained by a JSON schema, re-validated with Zod, with a citation guard.
 - Report: patterns with clickable evidence that scrolls to and expands the underlying fills, the rule replays, sentiment-at-entry chart with a table view, a live technical picture per traded stock, and the checklist.
 - A landing page that explains the mechanism with working diagrams built from real pipeline output.
@@ -79,7 +80,7 @@ Problems hit and how they were fixed:
 - On an earlier version of the sample, the report said averaging down "cost $1,382"; replaying that history showed the true cost was $628.96 — the rest would have been lost on the first entry anyway. The model now receives replay figures and is instructed that a group's total loss is not what a habit cost.
 - bitget-signal's historical tools (sentiment history, stock prices) have been failing upstream; every analysis tries the Skill first and falls back automatically (alternative.me, Yahoo Finance, committed snapshots), with the source named on screen. Its technical-analysis Skill returns Bollinger bands with upper and lower swapped and a directional verdict built partly on them; both are deliberately excluded.
 
-Next steps: campus testers; native parsing of Bitget export formats; switching all market context back to bitget-signal as its historical tools recover; a stock-market sentiment measure to replace the crypto Fear & Greed index for equity histories.
+Next steps: campus testers, including real phone screenshots to measure extraction accuracy beyond clean renders; native parsing of Bitget export formats; switching all market context back to bitget-signal as its historical tools recover; a stock-market sentiment measure to replace the crypto Fear & Greed index for equity histories.
 
 Stack: Next.js, TypeScript, Tailwind CSS, Lenis, PapaParse, Zod; deployed on Vercel. Data: Bitget bitget-signal MCP (technical_analysis live; sentiment_index and global_assets with fallbacks), alternative.me, Yahoo Finance.
 
@@ -90,9 +91,10 @@ The most useful thing AI can do for a retail trader is not predict the next move
 ## 14. Submission Material Links (one per line, labelled)
 
 Live demo (no login): https://hindsight-brown-eight.vercel.app
-GitHub repository: https://github.com/Dancuso419/HINDGESIGHT
-Run record — screen recording of one complete research task (question → actionable insight): TODO — record and paste link
-Demo video (≤3 min, X or YouTube): TODO — paste link
+GitHub repository (public, with README): https://github.com/Dancuso419/HINDGESIGHT
+Run record — full research-task walkthrough, question to actionable insight, from a real production run: https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/WALKTHROUGH.md
+Run record — raw output of that run: https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/walkthrough-run.json
+Demo video (≤3 min, X or YouTube — strongly recommended, not required): TODO — paste link if recorded
 
 ## 15. Role of the LLM / AI in Your Project
 
