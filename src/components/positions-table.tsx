@@ -88,7 +88,7 @@ export function PositionsTable({
                   <span className={`font-mono text-xs ${isProof ? "font-semibold text-white" : "text-grey"}`}>
                     {p.id}
                   </span>
-                  {isProof && <span className="sr-only"> — cited as proof</span>}
+                  {isProof && <span className="sr-only">, cited as proof</span>}
 
                   {isOpen && (
                     <ul className="mt-3 space-y-1.5 rounded-xl border border-line bg-black/40 p-3 font-mono text-[11px] text-grey">

@@ -106,7 +106,7 @@ export function TechnicalsView({ technicals, facts }: { technicals: Technicals; 
       <h3 className="headline text-2xl text-white sm:text-[1.75rem]">Where the stocks you traded stand today</h3>
       <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-grey">
         Your record in each stock beside its current daily technical picture. This is context for reading the post-mortem,
-        not a signal — nothing here says what to do next, and none of it was used to write the report above.
+        not a signal. Nothing here says what to do next, and none of it was used to write the report above.
       </p>
 
       {ordered.length ? (

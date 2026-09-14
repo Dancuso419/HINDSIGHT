@@ -49,7 +49,7 @@ export function ReplayView({
     <section className="panel reveal mt-4 p-7 sm:p-9">
       <h3 className="headline text-2xl text-white sm:text-[1.75rem]">Your history, replayed with the rules</h3>
       <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-grey">
-        Same trades, same exits, same timing — only the decision the rule forbids is taken out. Each rule is replayed on
+        Same trades, same exits, same timing. Only the decision the rule forbids is taken out. Each rule is replayed on
         its own, so the figures overlap and are not added together.
       </p>
 
@@ -106,8 +106,8 @@ export function ReplayView({
 
 const SOURCE_NOTE: Record<EntrySentiment["source"], string> = {
   "bitget-signal": "Fear & Greed index via bitget-signal",
-  "alternative.me": "Fear & Greed index via alternative.me — bitget-signal did not answer, so its source was used directly",
-  snapshot: "Fear & Greed index from a saved copy — no live source answered",
+  "alternative.me": "Fear & Greed index via alternative.me, because bitget-signal did not answer, so its source was used directly",
+  snapshot: "Fear & Greed index from a saved copy, because no live source answered",
 };
 
 /**
@@ -136,7 +136,7 @@ export function MarketView({
         <div>
           <h3 className="headline text-2xl text-white sm:text-[1.75rem]">The market you chose to act in</h3>
           <p className="mt-3 max-w-[58ch] text-sm leading-relaxed text-grey">
-            Sentiment on the day you opened each position. It does not say what the market did next — only the mood you
+            Sentiment on the day you opened each position. It does not say what the market did next, only the mood you
             were buying into.
           </p>
         </div>

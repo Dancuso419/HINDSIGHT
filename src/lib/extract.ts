@@ -41,7 +41,8 @@ better than a plausible guess.
 
 One row per execution, in the order shown. Include every order row you can see, whatever its
 status, and copy the status as printed. Numbers are written without currency units or thousands
-separators. Ignore headers, totals, balances and anything that is not an individual order.`;
+separators. Ignore headers, totals, balances and anything that is not an individual order. Do not use em
+dashes in issues or notes.`;
 
 const EXTRACTION_JSON_SCHEMA = toGeminiSchema(ExtractionSchema);
 

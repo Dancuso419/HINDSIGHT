@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   const facts = computeFacts(positions);
   if (facts.positions < 3) {
     return NextResponse.json(
-      { error: "Not enough closed positions to review — upload a history with at least 3 round trips." },
+      { error: "Not enough closed positions to review. Upload a history with at least 3 round trips." },
       { status: 422 },
     );
   }
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     prices.candles.size
       ? replayStopLoss(positions, prices.candles, prices.sources.join(" + "))
       : unavailableStopLoss(
-          "No price source answered — bitget-signal, Yahoo Finance and the saved prices all came back empty for these symbols.",
+          "No price source answered: bitget-signal, Yahoo Finance and the saved prices all came back empty for these symbols.",
         ),
   ];
   const market = entrySentiment(positions, sentiment.byDay, sentiment.source);
@@ -121,7 +121,7 @@ export async function POST(req: Request) {
         error: rateLimited
           ? "The Gemini free tier's quota is used up for the minute. Wait about a minute and try again."
           : lastRejection
-            ? `${lastRejection} No model produced a report that passed every check — try again in a moment.`
+            ? `${lastRejection} No model produced a report that passed every check. Try again in a moment.`
             : "The model API is unavailable right now. Try again in a moment.",
       },
       { status: rateLimited ? 429 : 502 },

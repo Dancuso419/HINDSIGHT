@@ -1,12 +1,12 @@
 # Hindsight
 
-**A one-shot AI post-mortem for traders who never journal.** Give it your trade history — a CSV,
-a pasted table or screenshots of your order history — and it tells you which habits are costing
+**A one-shot AI post-mortem for traders who never journal.** Give it your trade history (a CSV,
+a pasted table or screenshots of your order history) and it tells you which habits are costing
 you money, points at the exact trades that prove each one, and replays your own history with the
 fix applied so you can see, in dollars, what changing the habit would have saved.
 
 **Live demo (no login):** https://hindsight-brown-eight.vercel.app
-**Worked example:** [`docs/WALKTHROUGH.md`](docs/WALKTHROUGH.md) — one complete research task, question to checklist, from a real run.
+**Worked example:** [`docs/WALKTHROUGH.md`](docs/WALKTHROUGH.md): one complete research task, question to checklist, from a real run.
 
 Built for Bitget AI Base Camp Hackathon S2 · AI Trading Desk track · Review & Self-Evolution.
 
@@ -19,7 +19,7 @@ trade history already holds the answer, but a list of fills says nothing about t
 behind it. Trading journals (TradeZella, TraderSync, Tradervue and newer AI journals) only work if
 you keep one; the trader who will not keep the habit is the one who most needs the review.
 
-Hindsight asks for nothing but the history you already have — and it is built so the AI **cannot
+Hindsight asks for nothing but the history you already have, and it is built so the AI **cannot
 make a number up**:
 
 - Every figure is computed in code before the model sees anything.
@@ -30,13 +30,13 @@ make a number up**:
 
 ## What you get
 
-1. **The habits that cost you most** — two or three patterns, each with the positions that prove it.
-2. **Your history, replayed with each rule** — same trades, same exits, only the forbidden decision
+1. **The habits that cost you most:** two or three patterns, each with the positions that prove it.
+2. **Your history, replayed with each rule:** same trades, same exits, only the forbidden decision
    removed: never averaging down below your first entry, waiting three hours after a loss, and a −5%
    stop-loss on real daily prices. A rule that would have *lost* money is reported as such, not
    recommended.
 3. **A checklist** whose thresholds come from your own data.
-4. **Market context** — the Fear & Greed index on each entry day, and the current daily technical
+4. **Market context:** the Fear & Greed index on each entry day, and the current daily technical
    picture of every stock you traded from Bitget's `bitget-signal` technical-analysis Skill. Context
    only: it never enters the report and never becomes a signal.
 
@@ -46,9 +46,9 @@ make a number up**:
 |---|---|---|
 | **CSV** | Upload any export with time, symbol, side, quantity and price | Column names are matched loosely; bad rows are reported, never silently dropped |
 | **Paste** | Copy the order table from an exchange page, Excel or Google Sheets | Reads `218.29 USDT`, `NVDA/USDT`, `Open long` / `Close long` |
-| **Screenshots** | Up to 4 screenshots of your order history, from any app | Gemini transcribes the rows; **you review and edit every row** before analysis. A year the screenshot does not show must be entered by you — it is never guessed |
+| **Screenshots** | Up to 4 screenshots of your order history, from any app | Gemini transcribes the rows; **you review and edit every row** before analysis. A year the screenshot does not show must be entered by you; it is never guessed |
 
-No trades to hand? **Use the sample history** — a synthetic trader with fixed habits, trading 11 real
+No trades to hand? **Use the sample history**: a synthetic trader with fixed habits, trading 11 real
 US stocks on real daily prices (every fill sits inside that day's real high–low range).
 
 ## How it works
@@ -60,15 +60,15 @@ trades ─► positions (round trips) ─► facts computed in code ─┬─►
                          bitget-signal technical_analysis ───────────────────────────────────────────────► context panel
 ```
 
-- **Positions** — fills grouped into round trips per symbol (long only), tolerant of exchange rounding dust.
-- **Facts** — win rate, average win/loss, hold times, positions averaged down, re-entries after a
+- **Positions:** fills grouped into round trips per symbol (long only), tolerant of exchange rounding dust.
+- **Facts:** win rate, average win/loss, hold times, positions averaged down, re-entries after a
   loss with their gap in minutes and size, per-symbol results. `src/lib/analysis.ts`
-- **Replays** — `src/lib/replay.ts`
-- **Report** — Gemini, called server-side only, constrained by a JSON schema, re-validated with Zod,
+- **Replays:** `src/lib/replay.ts`
+- **Report:** Gemini, called server-side only, constrained by a JSON schema, re-validated with Zod,
   with a citation guard. Attempts run `gemini-3.5-flash` (minimal thinking) → `gemini-3.1-flash-lite` →
   `gemini-3.8-flash`, each time-capped under one deadline; output that fails any check is discarded
   and the next model runs. `src/app/api/analyse/route.ts`, `src/lib/gemini.ts`
-- **Screenshots** — `src/app/api/extract/route.ts`, `src/lib/extract.ts`
+- **Screenshots:** `src/app/api/extract/route.ts`, `src/lib/extract.ts`
 
 ### Data sources and fallbacks
 
@@ -92,7 +92,7 @@ Nothing is stored: no account, no database.
 
 - Deployed and working end to end. Full analysis on the live site: 12.5 s (observed, single run).
 - Screenshot reading: 102/102 fields correct and 0 invented years on two rendered test screenshots
-  with known ground truth. Real phone screenshots are noisier — the review step is mandatory for that reason.
+  with known ground truth. Real phone screenshots are noisier, and the review step is mandatory for that reason.
 - **Not yet tested by outside users.** Validation with campus traders is planned; results will be
   reported as observed, including negatives.
 

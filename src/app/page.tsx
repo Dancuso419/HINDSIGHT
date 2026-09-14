@@ -200,7 +200,7 @@ export default function Home() {
           </h2>
           <p className="lead reveal mx-auto mt-5 max-w-[56ch]">
             Trading journals only work if you keep one. Hindsight reads the history you already have and tells you
-            the habit that is costing you — once, with receipts.
+            the habit that is costing you, once, with receipts.
           </p>
 
           <div className="mt-14 grid gap-4 text-left sm:grid-cols-3">
@@ -235,7 +235,7 @@ export default function Home() {
         <section className="pt-32 sm:pt-40">
           <div className="text-center">
             <h2 className="headline reveal text-[clamp(2rem,4.2vw,3.25rem)] text-white">What it tells you</h2>
-            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">A finding from the sample history — every figure computed, every trade cited.</p>
+            <p className="lead reveal mx-auto mt-5 max-w-[50ch]">A finding from the sample history. Every figure computed, every trade cited.</p>
           </div>
 
           <figure className="panel reveal relative mt-14 overflow-hidden px-7 py-14 text-center sm:px-16 sm:py-20">
@@ -246,7 +246,7 @@ export default function Home() {
             </blockquote>
             <p className="relative mx-auto mt-6 max-w-[60ch] text-[0.9375rem] leading-relaxed text-grey">
               P10 came 116 minutes after P04 closed at a loss; P06 came 27 minutes after P05. Both were added to as they
-              fell, and together they lost $1,497 — more than your whole net result.{" "}
+              fell, and together they lost $1,497, more than your whole net result.{" "}
               <span className="text-white">Waiting three hours after any loss would have kept $1,445.52.</span>
             </p>
             <figcaption className="relative mt-8 flex flex-wrap items-center justify-center gap-2">
@@ -264,7 +264,7 @@ export default function Home() {
           <div className="text-center">
             <h2 className="headline reveal text-[clamp(2rem,4.2vw,3.25rem)] text-white">Run it on your trades</h2>
             <p className="lead reveal mx-auto mt-5 max-w-[50ch]">
-              Nothing is stored — no account, no database. The analysis runs once and is gone when you close the tab.
+              Nothing is stored: no account, no database. The analysis runs once and is gone when you close the tab.
             </p>
           </div>
 
@@ -286,7 +286,7 @@ export default function Home() {
                 <ul className="mt-2 space-y-1 font-mono text-xs text-grey">
                   {result.errors.slice(0, 5).map((e) => (
                     <li key={e.row}>
-                      line {e.row} — {e.message}
+                      line {e.row}: {e.message}
                     </li>
                   ))}
                 </ul>

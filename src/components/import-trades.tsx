@@ -181,7 +181,7 @@ export function ImportTrades({
         <div className="relative mt-6 rounded-2xl border border-line bg-black/30 p-5">
           <p className="text-sm text-white">Read trades from screenshots of your order history</p>
           <p className="mt-1 max-w-[72ch] text-xs leading-relaxed text-grey">
-            Works with any app that shows your filled orders — take up to {MAX_IMAGES} screenshots of the list. The images are
+            Works with any app that shows your filled orders. Take up to {MAX_IMAGES} screenshots of the list. The images are
             sent to Google Gemini to read the trades and are not stored. You check and correct every row before anything is
             analysed.
           </p>

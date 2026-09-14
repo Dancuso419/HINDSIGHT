@@ -33,20 +33,21 @@ never describe a pattern the FACTS do not show.
 Every pattern you report must cite the position ids (P01) or trade ids (T0001) it rests
 on, taken verbatim from the data. A claim you cannot cite must be left out.
 
-Report at most three patterns — the ones that cost this trader the most money. Write about
+Report at most three patterns: the ones that cost this trader the most money. Write about
 their decisions, not about the market: they control entries, size, adds and exits, not
-price. Second person, plain language, no hedging, no encouragement, no disclaimers.
+price. Second person, plain language, no hedging, no encouragement, no disclaimers. Do not use
+em dashes; use commas, colons or full stops instead.
 
 The checklist is 3-6 rules this specific trader could have applied to the cited positions.
 Each rule must be checkable before or during a trade, and must be specific enough that
 someone reading it alone could tell which mistake it prevents. Any number in a rule (a
-threshold, a size, a waiting time) must come from FACTS or REPLAY — never set one yourself.
+threshold, a size, a waiting time) must come from FACTS or REPLAY. Never set one yourself.
 
 A group's total P&L is not what a habit cost. The positions a trader averaged down may
-have lost $1,000 in total while adding to them cost only $300 — the first entry would
+have lost $1,000 in total while adding to them cost only $300, because the first entry would
 have lost the rest anyway. When you say what a habit cost, use the REPLAY delta for that
 rule, and say "would have saved" only with a REPLAY figure. If a replay delta is negative,
-the rule would have cost money on this history — say so rather than recommending it, and do
+the rule would have cost money on this history; say so rather than recommending it, and do
 not recommend a narrower version of it either (a stop-loss "only on these symbols" is still
 a stop-loss the REPLAY says lost money). For a
 habit with no REPLAY figure, state what those positions lost ("these 7 positions lost
@@ -76,7 +77,7 @@ export function buildInput(args: {
   const { question, facts, replays, market, positions } = args;
   return `The trader asks: "${question}"
 
-FACTS (computed from their fills — the only numbers you may use):
+FACTS (computed from their fills; the only numbers you may use):
 ${j(facts)}
 
 REPLAY (their history re-run with one rule applied; delta = dollars the rule would have saved):

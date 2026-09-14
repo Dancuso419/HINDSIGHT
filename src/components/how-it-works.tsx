@@ -148,14 +148,14 @@ function Citing() {
           );
         })}
       </div>
-      <p className="mt-3 font-mono text-[10px] text-grey-deep">P99 is not in the file — removed before render</p>
+      <p className="mt-3 font-mono text-[10px] text-grey-deep">P99 is not in the file, so it is removed before render</p>
     </div>
   );
 }
 
 const STEPS = [
   { title: "Load your fills", body: "A CSV of your tokenized US stock trades. Buys, sells, quantities, prices.", Visual: FillsFeed },
-  { title: "Grouped into decisions", body: "Fills become round trips — what you paid, what you added, when you left.", Visual: Grouping },
+  { title: "Grouped into decisions", body: "Fills become round trips: what you paid, what you added, when you left.", Visual: Grouping },
   { title: "Counted in code", body: "Every figure is arithmetic on your data, finished before the model is asked.", Visual: Counting },
   { title: "Named, and cited", body: "The model names the habit and points at the trades. Invented ones are struck.", Visual: Citing },
 ];

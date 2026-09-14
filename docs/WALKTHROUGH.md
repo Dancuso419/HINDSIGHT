@@ -1,11 +1,11 @@
-# Walkthrough — one complete research task
+# Walkthrough: one complete research task
 
 **Question → evidence → actionable insight**, run on the live deployment.
 
 - Demo: https://hindsight-brown-eight.vercel.app (no login)
 - Run: 2026-09-14, `POST /api/analyse`, **HTTP 200 in 11.1 s** (observed)
 - Raw response of this exact run, unedited: [`walkthrough-run.json`](walkthrough-run.json)
-- Data: the bundled sample history — **a synthetic trader on real prices.** The trader's habits are
+- Data: the bundled sample history, **a synthetic trader on real prices.** The trader's habits are
   invented rules; every fill is on a real US trading day inside that day's real high–low range for
   the stock (daily candles from Yahoo Finance). It is labelled as synthetic in the product.
 
@@ -15,22 +15,22 @@
 
 > **"Why do I keep losing money on tech-adjacent positions?"**
 
-The trader: 116 fills across 11 US stocks from October 2025 to August 2026. A 78% win rate — and
+The trader: 116 fills across 11 US stocks from October 2025 to August 2026. A 78% win rate, and
 still down.
 
-## Step 1 — load the history
+## Step 1: load the history
 
 On the demo, scroll to **Run it on your trades** and choose **Use the sample history**. (With your own
 data: **Upload your CSV**, **Paste trades** copied from an order-history table, or **Read screenshots**
-of the order history — screenshot rows are reviewed and corrected before use.)
+of the order history; screenshot rows are reviewed and corrected before use.)
 
 The page confirms: `sample-trades.csv · 116 fills · 41 round trips · 11 symbols`.
 
-## Step 2 — ask
+## Step 2: ask
 
 The question box is pre-filled with the question above. Choose **Analyse**.
 
-## Step 3 — what is computed before any AI is involved
+## Step 3: what is computed before any AI is involved
 
 Hindsight groups the fills into 41 round-trip positions and computes every figure in code
 (`src/lib/analysis.ts`, `src/lib/replay.ts`). The model later receives these as fixed facts and may
@@ -56,10 +56,10 @@ Per stock, which is where the question points:
 | AMD (5) | +$385.38 | | |
 | **All tech-adjacent** | **−$1,408.89** | **All other** | **+$192.38** |
 
-So "tech-adjacent" is not uniformly bad: four tech names made money. The losses sit in three —
+So "tech-adjacent" is not uniformly bad: four tech names made money. The losses sit in three:
 MSTR, COIN and NVDA, −$2,424.61 between them (sum of the three rows above).
 
-## Step 4 — the report
+## Step 4: the report
 
 Returned by `gemini-3.5-flash`, validated against the report schema, citations checked against the
 file (0 citations removed). Verbatim:
@@ -84,15 +84,15 @@ file (0 citations removed). Verbatim:
 > The REPLAY data shows that a rule to never add to a position trading below your first entry would have
 > saved you $307.96.
 
-*One wording slip, left in on purpose:* "22 times" should read "22 positions" — the fact is a count of
+*One wording slip, left in on purpose:* "22 times" should read "22 positions". The fact is a count of
 positions, several of which were added to twice. The dollar figures are exact.
 
-## Step 5 — verify a claim by clicking it
+## Step 5: verify a claim by clicking it
 
 Every evidence ID in the report is a button. Clicking **P06** highlights it in the positions table,
 scrolls to it and opens the fills behind it.
 
-**P06 · MSTR · −$914.84 (−16.8%)** — opened at 20:28, 27 minutes after P05 closed at 20:01:
+**P06 · MSTR · −$914.84 (−16.8%)**, opened at 20:28, 27 minutes after P05 closed at 20:01:
 
 | Fill | Time (UTC) | Side | Qty | Price |
 |---|---|---|---|---|
@@ -101,7 +101,7 @@ scrolls to it and opens the fills behind it.
 | T0025 | 2025-11-12 15:59 | buy | 6.1979 | 228.98 |
 | T0026 | 2025-11-14 14:40 | sell | 22.7441 | 199.43 |
 
-**P05 · COIN · −$604.98 (−15.6%)** — the loss P06 was opened straight after:
+**P05 · COIN · −$604.98 (−15.6%)**, the loss P06 was opened straight after:
 
 | Fill | Time (UTC) | Side | Qty | Price |
 |---|---|---|---|---|
@@ -114,9 +114,9 @@ Both positions show the two habits together: straight back in after a loss, then
 first entry. The same is true of **P10 · NVDA · −$582.52**, opened 116 minutes after **P04 · MSTR ·
 −$270.91** closed. Those four positions alone lost $2,373.25.
 
-## Step 6 — the replays
+## Step 6: the replays
 
-Same trades, same exits, same timing — only the decision a rule forbids is removed:
+Same trades, same exits, same timing. Only the decision a rule forbids is removed:
 
 | Rule | Positions affected | Actual → replayed | Would have |
 |---|---|---|---|
@@ -127,7 +127,7 @@ Same trades, same exits, same timing — only the decision a rule forbids is rem
 The stop-loss result is the honest surprise: on this history a tight stop would have lost money, and the
 report does not recommend one.
 
-## Step 7 — context beside the post-mortem
+## Step 7: context beside the post-mortem
 
 - **Fear & Greed on entry days** (via alternative.me, because bitget-signal's sentiment history was not
   answering): losing entries averaged 33.7, winning entries 27.5. Positions opened in the *Fear* band lost
@@ -135,15 +135,15 @@ report does not recommend one.
 - **Today's technical picture** for each stock traded, live from Bitget's `bitget-signal` technical-analysis
   Skill (9 of 11 stocks; no pair for KO or XOM). For MSTR at the time of the run: price $135.70, RSI 57.6,
   above its 7-, 25- and 99-day averages, average daily range 5.65%, nearest support $123.53 / resistance
-  $139.06. Context only — never sent to the model, never a signal.
+  $139.06. Context only: never sent to the model, never a signal.
 
 ## The actionable insight
 
-**Answer to the question:** the trader does not lose money on tech-adjacent stocks as such — four tech
+**Answer to the question:** the trader does not lose money on tech-adjacent stocks as such, since four tech
 names were profitable. The losses are concentrated in three names (MSTR, COIN, NVDA), and they
 come from two decisions made together: **opening a new, oversized position within two hours of closing a
 loss, and then adding to it as it fell.** The single rule worth adopting first, by the replay, is the
-three-hour wait: it would have saved $1,445.52 on its own — more than the trader's entire net loss.
+three-hour wait: it would have saved $1,445.52 on its own, more than the trader's entire net loss.
 
 **The checklist Hindsight produced** (verbatim):
 
