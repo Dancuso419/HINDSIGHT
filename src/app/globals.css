@@ -42,8 +42,6 @@
 html {
   color-scheme: dark;
   background: var(--void);
-  --scroll: 0;
-  --progress: 0;
 }
 
 body {
@@ -137,11 +135,13 @@ input {
   transform: translateX(100%);
 }
 
-/* The dust that hangs in the beam. Pure CSS: tiled radial points drifting upward. */
+/* The dust that hangs in the beam: tiled radial points drifting upward. The tile is painted once
+   and the layer is moved by transform — animating background-position repainted it every frame. */
 .dust {
   position: absolute;
-  inset: 0;
+  inset: 0 0 -220px 0;
   pointer-events: none;
+  will-change: transform;
   background-image:
     radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.55), transparent),
     radial-gradient(1px 1px at 72% 34%, rgba(255, 255, 255, 0.35), transparent),
@@ -156,10 +156,10 @@ input {
 
 @keyframes drift {
   from {
-    background-position: 0 0;
+    transform: translate3d(0, 0, 0);
   }
   to {
-    background-position: 0 -220px;
+    transform: translate3d(0, -220px, 0);
   }
 }
 
@@ -177,26 +177,32 @@ input {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
     0 0 0 8px rgba(255, 255, 255, 0.03),
-    0 0 60px 6px rgba(255, 255, 255, 0.14),
+    0 0 50px 4px rgba(255, 255, 255, 0.1),
     0 20px 40px -10px rgba(0, 0, 0, 0.9);
+}
+
+/* The breathing glow is its own pre-painted layer that only changes opacity and scale —
+   animating the tile's large box-shadow repainted it every frame. */
+.mark-tile::after {
+  content: "";
+  position: absolute;
+  inset: -30px;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.22), transparent);
   animation: breathe 5s ease-in-out infinite;
+  will-change: opacity, transform;
+  pointer-events: none;
 }
 
 @keyframes breathe {
   0%,
   100% {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.25),
-      0 0 0 8px rgba(255, 255, 255, 0.03),
-      0 0 50px 4px rgba(255, 255, 255, 0.1),
-      0 20px 40px -10px rgba(0, 0, 0, 0.9);
+    opacity: 0.45;
+    transform: scale(0.9);
   }
   50% {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.3),
-      0 0 0 10px rgba(255, 255, 255, 0.045),
-      0 0 80px 10px rgba(255, 255, 255, 0.2),
-      0 20px 40px -10px rgba(0, 0, 0, 0.9);
+    opacity: 1;
+    transform: scale(1.08);
   }
 }
 
@@ -209,6 +215,22 @@ input {
   filter: blur(18px);
   clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
   pointer-events: none;
+}
+
+/* Phones: a smaller mark and a narrower beam, so the valley does not crowd the stacked actions. */
+@media (max-width: 639px) {
+  .mark-tile {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+  }
+  .mark-tile svg {
+    width: 26px;
+    height: 26px;
+  }
+  .beam {
+    width: 112px;
+  }
 }
 
 /* ---- Buttons --------------------------------------------------------------------- */
@@ -271,16 +293,15 @@ input {
   }
 }
 
+/* Transform and opacity only: a blur here ran on every large panel on every scroll frame. */
 @keyframes rise {
   from {
     opacity: 0;
     transform: translateY(36px);
-    filter: blur(8px);
   }
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
@@ -343,23 +364,21 @@ input {
 }
 
 /* Four fills drift in apart, then close ranks into one decision. */
+/* Transform and opacity only — the earlier version animated margin, forcing layout every frame. */
 @keyframes gather {
   0%,
   12% {
-    transform: translateX(-10px);
+    transform: translate3d(-10px, 6px, 0);
     opacity: 0.35;
-    margin-bottom: 10px;
   }
   38%,
   78% {
     transform: none;
     opacity: 1;
-    margin-bottom: 0;
   }
   100% {
-    transform: translateX(-10px);
+    transform: translate3d(-10px, 6px, 0);
     opacity: 0.35;
-    margin-bottom: 10px;
   }
 }
 
@@ -368,18 +387,15 @@ input {
   34% {
     opacity: 0;
     transform: translateY(8px) scale(0.97);
-    filter: blur(4px);
   }
   46%,
   82% {
     opacity: 1;
     transform: none;
-    filter: none;
   }
   100% {
     opacity: 0;
     transform: translateY(8px) scale(0.97);
-    filter: blur(4px);
   }
 }
 
@@ -417,7 +433,7 @@ input {
   }
 }
 
-/* ---- Scroll-linked motion, driven by Lenis via --scroll / --progress --------------- */
+/* ---- Scroll-linked motion: transforms written per frame by ScrollMotion (smooth-scroll.tsx) */
 
 /* A hairline at the top of the viewport that fills as you read down the page. */
 .scroll-progress {
@@ -427,30 +443,19 @@ input {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9));
   transform-origin: 0 50%;
-  transform: scaleX(var(--progress));
+  transform: scaleX(0);
+  will-change: transform;
   pointer-events: none;
 }
 
-/* Hero layers drift apart as you leave: copy rises fastest and fades, the mark sinks back
-   into its valley, the terrain barely moves — so the landscape reads as far away. */
-.parallax-copy {
-  transform: translate3d(0, calc(var(--scroll) * -0.32px), 0);
-  opacity: max(0, calc(1 - var(--scroll) / 620));
-  will-change: transform, opacity;
-}
-.parallax-mark {
-  transform: translate3d(0, calc(var(--scroll) * 0.18px), 0) scale(max(0.82, calc(1 - var(--scroll) / 2400)));
-  will-change: transform;
-}
-.parallax-terrain {
-  transform: translate3d(0, calc(var(--scroll) * 0.12px), 0) scale(calc(1 + var(--scroll) / 6000));
-  transform-origin: 50% 100%;
-  will-change: transform;
-}
-
-/* The ticker leans with the scroll so the band feels attached to the page's momentum. */
+/* Hero layers drift apart as you leave: copy rises fastest and fades, the mark sinks back into
+   its valley, the terrain barely moves. Translation only — scaling the full-screen canvas layer
+   each frame forced it to re-rasterise. */
+.parallax-copy,
+.parallax-mark,
+.parallax-terrain,
 .parallax-band {
-  transform: translate3d(calc(var(--scroll) * -0.06px), 0, 0);
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {

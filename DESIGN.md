@@ -169,6 +169,10 @@ heading, even though the reference uses them.
 - How-it-works is a 4 / 2 / 1 column grid of equal-height (`26rem`) panels.
 - Desktop-first; below `sm` grids stack and the positions table scrolls horizontally inside
   its own panel.
+- **Hero on phones (below `sm`):** headline `clamp(2.25rem, 9.6vw, …)` with no forced line
+  break; lead capped at 34ch; the two actions stack full-width inside `max-width: 20rem`; the
+  mark tile shrinks to 64px with a narrower beam. The terrain detects portrait and sits lower
+  (horizon 60%) with walls at roughly half height, so it frames the copy rather than crossing it.
 
 ## Elevation & Depth
 
@@ -246,6 +250,19 @@ Slow and continuous. Exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`) thro
   through `lenis.scrollTo`. Native `scroll-behavior: smooth` is deliberately absent.
 
 Every animation is disabled under `prefers-reduced-motion`.
+
+### Performance rules (learned from a laggy first build)
+
+- **Never drive per-frame motion through CSS custom properties on `<html>`.** They inherit into
+  every element, so updating them each scroll frame restyles the whole document. Scroll-linked
+  motion writes `transform` straight onto the few elements that move (`[data-scroll]`).
+- **Animate only `transform` and `opacity` in anything that loops or runs during scroll.** No
+  blur in scroll reveals, no animated `box-shadow` (the mark's glow is a pre-painted `::after`
+  that scales and fades), no `background-position` (the dust layer translates), no margins.
+- **Translate the full-screen canvas, never scale it** — scaling forced a re-raster each frame.
+- **The terrain canvas** caps pixel ratio at 1.5, draws at 30fps, builds its row gradients once
+  per resize, and scales its detail to width (30 rows on phones, 44 mid, 50 wide).
+- One-shot effects may still blur: the verdict's resolve and the static beam.
 
 ## Do's and Don'ts
 

@@ -8,8 +8,13 @@ import { useEffect, useRef } from "react";
  * back over your trades, literally. Drawn on a 2D canvas — no library.
  */
 
-const ROWS = 58;
-const SAMPLES = 180;
+/**
+ * Detail scales with width: a phone needs far fewer lines than a wide monitor to read the same.
+ * ponytail: fixed tiers, not a perf probe — a slower machine still gets the 30fps cap below.
+ */
+const detail = (w: number) => (w < 640 ? { rows: 30, samples: 90 } : w < 1280 ? { rows: 44, samples: 130 } : { rows: 50, samples: 150 });
+/** The drift is slow; 30fps is indistinguishable from 60 here and halves the drawing work. */
+const FRAME_MS = 1000 / 30;
 
 /** Resample an arbitrary series to `n` points on [-1, 1] with Catmull-Rom smoothing. */
 function shape(series: number[], n: number): number[] {
@@ -36,11 +41,15 @@ function shape(series: number[], n: number): number[] {
 
 export function Terrain({ series, className = "" }: { series: number[] | null; className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const ripple = useRef<number[]>(shape([], SAMPLES));
+  const series_ = useRef<number[]>([]);
+  const ripple = useRef<number[]>([]);
   const pointer = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
 
   useEffect(() => {
-    if (series) ripple.current = shape(series, SAMPLES);
+    if (series) {
+      series_.current = series;
+      ripple.current = []; // resampled at the current detail level on the next frame
+    }
   }, [series]);
 
   useEffect(() => {
@@ -54,47 +63,74 @@ export function Terrain({ series, className = "" }: { series: number[] | null; c
     let visible = true;
     let w = 0;
     let h = 0;
+    let rows = 44;
+    let samples = 130;
+    let lastFrame = 0;
+    let gradients: CanvasGradient[] = [];
+    let rowStyle: { alpha: number; lineWidth: number }[] = [];
     const start = performance.now();
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // Thin lines stay crisp at 1.5x; 2x on a large monitor quadruples the pixels for no visible gain.
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       // client size ignores the parallax transform on the wrapper; a bounding rect would not.
       w = canvas.clientWidth;
       h = canvas.clientHeight;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ({ rows, samples } = detail(w));
+
+      // Gradients depend only on width and row depth, so build them once per size, not per frame.
+      rowStyle = Array.from({ length: rows }, (_, row) => {
+        const d = row / (rows - 1);
+        return { alpha: 0.035 + 0.42 * Math.pow(d, 2.2), lineWidth: 0.6 + d * 0.7 };
+      });
+      gradients = rowStyle.map(({ alpha }) => {
+        const g = ctx.createLinearGradient(0, 0, w, 0);
+        g.addColorStop(0, `rgba(255,255,255,${alpha * 1.15})`);
+        g.addColorStop(0.32, `rgba(255,255,255,${alpha * 0.35})`);
+        g.addColorStop(0.5, `rgba(255,255,255,${alpha * 0.9})`);
+        g.addColorStop(0.68, `rgba(255,255,255,${alpha * 0.35})`);
+        g.addColorStop(1, `rgba(255,255,255,${alpha * 1.15})`);
+        return g;
+      });
     };
 
     const draw = (now: number) => {
+      if (!reduced && visible) raf = requestAnimationFrame(draw);
+      if (!reduced && now - lastFrame < FRAME_MS) return;
+      lastFrame = now;
+
       const t = reduced ? 0 : (now - start) / 1000;
       const p = pointer.current;
-      p.x += (p.tx - p.x) * 0.04;
-      p.y += (p.ty - p.y) * 0.04;
+      p.x += (p.tx - p.x) * 0.08;
+      p.y += (p.ty - p.y) * 0.08;
 
       ctx.clearRect(0, 0, w, h);
+      if (ripple.current.length !== samples) ripple.current = shape(series_.current, samples);
       const r = ripple.current;
+      // On a tall phone screen the landscape sits lower and its walls rise less, so it frames the
+      // copy instead of running through it; lines fan wider so the walls meet the screen edges.
+      const portrait = h > w;
+      const horizon = portrait ? 0.6 : 0.5;
+      const depthDrop = portrait ? 0.46 : 0.56;
+      const wallScale = portrait ? 0.34 : 0.62;
+      const spreadBase = portrait ? 0.95 : 0.62;
 
-      for (let row = 0; row < ROWS; row++) {
-        const d = row / (ROWS - 1); // 0 = far, 1 = near
-        const baseY = h * (0.5 + 0.56 * Math.pow(d, 1.7));
-        const spread = 0.62 + 0.75 * d; // perspective: near rows fan wider
-        const wallHeight = h * (0.62 - 0.22 * d) * (1 + p.y * 0.04);
+      for (let row = 0; row < rows; row++) {
+        const d = row / (rows - 1); // 0 = far, 1 = near
+        const baseY = h * (horizon + depthDrop * Math.pow(d, 1.7));
+        const spread = spreadBase + 0.75 * d; // perspective: near rows fan wider
+        const wallHeight = h * (wallScale - 0.22 * wallScale * d / 0.62) * (1 + p.y * 0.04);
         const floorAmp = h * 0.05 * (0.25 + 0.75 * d);
-        const alpha = 0.035 + 0.42 * Math.pow(d, 2.2);
 
-        const grad = ctx.createLinearGradient(0, 0, w, 0);
-        grad.addColorStop(0, `rgba(255,255,255,${alpha * 1.15})`);
-        grad.addColorStop(0.32, `rgba(255,255,255,${alpha * 0.35})`);
-        grad.addColorStop(0.5, `rgba(255,255,255,${alpha * 0.9})`);
-        grad.addColorStop(0.68, `rgba(255,255,255,${alpha * 0.35})`);
-        grad.addColorStop(1, `rgba(255,255,255,${alpha * 1.15})`);
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = 0.6 + d * 0.7;
+        ctx.strokeStyle = gradients[row];
+        ctx.lineWidth = rowStyle[row].lineWidth;
 
         ctx.beginPath();
-        for (let i = 0; i < SAMPLES; i++) {
-          const x = i / (SAMPLES - 1);
+        for (let i = 0; i < samples; i++) {
+          const x = i / (samples - 1);
           const cx = x - 0.5 + p.x * 0.015;
           const valley = Math.pow(Math.min(Math.abs(cx) * 2, 1), 2.4); // 0 centre → 1 edge
           const swell = Math.sin(x * 5.2 + t * 0.35 + d * 2.4) * 0.5 + Math.sin(x * 11 - t * 0.22 + d * 5) * 0.2;
@@ -110,7 +146,6 @@ export function Terrain({ series, className = "" }: { series: number[] | null; c
         ctx.stroke();
       }
 
-      if (!reduced && visible) raf = requestAnimationFrame(draw);
     };
 
     const onMove = (e: PointerEvent) => {
@@ -122,7 +157,10 @@ export function Terrain({ series, className = "" }: { series: number[] | null; c
     const io = new IntersectionObserver(([entry]) => {
       const was = visible;
       visible = entry.isIntersecting;
-      if (visible && !was && !reduced) raf = requestAnimationFrame(draw);
+      if (visible && !was && !reduced) {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(draw);
+      }
     });
 
     const ro = new ResizeObserver(() => {

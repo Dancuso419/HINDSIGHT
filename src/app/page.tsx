@@ -133,10 +133,10 @@ export default function Home() {
 
   return (
     <main>
-      <div aria-hidden className="scroll-progress" />
+      <div aria-hidden data-scroll="progress" className="scroll-progress" />
       {/* ---------------------------------------------------------------- HERO */}
       <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden">
-        <div className="parallax-terrain absolute inset-0 -z-10">
+        <div data-scroll="terrain" className="parallax-terrain absolute inset-0 -z-10">
           <Terrain series={landscape} />
         </div>
         <div
@@ -145,36 +145,37 @@ export default function Home() {
         />
         <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-void to-transparent" />
 
-        <header className="mx-auto flex w-full max-w-6xl items-center px-6 py-6">
+        <header className="mx-auto flex w-full max-w-6xl items-center px-5 py-5 sm:px-6 sm:py-6">
           <span className="flex items-center gap-2.5 text-white">
             <Mark size={22} />
             <span className="text-[15px] font-semibold tracking-tight">Hindsight</span>
           </span>
         </header>
 
-        <div className="parallax-copy mx-auto mt-10 max-w-4xl px-6 text-center sm:mt-16">
-          <h1 className="headline text-[clamp(2.5rem,6.4vw,5.25rem)] text-white">
+        <div data-scroll="copy" className="parallax-copy mx-auto mt-8 w-full max-w-4xl px-5 text-center sm:mt-16 sm:px-6">
+          <h1 className="headline text-[clamp(2.25rem,9.6vw,5.25rem)] text-white sm:text-[clamp(2.5rem,6.4vw,5.25rem)]">
             Your trades already know
-            <br />
+            {/* A fixed break only where the line is long enough to need one; phones wrap naturally. */}
+            <br className="hidden sm:inline" />
             <span className="text-white/55">what you keep getting wrong.</span>
           </h1>
-          <p className="lead mx-auto mt-6 max-w-[46ch]">
+          <p className="lead mx-auto mt-5 max-w-[34ch] sm:mt-6 sm:max-w-[46ch]">
             One CSV. One honest post-mortem. Every finding tied to the exact trades behind it.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <a href="#run" className="btn-pill">
+          <div className="mx-auto mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
+            <a href="#run" className="btn-pill justify-center">
               Run the post-mortem
               <Arrow />
             </a>
-            <a href="#how" className="btn-ghost">
+            <a href="#how" className="btn-ghost justify-center">
               See how it works
             </a>
           </div>
         </div>
 
-        <div className="parallax-mark relative mt-auto flex justify-center pb-[14vh]">
-          <div aria-hidden className="beam top-14 h-[28vh]" />
+        <div data-scroll="mark" className="parallax-mark relative mt-auto flex justify-center pt-10 pb-[9vh] sm:pt-0 sm:pb-[14vh]">
+          <div aria-hidden className="beam top-20 h-[20vh] sm:top-14 sm:h-[28vh]" />
           <div className="mark-tile text-white">
             <Mark size={34} />
           </div>
@@ -184,7 +185,7 @@ export default function Home() {
       {/* -------------------------------------------------------------- TICKER */}
       <section aria-label="Figures from the sample history" className="relative border-y border-line py-5">
         <div className="overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
-          <div className="parallax-band">
+          <div data-scroll="band" className="parallax-band">
           <div className="marquee">
             {[...TICKER, ...TICKER].map((item, i) => (
               <span key={i} className="flex items-center gap-8 pr-8 text-sm whitespace-nowrap text-grey">
