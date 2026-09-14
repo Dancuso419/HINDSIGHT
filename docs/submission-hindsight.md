@@ -94,7 +94,7 @@ Live demo (no login): https://hindsight-brown-eight.vercel.app
 GitHub repository (public, with README): https://github.com/Dancuso419/HINDGESIGHT
 Run record: full research-task walkthrough, question to actionable insight, from a real production run: https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/WALKTHROUGH.md
 Run record: raw output of that run: https://github.com/Dancuso419/HINDGESIGHT/blob/main/docs/walkthrough-run.json
-Demo video (≤3 min, X or YouTube; strongly recommended, not required): TODO, paste link if recorded
+Demo video (≤3 min): the X post above, which has the demo video attached. TODO: paste the post 1 link
 
 ## 15. Role of the LLM / AI in Your Project
 
@@ -112,14 +112,14 @@ TODO: paste the link to post 1 after publishing. It must include #BitgetHackatho
 
 ### X thread draft (each post under 280 characters; X counts a link as 23)
 
-**Post 1 (257)**
+**Post 1 (275), with the demo video attached**
 
 ```
 I built Hindsight for #BitgetHackathon @Bitget_AI
 
-A one-shot AI post-mortem for traders who never journal: the habits costing you money, the exact trades that prove each one, and what fixing each would have saved.
+An AI post-mortem for traders who never journal: the habits costing you money, the exact trades that prove each one, and what fixing each would have saved.
 
-Try it, no login: https://hindsight-brown-eight.vercel.app
+Demo on a sample history. Try it, no login: https://hindsight-brown-eight.vercel.app
 ```
 
 **Post 2 (256), reply to post 1**
