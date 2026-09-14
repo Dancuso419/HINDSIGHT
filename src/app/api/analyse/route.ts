@@ -6,77 +6,21 @@ import { ReportSchema, enforceCitations } from "@/lib/report";
 import { replayNoAveragingDown, replayNoReentryAfterLoss, replayStopLoss, unavailableStopLoss } from "@/lib/replay";
 import { getSentiment, entrySentiment, getCandles } from "@/lib/market";
 import { getTechnicals } from "@/lib/technicals";
+import { ATTEMPTS, buildInput, callModel } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
-
-const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
-/**
- * The free tier throws intermittent "high demand" 500s, and its request quota is a
- * per-minute bucket held separately per model — measured: 3.8-flash 20/min,
- * 3.7/3.5-flash 20/min, 3.1-flash-lite >60/min, 2.5-flash only 5/min (older is not
- * more generous).
- * So every attempt uses a different model: best quality first, most headroom last.
- */
-const MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite"];
 
 const RequestSchema = z.object({
   trades: z.array(TradeSchema).min(4).max(2000),
   question: z.string().max(300).optional(),
 });
 
-const SYSTEM = `You are a trading coach reviewing one retail trader's own closed positions.
-
-You are given FACTS: figures already computed from their fills. Treat them as the only
-numbers that exist. Never compute, estimate, round differently, or invent a figure, and
-never describe a pattern the FACTS do not show.
-
-Every pattern you report must cite the position ids (P01) or trade ids (T0001) it rests
-on, taken verbatim from the data. A claim you cannot cite must be left out.
-
-Report at most three patterns — the ones that cost this trader the most money. Write about
-their decisions, not about the market: they control entries, size, adds and exits, not
-price. Second person, plain language, no hedging, no encouragement, no disclaimers.
-
-The checklist is 3-6 rules this specific trader could have applied to the cited positions.
-Each rule must be checkable before or during a trade, and must be specific enough that
-someone reading it alone could tell which mistake it prevents.
-
-A group's total P&L is not what a habit cost. The positions a trader averaged down may
-have lost $1,000 in total while adding to them cost only $300 — the first entry would
-have lost the rest anyway. When you say what a habit cost, use the REPLAY delta for that
-rule, and say "would have saved" only with a REPLAY figure. If a replay delta is negative,
-the rule would have cost money on this history — say so rather than recommending it. For a
-habit with no REPLAY figure, state what those positions lost ("these 7 positions lost
-$1,704.75") and never call that amount what the habit cost.
-
-MARKET CONTEXT gives the Fear & Greed index on the day each position was opened. Use it
-only where it separates this trader's winners from their losers; if it does not, leave
-it out. It describes the conditions they chose to act in, never a prediction.`;
-
-// Gemini takes plain JSON Schema; Zod generates it, and Zod validates what comes back.
-const REPORT_JSON_SCHEMA = (() => {
-  const schema = z.toJSONSchema(ReportSchema, { io: "output", reused: "inline" }) as Record<string, unknown>;
-  delete schema.$schema;
-  return schema;
-})();
-
-/** The generated text lives in steps[].content[].text on a model_output step. */
-function extractText(body: unknown): string {
-  const b = body as {
-    output_text?: string;
-    steps?: { type?: string; content?: { type?: string; text?: string }[] }[];
-  };
-  if (typeof b?.output_text === "string") return b.output_text;
-  return (b?.steps ?? [])
-    .filter((s) => s.type === "model_output")
-    .flatMap((s) => s.content ?? [])
-    .filter((c) => c.type === "text" && typeof c.text === "string")
-    .map((c) => c.text!)
-    .join("");
-}
+/** Vercel stops the function at maxDuration; every model attempt must finish before this. */
+const DEADLINE_MS = (maxDuration - 8) * 1000;
 
 export async function POST(req: Request) {
+  const startedAt = Date.now();
   const body = await req.json().catch(() => null);
   const parsed = RequestSchema.safeParse(body);
   if (!parsed.success) {
@@ -119,66 +63,27 @@ export async function POST(req: Request) {
   const market = entrySentiment(positions, sentiment.byDay, sentiment.source);
 
   const question = parsed.data.question?.trim() || "What do I keep getting wrong?";
-  const input = `The trader asks: "${question}"
-
-FACTS (computed from their fills — the only numbers you may use):
-${JSON.stringify(facts, null, 2)}
-
-REPLAY (their history re-run with one rule applied; delta = dollars the rule would have saved):
-${JSON.stringify(
-  replays
-    .filter((r) => r.status === "computed")
-    .map(({ rule, delta, actualPnl, replayedPnl, affected }) => ({ rule, delta, actualPnl, replayedPnl, positionIds: affected.map((a) => a.id) })),
-  null,
-  2,
-)}
-
-MARKET CONTEXT (Fear & Greed index on each entry day, 0 = extreme fear, 100 = extreme greed):
-${JSON.stringify({ avgIndexAtLosingEntries: market.avgIndexAtLosingEntries, avgIndexAtWinningEntries: market.avgIndexAtWinningEntries, bands: market.bands }, null, 2)}
-
-POSITIONS (each id maps to the trade ids that make it up):
-${JSON.stringify(
-  positions.map((p) => ({
-    id: p.id, symbol: p.symbol, opened: p.openedAt, closed: p.closedAt,
-    avgEntry: p.avgEntry, exit: p.exitPrice, pnl: p.pnl, pnlPct: p.pnlPct,
-    addsDown: p.addsDown, holdHours: p.holdHours, tradeIds: p.tradeIds,
-  })),
-  null,
-  2,
-)}`;
+  const input = buildInput({ question, facts, replays, market, positions });
 
   let raw = "";
   let rateLimited = false;
 
-  for (const [attempt, model] of MODELS.entries()) {
+  for (const { model, thinkingLevel, capMs } of ATTEMPTS) {
+    const left = DEADLINE_MS - (Date.now() - startedAt);
+    if (left < 5_000) break;
     try {
-      const res = await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model,
-          system_instruction: SYSTEM,
-          input,
-          response_format: {
-            type: "text",
-            mime_type: "application/json",
-            schema: REPORT_JSON_SCHEMA,
-          },
-        }),
-      });
-
-      if (res.ok) {
-        raw = extractText(await res.json());
+      const r = await callModel({ apiKey, model, input, thinkingLevel, timeoutMs: Math.min(capMs, left) });
+      if (r.ok) {
+        raw = r.text;
         break;
       }
-
-      rateLimited ||= res.status === 429;
-      console.error("gemini error", model, res.status, (await res.text()).slice(0, 300));
-      if (res.status < 429) break; // a 400 will fail the same way on every retry
-    } catch {
-      // network failure — fall through to the next attempt
+      rateLimited ||= r.status === 429;
+      console.error("gemini error", model, r.status, r.detail);
+      if (r.status < 429) break; // a 400 will fail the same way on every retry
+    } catch (e) {
+      // timeout or network failure — the next model gets a turn
+      console.error("gemini attempt failed", model, (e as Error).name);
     }
-    if (attempt < MODELS.length - 1) await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
   }
 
   if (!raw) {
