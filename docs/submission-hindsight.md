@@ -110,16 +110,18 @@ Development: the codebase was written with Anthropic's Claude (Claude Opus 5 in 
 
 TODO: paste the link to post 1 after publishing. It must include #BitgetHackathon and @Bitget_AI and describe the product substantively. Also retweet the official Bitget post.
 
-### X thread draft (each post under 280 characters; X counts a link as 23)
+### X thread (each post under 280 characters; X counts a link as 23)
 
-**Post 1 (275), with the demo video attached**
+**Post 1 (277), with the demo video attached**
 
 ```
 I built Hindsight for #BitgetHackathon @Bitget_AI
 
 An AI post-mortem for traders who never journal: the habits costing you money, the exact trades that prove each one, and what fixing each would have saved.
 
-Demo on a sample history. Try it, no login: https://hindsight-brown-eight.vercel.app
+Demo on a sample history. Try it: https://hindsight-brown-eight.vercel.app
+
+#AITrading
 ```
 
 **Post 2 (256), reply to post 1**
@@ -127,28 +129,34 @@ Demo on a sample history. Try it, no login: https://hindsight-brown-eight.vercel
 ```
 The AI can't make a number up.
 
-Every figure is computed in code first. The model only picks which habits matter and explains them. Every claim cites trade IDs you can click to see the fills, and any ID that isn't in your file is removed before you see it.
+Every figure is computed in code first. The model only picks which habits matter and explains them. Every claim cites trade IDs you can click to see the fills. Any ID not in your file is removed.
+
+#BitgetHackathon @Bitget_AI
 ```
 
-**Post 3 (273), reply to post 2**
+**Post 3 (279), reply to post 2**
 
 ```
-On the sample history (a synthetic trader on real US stock prices): 78% win rate, still down $1,217.
+Sample history (a synthetic trader on real US stock prices): 78% win rate, still down $1,217.
 
-2 trades opened within 2h of a loss, at about 4x normal size, lost $1,497. Waiting 3h after any loss would have saved $1,446.
+2 trades opened within 2h of a loss, at ~4x normal size, lost $1,497. Waiting 3h after any loss would have saved $1,446.
 
 A 5% stop would have cost money. It says so.
+
+#BitgetHackathon
 ```
 
-**Post 4 (270), reply to post 3**
+**Post 4 (271), reply to post 3**
 
 ```
-No CSV export in your app? Paste the table or upload screenshots of your order history. You check every row before it is analysed.
+No CSV export in your app? Paste the table or upload screenshots of your order history. You check every row first.
 
-Live technical analysis comes from Bitget's bitget-signal Skills.
+Live technical analysis from Bitget's bitget-signal Skills.
 
 AI Trading Desk · Review & Self-Evolution
-Code: https://github.com/Dancuso419/HINDGESIGHT
+https://github.com/Dancuso419/HINDGESIGHT
+
+#BitgetHackathon @Bitget_AI
 ```
 
 ---
