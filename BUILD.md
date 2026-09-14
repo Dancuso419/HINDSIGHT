@@ -77,10 +77,14 @@ After a Skill failure the server skips the Skills for 3 minutes, then tries agai
 outage never slows every analysis and recovery is picked up automatically. Each panel names
 the source that answered.
 
-**Known state (2026-09-14):** the Skills server completes the MCP handshake but every data
-tool fails upstream (ConnectTimeout). Fear & Greed is served from alternative.me and prices
-from Yahoo Finance; each panel names its source, and bitget-signal is used again
-automatically once it answers.
+**Known state (2026-09-14, `npm run probe:signal`):** the server is up, but only tools that
+need no third-party data source answer with real data — `technical_analysis` (current
+indicators, including tokenized-stock pairs such as NVDA/USDT) and `news_feed` (latest).
+Every historical lookup fails upstream: `sentiment_index`, `global_assets`, `crypto_market`,
+`crypto_price`, `tradfi_news`, `macro_indicators` history, `rates_yields` history,
+`derivatives_sentiment`. The `series_list` / `assets_list` actions answer instantly because
+they are static lists, not data. Fear & Greed is served from alternative.me and prices from
+Yahoo Finance; bitget-signal is used again automatically once it answers.
 
 ## Deploy
 

@@ -95,7 +95,8 @@ export async function callSkill<T = unknown>(tool: string, args: Record<string, 
 const isEmptyError = (v: unknown) =>
   !!v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 1 && /error/i.test(Object.keys(v)[0]);
 
-async function callSkillOnce<T>(tool: string, args: Record<string, unknown>): Promise<T> {
+/** One call with no cooldown — for health probes, never for the request path. */
+export async function callSkillOnce<T>(tool: string, args: Record<string, unknown>): Promise<T> {
   const attempt = async () => {
     const sid = await openSession();
     const res = await fetch(ENDPOINT, {
